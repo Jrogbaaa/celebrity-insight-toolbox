@@ -16,14 +16,14 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <div className="min-h-screen bg-background">
-          <Navigation />
+        <div className="min-h-screen bg-background pb-14">
           <Routes>
             <Route path="/" element={<Navigate to="/analytics" replace />} />
             <Route path="/analytics" element={<Analytics />} />
             <Route path="/recommendations" element={<Recommendations />} />
             <Route path="/generation" element={<Generation />} />
           </Routes>
+          <Navigation />
         </div>
       </BrowserRouter>
     </TooltipProvider>
