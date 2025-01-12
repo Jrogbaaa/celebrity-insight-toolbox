@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { useInstagramMetrics } from "./InstagramService";
 
 interface SocialMetrics {
   followers: number;
@@ -12,16 +13,18 @@ interface SocialMetrics {
 }
 
 export const useSocialMediaMetrics = () => {
+  const instagram = useInstagramMetrics();
+
   return useQuery({
     queryKey: ["social-metrics"],
     queryFn: async (): Promise<SocialMetrics> => {
-      // This is where we'll integrate with social media APIs
-      // For now, returning mock data until API keys are configured
+      // Combine data from different social media platforms
+      // For now, just using Instagram data
       return {
-        followers: 45200,
-        engagementRate: 4.3,
-        commentsPerPost: 234,
-        sharesPerPost: 156,
+        followers: instagram.data?.followers || 0,
+        engagementRate: instagram.data?.engagementRate || 0,
+        commentsPerPost: instagram.data?.commentsPerPost || 0,
+        sharesPerPost: instagram.data?.sharesPerPost || 0,
         recentPosts: [
           { date: "Jan", engagement: 2400 },
           { date: "Feb", engagement: 1398 },
@@ -32,5 +35,6 @@ export const useSocialMediaMetrics = () => {
         ],
       };
     },
+    enabled: instagram.isSuccess,
   });
 };
