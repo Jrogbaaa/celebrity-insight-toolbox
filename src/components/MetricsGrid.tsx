@@ -1,32 +1,39 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowUpRight, ArrowDownRight, Users, Heart, MessageCircle, Share2 } from "lucide-react";
+import { useSocialMediaMetrics } from "@/services/SocialMediaService";
 
 export const MetricsGrid = () => {
-  const metrics = [
+  const { data: metrics, isLoading } = useSocialMediaMetrics();
+
+  if (isLoading) {
+    return <div>Loading metrics...</div>;
+  }
+
+  const metricsConfig = [
     {
       title: "Total Followers",
-      value: "45.2K",
+      value: metrics ? `${(metrics.followers / 1000).toFixed(1)}K` : "0",
       change: "+2.5%",
       isPositive: true,
       icon: Users,
     },
     {
       title: "Engagement Rate",
-      value: "4.3%",
+      value: metrics ? `${metrics.engagementRate}%` : "0%",
       change: "+0.3%",
       isPositive: true,
       icon: Heart,
     },
     {
       title: "Comments/Post",
-      value: "234",
+      value: metrics ? metrics.commentsPerPost.toString() : "0",
       change: "-1.2%",
       isPositive: false,
       icon: MessageCircle,
     },
     {
       title: "Shares/Post",
-      value: "156",
+      value: metrics ? metrics.sharesPerPost.toString() : "0",
       change: "+4.5%",
       isPositive: true,
       icon: Share2,
@@ -35,7 +42,7 @@ export const MetricsGrid = () => {
 
   return (
     <>
-      {metrics.map((metric) => (
+      {metricsConfig.map((metric) => (
         <Card key={metric.title}>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">

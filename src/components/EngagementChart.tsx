@@ -1,16 +1,14 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
-
-const data = [
-  { name: "Jan", value: 2400 },
-  { name: "Feb", value: 1398 },
-  { name: "Mar", value: 9800 },
-  { name: "Apr", value: 3908 },
-  { name: "May", value: 4800 },
-  { name: "Jun", value: 3800 },
-];
+import { useSocialMediaMetrics } from "@/services/SocialMediaService";
 
 export const EngagementChart = () => {
+  const { data: metrics, isLoading } = useSocialMediaMetrics();
+
+  if (isLoading) {
+    return <div>Loading chart...</div>;
+  }
+
   return (
     <Card className="col-span-4">
       <CardHeader>
@@ -19,14 +17,14 @@ export const EngagementChart = () => {
       <CardContent className="pl-2">
         <div className="h-[300px]">
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={data}>
+            <LineChart data={metrics?.recentPosts}>
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
+              <XAxis dataKey="date" />
               <YAxis />
               <Tooltip />
               <Line
                 type="monotone"
-                dataKey="value"
+                dataKey="engagement"
                 stroke="#8B5CF6"
                 strokeWidth={2}
               />
