@@ -1,22 +1,39 @@
 import { EngagementChart } from "@/components/EngagementChart";
 import { MetricsGrid } from "@/components/MetricsGrid";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
-import { supabase } from "@/integrations/supabase/client";
+import { Instagram } from "lucide-react";
 
 const Analytics = () => {
   const { toast } = useToast();
 
   const handleInstagramConnect = async () => {
     const clientId = import.meta.env.VITE_INSTAGRAM_CLIENT_ID;
-    const redirectUri = `${window.location.origin}/instagram-callback`;
-    const scope = 'user_profile,user_media';
     
-    const authUrl = `https://api.instagram.com/oauth/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scope}&response_type=code`;
-    
-    window.location.href = authUrl;
+    if (!clientId) {
+      toast({
+        title: "Configuration Error",
+        description: "Instagram client ID is not configured",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const redirectUri = `${window.location.origin}/instagram-callback`;
+      const scope = 'user_profile,user_media';
+      
+      const authUrl = `https://api.instagram.com/oauth/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${scope}&response_type=code`;
+      
+      window.location.href = authUrl;
+    } catch (error) {
+      console.error('Instagram connection error:', error);
+      toast({
+        title: "Error",
+        description: "Failed to initiate Instagram connection",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -30,6 +47,7 @@ const Analytics = () => {
             onClick={handleInstagramConnect}
             className="w-full"
           >
+            <Instagram className="mr-2 h-4 w-4" />
             Connect Instagram
           </Button>
         </div>
