@@ -3,23 +3,23 @@ import { MetricsGrid } from "@/components/MetricsGrid";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { Instagram } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 const Analytics = () => {
   const { toast } = useToast();
 
   const handleInstagramConnect = async () => {
-    const clientId = import.meta.env.VITE_INSTAGRAM_CLIENT_ID;
-    
-    if (!clientId) {
-      toast({
-        title: "Configuration Error",
-        description: "Instagram client ID is not configured",
-        variant: "destructive",
-      });
-      return;
-    }
-
     try {
+      // Get the client ID from Supabase Edge Function
+      const { data, error } = await supabase.functions.invoke('get-instagram-client-id');
+      
+      if (error) throw error;
+      
+      const clientId = data.clientId;
+      if (!clientId) {
+        throw new Error("Instagram client ID not configured");
+      }
+
       const redirectUri = `${window.location.origin}/instagram-callback`;
       const scope = 'user_profile,user_media';
       
@@ -30,7 +30,7 @@ const Analytics = () => {
       console.error('Instagram connection error:', error);
       toast({
         title: "Error",
-        description: "Failed to initiate Instagram connection",
+        description: error.message || "Failed to initiate Instagram connection",
         variant: "destructive",
       });
     }
