@@ -26,12 +26,22 @@ const Analytics = () => {
         throw new Error("Instagram client ID not configured");
       }
 
+      // Use window.location.origin to ensure the redirect URI matches exactly
       const redirectUri = `${window.location.origin}/instagram-callback`;
       const scope = 'user_profile,user_media';
       
-      const authUrl = `https://api.instagram.com/oauth/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${scope}&response_type=code`;
+      // Construct the Instagram OAuth URL with all required parameters
+      const authUrl = new URL('https://api.instagram.com/oauth/authorize');
+      authUrl.searchParams.append('client_id', clientId);
+      authUrl.searchParams.append('redirect_uri', redirectUri);
+      authUrl.searchParams.append('scope', scope);
+      authUrl.searchParams.append('response_type', 'code');
       
-      window.location.href = authUrl;
+      // Log the URL for debugging
+      console.log('Instagram auth URL:', authUrl.toString());
+      
+      // Redirect to Instagram auth page
+      window.location.href = authUrl.toString();
     } catch (error) {
       console.error('Instagram connection error:', error);
       toast({
@@ -39,6 +49,7 @@ const Analytics = () => {
         description: "Unable to connect to Instagram. Please try again.",
         variant: "destructive",
       });
+    } finally {
       setIsConnecting(false);
     }
   };

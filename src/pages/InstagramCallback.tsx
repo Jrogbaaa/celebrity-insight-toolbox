@@ -10,10 +10,21 @@ const InstagramCallback = () => {
 
   useEffect(() => {
     const handleCallback = async () => {
-      const code = new URLSearchParams(window.location.search).get("code");
-      const error = new URLSearchParams(window.location.search).get("error");
-      const errorReason = new URLSearchParams(window.location.search).get("error_reason");
-      const errorDescription = new URLSearchParams(window.location.search).get("error_description");
+      // Get all possible error parameters from Instagram
+      const params = new URLSearchParams(window.location.search);
+      const code = params.get("code");
+      const error = params.get("error");
+      const errorReason = params.get("error_reason");
+      const errorDescription = params.get("error_description");
+      
+      // Log all parameters for debugging
+      console.log('Callback parameters:', {
+        code,
+        error,
+        errorReason,
+        errorDescription,
+        fullUrl: window.location.href
+      });
       
       if (error || errorReason) {
         console.error('Instagram auth error:', { error, errorReason, errorDescription });
@@ -27,9 +38,11 @@ const InstagramCallback = () => {
       }
 
       if (!code) {
+        const errorMsg = "No authorization code received from Instagram";
+        console.error(errorMsg);
         toast({
           title: "Error",
-          description: "No authorization code received from Instagram",
+          description: errorMsg,
           variant: "destructive",
         });
         navigate("/analytics");
@@ -42,12 +55,17 @@ const InstagramCallback = () => {
           throw new Error("No active session");
         }
 
+        console.log('Exchanging code for token...');
         const { error: functionError } = await supabase.functions.invoke("instagram-auth", {
           body: { code },
         });
 
-        if (functionError) throw functionError;
+        if (functionError) {
+          console.error('Function error:', functionError);
+          throw functionError;
+        }
 
+        console.log('Instagram connection successful');
         toast({
           title: "Success",
           description: "Instagram account connected successfully",
