@@ -7,6 +7,7 @@ import { Navigation } from "@/components/Navigation";
 import Analytics from "./pages/Analytics";
 import Recommendations from "./pages/Recommendations";
 import Generation from "./pages/Generation";
+import InstagramCallback from "./pages/InstagramCallback";
 
 const queryClient = new QueryClient();
 
@@ -22,6 +23,7 @@ const App = () => (
             <Route path="/analytics" element={<Analytics />} />
             <Route path="/recommendations" element={<Recommendations />} />
             <Route path="/generation" element={<Generation />} />
+            <Route path="/instagram-callback" element={<InstagramCallback />} />
           </Routes>
           <Navigation />
         </div>

@@ -1,1 +1,12 @@
 project_id = "ygweyscocelwjcqinkth"
+
+[api]
+enabled = true
+[auth]
+enabled = true
+[realtime]
+enabled = true
+
+[[functions]]
+name = "instagram-auth"
+verify_jwt = true
