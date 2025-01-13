@@ -23,7 +23,9 @@ serve(async (req) => {
     const clientSecret = Deno.env.get('INSTAGRAM_CLIENT_SECRET');
     const redirectUri = `${req.headers.get('origin')}/instagram-callback`;
 
-    // Exchange code for access token
+    console.log('Exchanging code for access token with new Graph API...');
+
+    // First, exchange the code for a short-lived access token
     const tokenResponse = await fetch('https://api.instagram.com/oauth/access_token', {
       method: 'POST',
       body: new URLSearchParams({
@@ -35,10 +37,26 @@ serve(async (req) => {
       }),
     });
 
-    const tokenData = await tokenResponse.json();
+    const shortLivedToken = await tokenResponse.json();
 
-    if (tokenData.error) {
-      throw new Error(tokenData.error_description || 'Failed to exchange code for token');
+    if (shortLivedToken.error) {
+      console.error('Error getting short-lived token:', shortLivedToken);
+      throw new Error(shortLivedToken.error_description || 'Failed to exchange code for token');
+    }
+
+    // Exchange short-lived token for a long-lived token
+    const longLivedTokenResponse = await fetch(
+      `https://graph.instagram.com/access_token?` +
+      `grant_type=ig_exchange_token&` +
+      `client_secret=${clientSecret}&` +
+      `access_token=${shortLivedToken.access_token}`
+    );
+
+    const longLivedToken = await longLivedTokenResponse.json();
+
+    if (longLivedToken.error) {
+      console.error('Error getting long-lived token:', longLivedToken);
+      throw new Error('Failed to get long-lived token');
     }
 
     // Create Supabase client
@@ -62,9 +80,9 @@ serve(async (req) => {
       .from('instagram_tokens')
       .upsert({
         user_id: user.id,
-        access_token: tokenData.access_token,
+        access_token: longLivedToken.access_token,
         token_type: 'Bearer',
-        expires_in: tokenData.expires_in || null,
+        expires_in: longLivedToken.expires_in,
       });
 
     if (insertError) {

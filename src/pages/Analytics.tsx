@@ -13,7 +13,6 @@ const Analytics = () => {
   const handleInstagramConnect = async () => {
     try {
       setIsConnecting(true);
-      // Get the client ID from Supabase Edge Function
       const { data, error } = await supabase.functions.invoke('get-instagram-client-id');
       
       if (error) {
@@ -26,21 +25,27 @@ const Analytics = () => {
         throw new Error("Instagram client ID not configured");
       }
 
-      // Use window.location.origin to ensure the redirect URI matches exactly
       const redirectUri = `${window.location.origin}/instagram-callback`;
-      const scope = 'user_profile,user_media';
       
-      // Construct the Instagram OAuth URL with all required parameters
-      const authUrl = new URL('https://api.instagram.com/oauth/authorize');
+      // Updated scopes for Instagram Graph API
+      const scope = [
+        'instagram_basic',
+        'instagram_content_publish',
+        'instagram_manage_comments',
+        'instagram_manage_insights',
+        'pages_show_list'
+      ].join(',');
+      
+      // Updated authorization URL for Instagram Graph API
+      const authUrl = new URL('https://api.facebook.com/oauth/authorize');
       authUrl.searchParams.append('client_id', clientId);
       authUrl.searchParams.append('redirect_uri', redirectUri);
       authUrl.searchParams.append('scope', scope);
       authUrl.searchParams.append('response_type', 'code');
+      authUrl.searchParams.append('auth_type', 'rerequest');
       
-      // Log the URL for debugging
       console.log('Instagram auth URL:', authUrl.toString());
       
-      // Redirect to Instagram auth page
       window.location.href = authUrl.toString();
     } catch (error) {
       console.error('Instagram connection error:', error);
@@ -59,7 +64,10 @@ const Analytics = () => {
       <h1 className="text-3xl font-bold mb-8">Data Analytics</h1>
       
       <div className="mb-8 p-4 border rounded-lg bg-card">
-        <h2 className="text-xl font-semibold mb-4">Connect Instagram Account</h2>
+        <h2 className="text-xl font-semibold mb-4">Connect Instagram Business Account</h2>
+        <p className="text-sm text-muted-foreground mb-4">
+          Connect your Instagram Business or Creator account to access insights and manage your content.
+        </p>
         <div className="flex gap-4 max-w-md">
           <Button 
             onClick={handleInstagramConnect}

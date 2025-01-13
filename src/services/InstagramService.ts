@@ -1,6 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
 
-// Store token in memory for demo purposes
 let instagramToken: string | null = null;
 
 export const setInstagramToken = (token: string) => {
@@ -22,52 +21,71 @@ export const useInstagramMetrics = () => {
       }
 
       try {
-        // First, get the user ID
-        const userResponse = await fetch(
-          `https://graph.instagram.com/v12.0/me?fields=id,username&access_token=${token}`
+        // First, get the user's pages (required for Instagram Graph API)
+        const pagesResponse = await fetch(
+          `https://graph.facebook.com/v18.0/me/accounts?access_token=${token}`
         );
-        const userData = await userResponse.json();
+        const pagesData = await pagesResponse.json();
 
-        if (userData.error) {
-          throw new Error(userData.error.message);
+        if (pagesData.error) {
+          throw new Error(pagesData.error.message);
         }
 
-        // Get user metrics
+        const page = pagesData.data[0]; // Get the first page
+        if (!page) {
+          throw new Error("No Facebook Page found");
+        }
+
+        // Get the Instagram Business Account ID
+        const accountResponse = await fetch(
+          `https://graph.facebook.com/v18.0/${page.id}?fields=instagram_business_account&access_token=${token}`
+        );
+        const accountData = await accountResponse.json();
+
+        if (!accountData.instagram_business_account) {
+          throw new Error("No Instagram Business Account found");
+        }
+
+        const igAccountId = accountData.instagram_business_account.id;
+
+        // Get Instagram business account metrics
         const metricsResponse = await fetch(
-          `https://graph.instagram.com/v12.0/${userData.id}?fields=followers_count,media_count&access_token=${token}`
+          `https://graph.facebook.com/v18.0/${igAccountId}?fields=followers_count,media_count,profile_views&access_token=${token}`
         );
         const metricsData = await metricsResponse.json();
 
-        // Get recent posts
-        const postsResponse = await fetch(
-          `https://graph.instagram.com/v12.0/${userData.id}/media?fields=like_count,comments_count,timestamp&access_token=${token}`
+        // Get recent media insights
+        const mediaResponse = await fetch(
+          `https://graph.facebook.com/v18.0/${igAccountId}/media?fields=insights.metric(engagement,impressions,reach),comments_count,like_count,timestamp&access_token=${token}`
         );
-        const postsData = await postsResponse.json();
+        const mediaData = await mediaResponse.json();
 
-        // Calculate engagement rate from recent posts
-        const recentPosts = postsData.data.slice(0, 6).map((post: any) => {
+        // Calculate engagement metrics
+        const recentPosts = mediaData.data.slice(0, 6).map((post: any) => {
           const date = new Date(post.timestamp).toLocaleString('default', { month: 'short' });
-          const engagement = post.like_count + post.comments_count;
+          const engagement = post.insights?.data?.find((d: any) => d.name === 'engagement')?.values[0]?.value || 0;
           return { date, engagement };
         });
 
-        const totalEngagement = postsData.data.reduce((acc: number, post: any) => 
-          acc + post.like_count + post.comments_count, 0
-        );
-        const engagementRate = ((totalEngagement / postsData.data.length) / metricsData.followers_count) * 100;
+        const totalEngagement = mediaData.data.reduce((acc: number, post: any) => {
+          const engagement = post.insights?.data?.find((d: any) => d.name === 'engagement')?.values[0]?.value || 0;
+          return acc + engagement;
+        }, 0);
+
+        const engagementRate = ((totalEngagement / mediaData.data.length) / metricsData.followers_count) * 100;
 
         return {
           followers: metricsData.followers_count,
           engagementRate: parseFloat(engagementRate.toFixed(2)),
-          commentsPerPost: Math.round(postsData.data.reduce((acc: number, post: any) => 
-            acc + post.comments_count, 0) / postsData.data.length),
-          sharesPerPost: Math.round(postsData.data.reduce((acc: number, post: any) => 
-            acc + (post.shares || 0), 0) / postsData.data.length),
-          recentPosts: recentPosts,
+          commentsPerPost: Math.round(mediaData.data.reduce((acc: number, post: any) => 
+            acc + (post.comments_count || 0), 0) / mediaData.data.length),
+          sharesPerPost: Math.round(mediaData.data.reduce((acc: number, post: any) => 
+            acc + (post.shares || 0), 0) / mediaData.data.length),
+          recentPosts,
         };
       } catch (error) {
         console.error('Error fetching Instagram data:', error);
-        // Return mock data as fallback in case of API errors
+        // Return mock data as fallback
         return {
           followers: 45200,
           engagementRate: 4.3,
