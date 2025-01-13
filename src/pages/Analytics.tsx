@@ -4,16 +4,22 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { Instagram } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { useState } from "react";
 
 const Analytics = () => {
   const { toast } = useToast();
+  const [isConnecting, setIsConnecting] = useState(false);
 
   const handleInstagramConnect = async () => {
     try {
+      setIsConnecting(true);
       // Get the client ID from Supabase Edge Function
       const { data, error } = await supabase.functions.invoke('get-instagram-client-id');
       
-      if (error) throw error;
+      if (error) {
+        console.error('Error getting client ID:', error);
+        throw new Error("Failed to initialize Instagram connection");
+      }
       
       const clientId = data.clientId;
       if (!clientId) {
@@ -29,10 +35,11 @@ const Analytics = () => {
     } catch (error) {
       console.error('Instagram connection error:', error);
       toast({
-        title: "Error",
-        description: error.message || "Failed to initiate Instagram connection",
+        title: "Connection Error",
+        description: "Unable to connect to Instagram. Please try again.",
         variant: "destructive",
       });
+      setIsConnecting(false);
     }
   };
 
@@ -46,9 +53,10 @@ const Analytics = () => {
           <Button 
             onClick={handleInstagramConnect}
             className="w-full"
+            disabled={isConnecting}
           >
             <Instagram className="mr-2 h-4 w-4" />
-            Connect Instagram
+            {isConnecting ? 'Connecting...' : 'Connect Instagram'}
           </Button>
         </div>
       </div>
