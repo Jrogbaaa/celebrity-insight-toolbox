@@ -24,14 +24,19 @@ serve(async (req) => {
 
       // Verify that the callback came from Facebook
       if (mode === 'subscribe' && token === Deno.env.get('INSTAGRAM_WEBHOOK_VERIFY_TOKEN')) {
-        console.log('Webhook verified');
+        console.log('Webhook verified successfully');
         return new Response(challenge, { 
           headers: { ...corsHeaders, 'Content-Type': 'text/plain' },
           status: 200 
         });
       } else {
-        console.error('Failed webhook verification');
-        return new Response('Forbidden', { status: 403 });
+        console.error('Failed webhook verification. Token mismatch.');
+        console.error('Received token:', token);
+        console.error('Expected token:', Deno.env.get('INSTAGRAM_WEBHOOK_VERIFY_TOKEN'));
+        return new Response('Forbidden', { 
+          headers: corsHeaders,
+          status: 403 
+        });
       }
     }
 
