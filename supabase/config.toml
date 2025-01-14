@@ -10,3 +10,7 @@ enabled = true
 [[functions]]
 name = "instagram-auth"
 verify_jwt = true
+
+[[functions]]
+name = "instagram-webhook"
+verify_jwt = false

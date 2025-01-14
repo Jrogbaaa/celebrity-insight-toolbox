@@ -12,55 +12,66 @@ serve(async (req) => {
   }
 
   try {
-    const url = new URL(req.url);
-    
-    // Handle webhook verification
+    // For webhook verification from Instagram
     if (req.method === 'GET') {
+      const url = new URL(req.url);
       const mode = url.searchParams.get('hub.mode');
       const token = url.searchParams.get('hub.verify_token');
       const challenge = url.searchParams.get('hub.challenge');
 
-      console.log('Webhook verification request:', { mode, token, challenge });
+      console.log('Webhook verification request received:', {
+        mode,
+        token,
+        challenge,
+        verifyToken: Deno.env.get('INSTAGRAM_WEBHOOK_VERIFY_TOKEN')
+      });
 
-      // Verify that the callback came from Facebook
       if (mode === 'subscribe' && token === Deno.env.get('INSTAGRAM_WEBHOOK_VERIFY_TOKEN')) {
         console.log('Webhook verified successfully');
-        return new Response(challenge, { 
+        return new Response(challenge, {
           headers: { ...corsHeaders, 'Content-Type': 'text/plain' },
-          status: 200 
-        });
-      } else {
-        console.error('Failed webhook verification. Token mismatch.');
-        console.error('Received token:', token);
-        console.error('Expected token:', Deno.env.get('INSTAGRAM_WEBHOOK_VERIFY_TOKEN'));
-        return new Response('Forbidden', { 
-          headers: corsHeaders,
-          status: 403 
+          status: 200
         });
       }
+
+      console.error('Webhook verification failed');
+      return new Response('Forbidden', {
+        headers: corsHeaders,
+        status: 403
+      });
     }
 
-    // Handle webhook updates
+    // For actual webhook events from Instagram
     if (req.method === 'POST') {
-      const body = await req.json();
-      console.log('Received webhook:', body);
+      const payload = await req.json();
+      console.log('Received webhook event:', JSON.stringify(payload, null, 2));
 
-      // Here you can process different types of updates
-      // For now, we'll just log them
-      
+      // Handle different types of webhook events
+      if (payload.object === 'instagram') {
+        for (const entry of payload.entry) {
+          // Log each change in the webhook
+          for (const change of entry.changes) {
+            console.log('Processing change:', {
+              field: change.field,
+              value: change.value
+            });
+          }
+        }
+      }
+
       return new Response(JSON.stringify({ success: true }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 200
       });
     }
 
-    return new Response('Method not allowed', { 
+    return new Response('Method not allowed', {
       headers: corsHeaders,
-      status: 405 
+      status: 405
     });
 
   } catch (error) {
-    console.error('Webhook error:', error);
+    console.error('Error processing webhook:', error);
     return new Response(JSON.stringify({ error: error.message }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       status: 500
