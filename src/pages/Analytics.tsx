@@ -58,26 +58,23 @@ const Analytics = () => {
         return;
       }
 
-      const redirectUri = `${window.location.origin}/instagram-callback`;
+      // Ensure the redirect URI matches exactly what's configured in Facebook App settings
+      const redirectUri = encodeURIComponent(`${window.location.origin}/instagram-callback`);
       
       // Required permissions for Instagram API with business login
-      const scope = [
+      const scope = encodeURIComponent([
         'instagram_basic',
         'instagram_manage_insights',
         'pages_show_list',
         'pages_read_engagement',
         'business_management'
-      ].join(',');
+      ].join(','));
       
-      const authUrl = new URL('https://www.facebook.com/v18.0/dialog/oauth');
-      authUrl.searchParams.append('client_id', clientId);
-      authUrl.searchParams.append('redirect_uri', redirectUri);
-      authUrl.searchParams.append('scope', scope);
-      authUrl.searchParams.append('response_type', 'code');
-      authUrl.searchParams.append('auth_type', 'rerequest');
+      // Construct the Facebook OAuth URL with encoded parameters
+      const authUrl = `https://www.facebook.com/v18.0/dialog/oauth?client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scope}&response_type=code&auth_type=rerequest`;
       
-      console.log('Redirecting to Instagram auth URL:', authUrl.toString());
-      window.location.href = authUrl.toString();
+      console.log('Redirecting to Instagram auth URL:', authUrl);
+      window.location.href = authUrl;
     } catch (error) {
       console.error('Instagram connection error:', error);
       toast({
