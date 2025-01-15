@@ -27,7 +27,7 @@ const Analytics = () => {
 
       const redirectUri = 'https://celebrity-insight-toolbox-ygweyscocelwjcqinkth.supabase.co/instagram-callback';
       
-      // Required permissions for Instagram API access
+      // Required permissions for Instagram API with business login
       const scope = [
         'instagram_basic',
         'instagram_manage_insights',
@@ -63,9 +63,9 @@ const Analytics = () => {
       <h1 className="text-3xl font-bold mb-8">Data Analytics</h1>
       
       <div className="mb-8 p-4 border rounded-lg bg-card">
-        <h2 className="text-xl font-semibold mb-4">Connect Instagram Business Account</h2>
+        <h2 className="text-xl font-semibold mb-4">Connect with Instagram Business Login</h2>
         <p className="text-sm text-muted-foreground mb-4">
-          Connect your Instagram Business or Creator account to access insights and manage your content.
+          Connect your Instagram Business or Creator account to access insights and manage your content using the Instagram API.
         </p>
         <div className="flex gap-4 max-w-md">
           <Button 
