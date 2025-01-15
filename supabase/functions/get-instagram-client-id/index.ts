@@ -12,14 +12,20 @@ serve(async (req) => {
   }
 
   try {
+    console.log('Retrieving Instagram client ID from environment variables');
     const clientId = Deno.env.get('INSTAGRAM_CLIENT_ID')
     
     if (!clientId) {
+      console.error('Instagram client ID not found in environment variables');
       throw new Error('Instagram client ID not configured')
     }
 
+    console.log('Successfully retrieved Instagram client ID');
     return new Response(
-      JSON.stringify({ clientId }),
+      JSON.stringify({ 
+        clientId,
+        status: 'success'
+      }),
       { 
         headers: { 
           ...corsHeaders,
@@ -28,8 +34,12 @@ serve(async (req) => {
       }
     )
   } catch (error) {
+    console.error('Error in get-instagram-client-id function:', error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ 
+        error: error.message,
+        status: 'error'
+      }),
       { 
         status: 400,
         headers: { 
