@@ -25,7 +25,7 @@ const Analytics = () => {
         throw new Error("Instagram client ID not configured");
       }
 
-      const redirectUri = 'https://celebrity-insight-toolbox-ygweyscocelwjcqinkth.supabase.co/instagram-callback';
+      const redirectUri = `${window.location.origin}/instagram-callback`;
       
       // Required permissions for Instagram API with business login
       const scope = [
