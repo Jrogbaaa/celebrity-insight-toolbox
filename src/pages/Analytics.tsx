@@ -27,7 +27,7 @@ const Analytics = () => {
 
       const redirectUri = 'https://celebrity-insight-toolbox-ygweyscocelwjcqinkth.supabase.co/instagram-callback';
       
-      // Using the correct Graph API permissions
+      // Required permissions for Instagram API access
       const scope = [
         'instagram_basic',
         'instagram_manage_insights',
