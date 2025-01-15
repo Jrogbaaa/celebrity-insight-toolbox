@@ -25,7 +25,8 @@ const Analytics = () => {
         throw new Error("Instagram client ID not configured");
       }
 
-      const redirectUri = `${window.location.origin}/instagram-callback`;
+      // Test the connection with the new redirect URI
+      const redirectUri = 'https://celebrity-insight-toolbox-ygweyscocelwjcqinkth.supabase.co/instagram-callback';
       
       // Updated scopes for Instagram Graph API
       const scope = [
