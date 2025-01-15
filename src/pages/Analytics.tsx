@@ -25,19 +25,15 @@ const Analytics = () => {
         throw new Error("Instagram client ID not configured");
       }
 
-      // Test the connection with the new redirect URI
       const redirectUri = 'https://celebrity-insight-toolbox-ygweyscocelwjcqinkth.supabase.co/instagram-callback';
       
-      // Updated scopes for Instagram Graph API
+      // Updated scopes for Instagram Basic Display API
       const scope = [
-        'instagram_basic',
-        'instagram_content_publish',
-        'instagram_manage_comments',
-        'instagram_manage_insights',
-        'pages_show_list'
+        'instagram_graph_user_profile',
+        'instagram_graph_user_media',
+        'pages_read_engagement'
       ].join(',');
       
-      // Updated authorization URL to use www.facebook.com
       const authUrl = new URL('https://www.facebook.com/v18.0/dialog/oauth');
       authUrl.searchParams.append('client_id', clientId);
       authUrl.searchParams.append('redirect_uri', redirectUri);
