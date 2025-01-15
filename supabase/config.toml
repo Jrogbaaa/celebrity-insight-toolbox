@@ -8,9 +8,9 @@ enabled = true
 enabled = true
 
 [[functions]]
-name = "instagram-auth"
+[functions.instagram-auth]
 verify_jwt = true
 
 [[functions]]
-name = "instagram-webhook"
+[functions.instagram-webhook]
 verify_jwt = false
