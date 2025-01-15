@@ -11,7 +11,12 @@ serve(async (req) => {
   }
 
   try {
-    console.log('Retrieving Instagram client ID from environment variables');
+    console.log('Starting Instagram client ID retrieval process...');
+    console.log('Environment check:', {
+      hasClientId: !!Deno.env.get('INSTAGRAM_CLIENT_ID'),
+      availableEnvVars: Object.keys(Deno.env.toObject())
+    });
+
     const clientId = Deno.env.get('INSTAGRAM_CLIENT_ID');
     
     if (!clientId) {
@@ -34,10 +39,17 @@ serve(async (req) => {
     );
   } catch (error) {
     console.error('Error in get-instagram-client-id function:', error);
+    console.error('Full error details:', {
+      message: error.message,
+      stack: error.stack,
+      name: error.name
+    });
+    
     return new Response(
       JSON.stringify({ 
         error: error.message,
-        status: 'error'
+        status: 'error',
+        details: 'Check function logs for more information'
       }),
       { 
         status: 400,
