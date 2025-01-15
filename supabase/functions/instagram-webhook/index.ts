@@ -19,29 +19,48 @@ serve(async (req) => {
       const token = url.searchParams.get('hub.verify_token');
       const challenge = url.searchParams.get('hub.challenge');
 
+      const verifyToken = Deno.env.get('INSTAGRAM_WEBHOOK_VERIFY_TOKEN');
+
       console.log('Webhook verification request received:', {
         mode,
         token,
         challenge,
-        verifyToken: Deno.env.get('INSTAGRAM_WEBHOOK_VERIFY_TOKEN')
+        verifyToken,
+        fullUrl: req.url
       });
 
       // Verify the mode and token
-      if (
-        mode === 'subscribe' && 
-        token === Deno.env.get('INSTAGRAM_WEBHOOK_VERIFY_TOKEN')
-      ) {
-        console.log('Webhook verified successfully');
-        return new Response(challenge, {
-          headers: { ...corsHeaders, 'Content-Type': 'text/plain' },
-          status: 200
+      if (!mode || !token || !challenge) {
+        console.error('Missing required parameters');
+        return new Response('Missing parameters', {
+          headers: corsHeaders,
+          status: 400
         });
       }
 
-      console.error('Webhook verification failed - token mismatch');
-      return new Response('Forbidden', {
-        headers: corsHeaders,
-        status: 403
+      if (mode !== 'subscribe') {
+        console.error(`Invalid mode: ${mode}`);
+        return new Response('Invalid mode', {
+          headers: corsHeaders,
+          status: 400
+        });
+      }
+
+      if (token !== verifyToken) {
+        console.error('Token mismatch:', {
+          received: token,
+          expected: verifyToken
+        });
+        return new Response('Invalid verify token', {
+          headers: corsHeaders,
+          status: 403
+        });
+      }
+
+      console.log('Webhook verified successfully, returning challenge:', challenge);
+      return new Response(challenge, {
+        headers: { ...corsHeaders, 'Content-Type': 'text/plain' },
+        status: 200
       });
     }
 
