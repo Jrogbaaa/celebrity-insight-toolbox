@@ -21,43 +21,44 @@ serve(async (req) => {
 
       const verifyToken = Deno.env.get('INSTAGRAM_WEBHOOK_VERIFY_TOKEN');
 
-      console.log('Webhook verification request received:', {
+      // Enhanced logging for debugging
+      console.log('Webhook verification request:', {
+        requestUrl: req.url,
         mode,
         token,
         challenge,
-        verifyToken,
-        fullUrl: req.url
+        verifyTokenExists: !!verifyToken,
+        headers: Object.fromEntries(req.headers.entries())
       });
 
-      // Verify the mode and token
-      if (!mode || !token || !challenge) {
-        console.error('Missing required parameters');
-        return new Response('Missing parameters', {
-          headers: corsHeaders,
-          status: 400
+      if (!mode || !token) {
+        console.error('Missing mode or token');
+        return new Response(JSON.stringify({ error: 'Missing required parameters' }), {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
         });
       }
 
       if (mode !== 'subscribe') {
         console.error(`Invalid mode: ${mode}`);
-        return new Response('Invalid mode', {
-          headers: corsHeaders,
-          status: 400
+        return new Response(JSON.stringify({ error: 'Invalid mode' }), {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
         });
       }
 
       if (token !== verifyToken) {
-        console.error('Token mismatch:', {
-          received: token,
-          expected: verifyToken
+        console.error('Token verification failed:', {
+          receivedToken: token,
+          expectedTokenLength: verifyToken?.length || 0
         });
-        return new Response('Invalid verify token', {
-          headers: corsHeaders,
-          status: 403
+        return new Response(JSON.stringify({ error: 'Invalid verify token' }), {
+          status: 403,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
         });
       }
 
-      console.log('Webhook verified successfully, returning challenge:', challenge);
+      console.log('Verification successful, returning challenge:', challenge);
       return new Response(challenge, {
         headers: { ...corsHeaders, 'Content-Type': 'text/plain' },
         status: 200
@@ -69,32 +70,19 @@ serve(async (req) => {
       const payload = await req.json();
       console.log('Received webhook event:', JSON.stringify(payload, null, 2));
 
-      // Handle different types of webhook events
-      if (payload.object === 'instagram') {
-        for (const entry of payload.entry) {
-          // Log each change in the webhook
-          for (const change of entry.changes) {
-            console.log('Processing change:', {
-              field: change.field,
-              value: change.value
-            });
-          }
-        }
-      }
-
       return new Response(JSON.stringify({ success: true }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 200
       });
     }
 
-    return new Response('Method not allowed', {
-      headers: corsHeaders,
+    return new Response(JSON.stringify({ error: 'Method not allowed' }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       status: 405
     });
 
   } catch (error) {
-    console.error('Error processing webhook:', error);
+    console.error('Webhook error:', error);
     return new Response(JSON.stringify({ error: error.message }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       status: 500
