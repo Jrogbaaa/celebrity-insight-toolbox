@@ -1,14 +1,37 @@
 import { EngagementChart } from "@/components/EngagementChart";
 import { MetricsGrid } from "@/components/MetricsGrid";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/components/ui/use-toast";
 import { Instagram } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const Analytics = () => {
   const { toast } = useToast();
   const [isConnecting, setIsConnecting] = useState(false);
+  const [hasInstagramToken, setHasInstagramToken] = useState(false);
+
+  useEffect(() => {
+    const checkInstagramConnection = async () => {
+      try {
+        const { data: tokens, error } = await supabase
+          .from('instagram_tokens')
+          .select('access_token')
+          .limit(1);
+        
+        if (error) {
+          console.error('Error checking Instagram connection:', error);
+          return;
+        }
+        
+        setHasInstagramToken(tokens && tokens.length > 0);
+      } catch (error) {
+        console.error('Error checking Instagram connection:', error);
+      }
+    };
+
+    checkInstagramConnection();
+  }, []);
 
   const handleInstagramConnect = async () => {
     try {
@@ -17,12 +40,22 @@ const Analytics = () => {
       
       if (error) {
         console.error('Error getting client ID:', error);
-        throw new Error("Failed to initialize Instagram connection");
+        toast({
+          title: "Connection Error",
+          description: "Failed to initialize Instagram connection. Please try again.",
+          variant: "destructive",
+        });
+        return;
       }
       
-      const clientId = data.clientId;
+      const clientId = data?.clientId;
       if (!clientId) {
-        throw new Error("Instagram client ID not configured");
+        toast({
+          title: "Configuration Error",
+          description: "Instagram client ID not configured. Please check your setup.",
+          variant: "destructive",
+        });
+        return;
       }
 
       const redirectUri = `${window.location.origin}/instagram-callback`;
@@ -43,8 +76,7 @@ const Analytics = () => {
       authUrl.searchParams.append('response_type', 'code');
       authUrl.searchParams.append('auth_type', 'rerequest');
       
-      console.log('Instagram auth URL:', authUrl.toString());
-      
+      console.log('Redirecting to Instagram auth URL:', authUrl.toString());
       window.location.href = authUrl.toString();
     } catch (error) {
       console.error('Instagram connection error:', error);
@@ -71,10 +103,15 @@ const Analytics = () => {
           <Button 
             onClick={handleInstagramConnect}
             className="w-full"
-            disabled={isConnecting}
+            disabled={isConnecting || hasInstagramToken}
           >
             <Instagram className="mr-2 h-4 w-4" />
-            {isConnecting ? 'Connecting...' : 'Connect Instagram'}
+            {hasInstagramToken 
+              ? 'Connected to Instagram' 
+              : isConnecting 
+                ? 'Connecting...' 
+                : 'Connect Instagram'
+            }
           </Button>
         </div>
       </div>
