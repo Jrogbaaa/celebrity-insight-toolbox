@@ -26,7 +26,11 @@ serve(async (req) => {
         verifyToken: Deno.env.get('INSTAGRAM_WEBHOOK_VERIFY_TOKEN')
       });
 
-      if (mode === 'subscribe' && token === Deno.env.get('INSTAGRAM_WEBHOOK_VERIFY_TOKEN')) {
+      // Verify the mode and token
+      if (
+        mode === 'subscribe' && 
+        token === Deno.env.get('INSTAGRAM_WEBHOOK_VERIFY_TOKEN')
+      ) {
         console.log('Webhook verified successfully');
         return new Response(challenge, {
           headers: { ...corsHeaders, 'Content-Type': 'text/plain' },
@@ -34,7 +38,7 @@ serve(async (req) => {
         });
       }
 
-      console.error('Webhook verification failed');
+      console.error('Webhook verification failed - token mismatch');
       return new Response('Forbidden', {
         headers: corsHeaders,
         status: 403
