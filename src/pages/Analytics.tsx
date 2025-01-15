@@ -36,8 +36,8 @@ const Analytics = () => {
         'pages_show_list'
       ].join(',');
       
-      // Updated authorization URL for Instagram Graph API
-      const authUrl = new URL('https://api.facebook.com/oauth/authorize');
+      // Updated authorization URL to use www.facebook.com
+      const authUrl = new URL('https://www.facebook.com/v18.0/dialog/oauth');
       authUrl.searchParams.append('client_id', clientId);
       authUrl.searchParams.append('redirect_uri', redirectUri);
       authUrl.searchParams.append('scope', scope);
