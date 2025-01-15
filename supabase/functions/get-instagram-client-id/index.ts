@@ -12,6 +12,9 @@ serve(async (req) => {
 
   try {
     console.log('Starting Instagram client ID retrieval process...');
+    const origin = req.headers.get('origin') || '';
+    console.log('Request origin:', origin);
+    
     console.log('Environment check:', {
       hasClientId: !!Deno.env.get('INSTAGRAM_CLIENT_ID'),
       availableEnvVars: Object.keys(Deno.env.toObject())
@@ -28,7 +31,8 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({ 
         clientId,
-        status: 'success'
+        status: 'success',
+        origin: origin
       }),
       { 
         headers: { 
