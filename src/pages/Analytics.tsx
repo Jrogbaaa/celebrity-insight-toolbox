@@ -1,7 +1,7 @@
 import { EngagementChart } from "@/components/EngagementChart";
 import { MetricsGrid } from "@/components/MetricsGrid";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { Instagram } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useState } from "react";
@@ -27,11 +27,13 @@ const Analytics = () => {
 
       const redirectUri = 'https://celebrity-insight-toolbox-ygweyscocelwjcqinkth.supabase.co/instagram-callback';
       
-      // Updated scopes for Instagram Basic Display API
+      // Using the correct Graph API permissions
       const scope = [
-        'instagram_graph_user_profile',
-        'instagram_graph_user_media',
-        'pages_read_engagement'
+        'instagram_basic',
+        'instagram_manage_insights',
+        'pages_show_list',
+        'pages_read_engagement',
+        'business_management'
       ].join(',');
       
       const authUrl = new URL('https://www.facebook.com/v18.0/dialog/oauth');
