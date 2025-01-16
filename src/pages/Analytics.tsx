@@ -67,8 +67,8 @@ const Analytics = () => {
       }
 
       // Get the current URL for the redirect
-      const baseUrl = window.location.origin;
-      const redirectUri = `${baseUrl}/instagram-callback`;
+      const redirectUri = `${window.location.origin}/instagram-callback`;
+      console.log('Redirect URI:', redirectUri); // For debugging
       const encodedRedirectUri = encodeURIComponent(redirectUri);
       
       // Required permissions for Instagram API with business login
@@ -140,20 +140,14 @@ const Analytics = () => {
           <DialogHeader>
             <DialogTitle>Before Connecting to Instagram</DialogTitle>
             <DialogDescription className="space-y-4 mt-4">
-              <p>Before proceeding, make sure to:</p>
-              <ol className="list-decimal pl-4 space-y-2">
-                <li>Go to your Facebook App settings</li>
-                <li>Under "Facebook Login" settings, enable "Client OAuth Login"</li>
-                <li>Add these URLs to "Valid OAuth Redirect URIs":</li>
-                <div className="space-y-2 mt-2">
-                  <p className="text-sm font-medium">Development URL:</p>
-                  <code className="block bg-muted p-2 rounded-md text-xs break-all">
-                    {`${window.location.origin}/instagram-callback`}
-                  </code>
-                </div>
-              </ol>
+              <p>Please add this exact URL to your Facebook App's "Valid OAuth Redirect URIs":</p>
+              <div className="space-y-2 mt-2">
+                <code className="block bg-muted p-2 rounded-md text-xs break-all">
+                  {`${window.location.origin}/instagram-callback`}
+                </code>
+              </div>
               <Button onClick={handleProceedWithAuth} className="w-full mt-4">
-                I've Added the Redirect URIs
+                I've Added the Redirect URI
               </Button>
             </DialogDescription>
           </DialogHeader>
