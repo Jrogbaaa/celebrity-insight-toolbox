@@ -66,12 +66,8 @@ const Analytics = () => {
         return;
       }
 
-      // Get the current URL for the redirect, ensuring HTTPS for localhost
-      const origin = window.location.origin;
-      const redirectUri = origin.includes('localhost') 
-        ? `https://localhost:5173/instagram-callback`
-        : `${origin}/instagram-callback`;
-      
+      // Always use HTTPS for the redirect URI
+      const redirectUri = 'https://localhost:5173/instagram-callback';
       console.log('Redirect URI:', redirectUri); // For debugging
       const encodedRedirectUri = encodeURIComponent(redirectUri);
       
@@ -147,9 +143,7 @@ const Analytics = () => {
               <p>Please add this exact URL to your Facebook App's "Valid OAuth Redirect URIs":</p>
               <div className="space-y-2 mt-2">
                 <code className="block bg-muted p-2 rounded-md text-xs break-all">
-                  {window.location.origin.includes('localhost') 
-                    ? 'https://localhost:5173/instagram-callback'
-                    : `${window.location.origin}/instagram-callback`}
+                  https://localhost:5173/instagram-callback
                 </code>
               </div>
               <Button onClick={handleProceedWithAuth} className="w-full mt-4">
