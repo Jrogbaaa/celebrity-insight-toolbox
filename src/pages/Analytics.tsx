@@ -144,12 +144,19 @@ const Analytics = () => {
                 <li>Go to your Facebook App settings</li>
                 <li>Under "Facebook Login" settings, enable "Client OAuth Login"</li>
                 <li>Add these URLs to "Valid OAuth Redirect URIs":</li>
-                <code className="block bg-muted p-2 rounded-md text-xs mt-2">
-                  {`${window.location.origin}/instagram-callback`}
-                </code>
+                <div className="space-y-2 mt-2">
+                  <p className="text-sm font-medium">Development URL:</p>
+                  <code className="block bg-muted p-2 rounded-md text-xs">
+                    http://localhost:5173/instagram-callback
+                  </code>
+                  <p className="text-sm font-medium mt-2">Production URL:</p>
+                  <code className="block bg-muted p-2 rounded-md text-xs">
+                    {`${window.location.origin}/instagram-callback`}
+                  </code>
+                </div>
               </ol>
               <Button onClick={handleProceedWithAuth} className="w-full mt-4">
-                I've Added the Redirect URI
+                I've Added the Redirect URIs
               </Button>
             </DialogDescription>
           </DialogHeader>
