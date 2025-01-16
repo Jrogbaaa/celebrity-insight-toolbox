@@ -1,3 +1,4 @@
+import React from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -12,24 +13,26 @@ import InstagramCallback from "./pages/InstagramCallback";
 const queryClient = new QueryClient();
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <div className="min-h-screen bg-background pb-14">
-          <Routes>
-            <Route path="/" element={<Navigate to="/analytics" replace />} />
-            <Route path="/analytics" element={<Analytics />} />
-            <Route path="/recommendations" element={<Recommendations />} />
-            <Route path="/generation" element={<Generation />} />
-            <Route path="/instagram-callback" element={<InstagramCallback />} />
-          </Routes>
-          <Navigation />
-        </div>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
+  <React.StrictMode>
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <div className="min-h-screen bg-background pb-14">
+            <Routes>
+              <Route path="/" element={<Navigate to="/analytics" replace />} />
+              <Route path="/analytics" element={<Analytics />} />
+              <Route path="/recommendations" element={<Recommendations />} />
+              <Route path="/generation" element={<Generation />} />
+              <Route path="/instagram-callback" element={<InstagramCallback />} />
+            </Routes>
+            <Navigation />
+          </div>
+        </BrowserRouter>
+      </TooltipProvider>
+    </QueryClientProvider>
+  </React.StrictMode>
 );
 
 export default App;
