@@ -66,8 +66,8 @@ const Analytics = () => {
         return;
       }
 
-      // Full redirect URIs with protocols as required by Facebook
-      const redirectUri = 'https://localhost:5173/instagram-callback';
+      // Using HTTP for local development as it's more reliable
+      const redirectUri = 'http://localhost:5173/instagram-callback';
       console.log('Redirect URI:', redirectUri);
       
       // Show instructions before redirecting
@@ -136,17 +136,14 @@ const Analytics = () => {
           <DialogHeader>
             <DialogTitle>Before Connecting to Instagram</DialogTitle>
             <DialogDescription className="space-y-4 mt-4">
-              <p>Please add both of these URLs to your Facebook App's "Valid OAuth Redirect URIs":</p>
+              <p>Please add this URL to your Facebook App's "Valid OAuth Redirect URIs":</p>
               <div className="space-y-2 mt-2">
                 <code className="block bg-muted p-2 rounded-md text-xs break-all">
                   http://localhost:5173/instagram-callback
                 </code>
-                <code className="block bg-muted p-2 rounded-md text-xs break-all">
-                  https://localhost:5173/instagram-callback
-                </code>
               </div>
               <Button onClick={handleProceedWithAuth} className="w-full mt-4">
-                I've Added Both Redirect URIs
+                I've Added The Redirect URI
               </Button>
             </DialogDescription>
           </DialogHeader>
