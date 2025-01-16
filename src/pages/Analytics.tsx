@@ -66,26 +66,23 @@ const Analytics = () => {
         return;
       }
 
-      // Always use HTTPS for the redirect URI
-      const redirectUri = 'https://localhost:5173/instagram-callback';
-      console.log('Redirect URI:', redirectUri); // For debugging
-      const encodedRedirectUri = encodeURIComponent(redirectUri);
-      
-      // Required permissions for Instagram API with business login
-      const scope = encodeURIComponent([
-        'instagram_basic',
-        'instagram_manage_insights',
-        'pages_show_list',
-        'pages_read_engagement',
-        'business_management'
-      ].join(','));
+      // Base redirect URI for both HTTP and HTTPS
+      const baseRedirectUri = 'localhost:5173/instagram-callback';
+      console.log('Base Redirect URI:', baseRedirectUri); // For debugging
       
       // Show instructions before redirecting
       setShowInstructions(true);
       
       // Store the auth URL to use after showing instructions
+      // Using HTTPS for the actual redirect
       window.sessionStorage.setItem('instagram_auth_url', 
-        `https://www.facebook.com/v18.0/dialog/oauth?client_id=${clientId}&redirect_uri=${encodedRedirectUri}&scope=${scope}&response_type=code&auth_type=rerequest`
+        `https://www.facebook.com/v18.0/dialog/oauth?client_id=${clientId}&redirect_uri=https://${baseRedirectUri}&scope=${encodeURIComponent([
+          'instagram_basic',
+          'instagram_manage_insights',
+          'pages_show_list',
+          'pages_read_engagement',
+          'business_management'
+        ].join(','))}&response_type=code&auth_type=rerequest`
       );
       
     } catch (error) {
@@ -140,14 +137,17 @@ const Analytics = () => {
           <DialogHeader>
             <DialogTitle>Before Connecting to Instagram</DialogTitle>
             <DialogDescription className="space-y-4 mt-4">
-              <p>Please add this exact URL to your Facebook App's "Valid OAuth Redirect URIs":</p>
+              <p>Please add both of these URLs to your Facebook App's "Valid OAuth Redirect URIs":</p>
               <div className="space-y-2 mt-2">
+                <code className="block bg-muted p-2 rounded-md text-xs break-all">
+                  http://localhost:5173/instagram-callback
+                </code>
                 <code className="block bg-muted p-2 rounded-md text-xs break-all">
                   https://localhost:5173/instagram-callback
                 </code>
               </div>
               <Button onClick={handleProceedWithAuth} className="w-full mt-4">
-                I've Added the Redirect URI
+                I've Added Both Redirect URIs
               </Button>
             </DialogDescription>
           </DialogHeader>
