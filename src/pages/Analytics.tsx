@@ -70,9 +70,6 @@ const Analytics = () => {
       const redirectUri = 'http://localhost:5173/instagram-callback';
       console.log('Redirect URI:', redirectUri);
       
-      // Show instructions before redirecting
-      setShowInstructions(true);
-      
       // Store the auth URL to use after showing instructions
       window.sessionStorage.setItem('instagram_auth_url', 
         `https://www.facebook.com/v18.0/dialog/oauth?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent([
@@ -83,6 +80,12 @@ const Analytics = () => {
           'business_management'
         ].join(','))}&response_type=code&auth_type=rerequest`
       );
+
+      // Proceed directly to authentication since localhost redirects are automatically allowed
+      const authUrl = window.sessionStorage.getItem('instagram_auth_url');
+      if (authUrl) {
+        window.location.href = authUrl;
+      }
       
     } catch (error) {
       console.error('Instagram connection error:', error);
@@ -94,15 +97,6 @@ const Analytics = () => {
     } finally {
       setIsConnecting(false);
     }
-  };
-
-  const handleProceedWithAuth = () => {
-    const authUrl = window.sessionStorage.getItem('instagram_auth_url');
-    if (authUrl) {
-      console.log('Redirecting to Instagram auth URL:', authUrl);
-      window.location.href = authUrl;
-    }
-    setShowInstructions(false);
   };
 
   return (
@@ -130,25 +124,6 @@ const Analytics = () => {
           </Button>
         </div>
       </div>
-
-      <Dialog open={showInstructions} onOpenChange={setShowInstructions}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Before Connecting to Instagram</DialogTitle>
-            <DialogDescription className="space-y-4 mt-4">
-              <p>Please add this URL to your Facebook App's "Valid OAuth Redirect URIs":</p>
-              <div className="space-y-2 mt-2">
-                <code className="block bg-muted p-2 rounded-md text-xs break-all">
-                  http://localhost:5173/instagram-callback
-                </code>
-              </div>
-              <Button onClick={handleProceedWithAuth} className="w-full mt-4">
-                I've Added The Redirect URI
-              </Button>
-            </DialogDescription>
-          </DialogHeader>
-        </DialogContent>
-      </Dialog>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <MetricsGrid />
