@@ -5,11 +5,19 @@ import { useToast } from "@/components/ui/use-toast";
 import { Instagram } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useState, useEffect } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 const Analytics = () => {
   const { toast } = useToast();
   const [isConnecting, setIsConnecting] = useState(false);
   const [hasInstagramToken, setHasInstagramToken] = useState(false);
+  const [showInstructions, setShowInstructions] = useState(false);
 
   useEffect(() => {
     const checkInstagramConnection = async () => {
@@ -58,8 +66,9 @@ const Analytics = () => {
         return;
       }
 
-      // Ensure the redirect URI matches exactly what's configured in Facebook App settings
-      const redirectUri = encodeURIComponent(`${window.location.origin}/instagram-callback`);
+      // Get the current URL for the redirect
+      const baseUrl = window.location.origin;
+      const redirectUri = encodeURIComponent(`${baseUrl}/instagram-callback`);
       
       // Required permissions for Instagram API with business login
       const scope = encodeURIComponent([
@@ -70,11 +79,14 @@ const Analytics = () => {
         'business_management'
       ].join(','));
       
-      // Construct the Facebook OAuth URL with encoded parameters
-      const authUrl = `https://www.facebook.com/v18.0/dialog/oauth?client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scope}&response_type=code&auth_type=rerequest`;
+      // Show instructions before redirecting
+      setShowInstructions(true);
       
-      console.log('Redirecting to Instagram auth URL:', authUrl);
-      window.location.href = authUrl;
+      // Store the auth URL to use after showing instructions
+      window.sessionStorage.setItem('instagram_auth_url', 
+        `https://www.facebook.com/v18.0/dialog/oauth?client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scope}&response_type=code&auth_type=rerequest`
+      );
+      
     } catch (error) {
       console.error('Instagram connection error:', error);
       toast({
@@ -85,6 +97,15 @@ const Analytics = () => {
     } finally {
       setIsConnecting(false);
     }
+  };
+
+  const handleProceedWithAuth = () => {
+    const authUrl = window.sessionStorage.getItem('instagram_auth_url');
+    if (authUrl) {
+      console.log('Redirecting to Instagram auth URL:', authUrl);
+      window.location.href = authUrl;
+    }
+    setShowInstructions(false);
   };
 
   return (
@@ -112,6 +133,28 @@ const Analytics = () => {
           </Button>
         </div>
       </div>
+
+      <Dialog open={showInstructions} onOpenChange={setShowInstructions}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Before Connecting to Instagram</DialogTitle>
+            <DialogDescription className="space-y-4 mt-4">
+              <p>Before proceeding, make sure to:</p>
+              <ol className="list-decimal pl-4 space-y-2">
+                <li>Go to your Facebook App settings</li>
+                <li>Under "Facebook Login" settings, enable "Client OAuth Login"</li>
+                <li>Add these URLs to "Valid OAuth Redirect URIs":</li>
+                <code className="block bg-muted p-2 rounded-md text-xs mt-2">
+                  {`${window.location.origin}/instagram-callback`}
+                </code>
+              </ol>
+              <Button onClick={handleProceedWithAuth} className="w-full mt-4">
+                I've Added the Redirect URI
+              </Button>
+            </DialogDescription>
+          </DialogHeader>
+        </DialogContent>
+      </Dialog>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <MetricsGrid />
