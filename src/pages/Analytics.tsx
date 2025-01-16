@@ -68,7 +68,8 @@ const Analytics = () => {
 
       // Get the current URL for the redirect
       const baseUrl = window.location.origin;
-      const redirectUri = encodeURIComponent(`${baseUrl}/instagram-callback`);
+      const redirectUri = `${baseUrl}/instagram-callback`;
+      const encodedRedirectUri = encodeURIComponent(redirectUri);
       
       // Required permissions for Instagram API with business login
       const scope = encodeURIComponent([
@@ -84,7 +85,7 @@ const Analytics = () => {
       
       // Store the auth URL to use after showing instructions
       window.sessionStorage.setItem('instagram_auth_url', 
-        `https://www.facebook.com/v18.0/dialog/oauth?client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scope}&response_type=code&auth_type=rerequest`
+        `https://www.facebook.com/v18.0/dialog/oauth?client_id=${clientId}&redirect_uri=${encodedRedirectUri}&scope=${scope}&response_type=code&auth_type=rerequest`
       );
       
     } catch (error) {
@@ -146,11 +147,7 @@ const Analytics = () => {
                 <li>Add these URLs to "Valid OAuth Redirect URIs":</li>
                 <div className="space-y-2 mt-2">
                   <p className="text-sm font-medium">Development URL:</p>
-                  <code className="block bg-muted p-2 rounded-md text-xs">
-                    http://localhost:5173/instagram-callback
-                  </code>
-                  <p className="text-sm font-medium mt-2">Production URL:</p>
-                  <code className="block bg-muted p-2 rounded-md text-xs">
+                  <code className="block bg-muted p-2 rounded-md text-xs break-all">
                     {`${window.location.origin}/instagram-callback`}
                   </code>
                 </div>
