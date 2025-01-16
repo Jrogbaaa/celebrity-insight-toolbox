@@ -66,17 +66,16 @@ const Analytics = () => {
         return;
       }
 
-      // Base redirect URI for both HTTP and HTTPS
-      const baseRedirectUri = 'localhost:5173/instagram-callback';
-      console.log('Base Redirect URI:', baseRedirectUri); // For debugging
+      // Full redirect URIs with protocols as required by Facebook
+      const redirectUri = 'https://localhost:5173/instagram-callback';
+      console.log('Redirect URI:', redirectUri);
       
       // Show instructions before redirecting
       setShowInstructions(true);
       
       // Store the auth URL to use after showing instructions
-      // Using HTTPS for the actual redirect
       window.sessionStorage.setItem('instagram_auth_url', 
-        `https://www.facebook.com/v18.0/dialog/oauth?client_id=${clientId}&redirect_uri=https://${baseRedirectUri}&scope=${encodeURIComponent([
+        `https://www.facebook.com/v18.0/dialog/oauth?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent([
           'instagram_basic',
           'instagram_manage_insights',
           'pages_show_list',
