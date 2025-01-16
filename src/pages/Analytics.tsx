@@ -1,7 +1,7 @@
 import { EngagementChart } from "@/components/EngagementChart";
 import { MetricsGrid } from "@/components/MetricsGrid";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { Instagram } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useState, useEffect } from "react";
@@ -58,7 +58,7 @@ const Analytics = () => {
         return;
       }
 
-      const redirectUri = 'http://localhost:5173/instagram-callback';
+      const redirectUri = 'http://openstrategynetwork.com/_oauth/facebook?close';
       console.log('Redirect URI:', redirectUri);
       
       const authUrl = `https://www.facebook.com/v18.0/dialog/oauth?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent([
@@ -69,7 +69,7 @@ const Analytics = () => {
         'business_management'
       ].join(','))}&response_type=code&auth_type=rerequest`;
 
-      // Proceed directly to authentication since localhost redirects are automatically allowed
+      // Proceed with authentication
       window.location.href = authUrl;
       
     } catch (error) {
