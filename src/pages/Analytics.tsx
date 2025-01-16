@@ -5,19 +5,11 @@ import { useToast } from "@/components/ui/use-toast";
 import { Instagram } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useState, useEffect } from "react";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 
 const Analytics = () => {
   const { toast } = useToast();
   const [isConnecting, setIsConnecting] = useState(false);
   const [hasInstagramToken, setHasInstagramToken] = useState(false);
-  const [showInstructions, setShowInstructions] = useState(false);
 
   useEffect(() => {
     const checkInstagramConnection = async () => {
@@ -66,26 +58,19 @@ const Analytics = () => {
         return;
       }
 
-      // Using HTTP for local development as it's more reliable
       const redirectUri = 'http://localhost:5173/instagram-callback';
       console.log('Redirect URI:', redirectUri);
       
-      // Store the auth URL to use after showing instructions
-      window.sessionStorage.setItem('instagram_auth_url', 
-        `https://www.facebook.com/v18.0/dialog/oauth?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent([
-          'instagram_basic',
-          'instagram_manage_insights',
-          'pages_show_list',
-          'pages_read_engagement',
-          'business_management'
-        ].join(','))}&response_type=code&auth_type=rerequest`
-      );
+      const authUrl = `https://www.facebook.com/v18.0/dialog/oauth?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent([
+        'instagram_basic',
+        'instagram_manage_insights',
+        'pages_show_list',
+        'pages_read_engagement',
+        'business_management'
+      ].join(','))}&response_type=code&auth_type=rerequest`;
 
       // Proceed directly to authentication since localhost redirects are automatically allowed
-      const authUrl = window.sessionStorage.getItem('instagram_auth_url');
-      if (authUrl) {
-        window.location.href = authUrl;
-      }
+      window.location.href = authUrl;
       
     } catch (error) {
       console.error('Instagram connection error:', error);
