@@ -58,7 +58,7 @@ const Analytics = () => {
         return;
       }
 
-      const redirectUri = 'http://localhost:5173/instagram-callback';
+      const redirectUri = 'https://localhost:5173/instagram-callback';
       console.log('Redirect URI:', redirectUri);
       
       const authUrl = `https://www.facebook.com/v18.0/dialog/oauth?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent([
