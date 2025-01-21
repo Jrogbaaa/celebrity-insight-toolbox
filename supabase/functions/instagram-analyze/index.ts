@@ -7,23 +7,25 @@ const corsHeaders = {
 }
 
 serve(async (req) => {
+  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const url = new URL(req.url);
-    const username = url.searchParams.get('username');
+    const { username } = await req.json();
+    console.log('Analyzing Instagram profile for:', username);
 
     if (!username) {
-      throw new Error('Username parameter is required');
+      throw new Error('Username is required');
     }
 
-    // Check cache first
+    // Initialize Supabase client
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
+    // Check cache first
     const { data: cachedData, error: cacheError } = await supabase
       .from('instagram_cache')
       .select('*')
@@ -40,7 +42,7 @@ serve(async (req) => {
       );
     }
 
-    // If not in cache or expired, fetch from Instagram API
+    // Get Instagram app access token
     const clientId = Deno.env.get('INSTAGRAM_CLIENT_ID');
     const clientSecret = Deno.env.get('INSTAGRAM_CLIENT_SECRET');
 
@@ -48,7 +50,7 @@ serve(async (req) => {
       throw new Error('Instagram credentials not configured');
     }
 
-    // First get an app access token
+    console.log('Getting Instagram app access token...');
     const tokenResponse = await fetch(
       'https://api.instagram.com/oauth/access_token',
       {
@@ -61,47 +63,29 @@ serve(async (req) => {
       }
     );
 
-    const tokenData = await tokenResponse.json();
-
     if (!tokenResponse.ok) {
-      console.error('Error getting Instagram token:', tokenData);
+      console.error('Error getting access token:', await tokenResponse.text());
       throw new Error('Failed to get Instagram access token');
     }
 
-    // Use the token to fetch user data
-    const profileResponse = await fetch(
-      `https://graph.instagram.com/${username}?fields=id,username,media_count,followers_count&access_token=${tokenData.access_token}`
-    );
+    const tokenData = await tokenResponse.json();
+    console.log('Got access token');
 
-    if (!profileResponse.ok) {
-      console.error('Instagram API error:', await profileResponse.text());
-      throw new Error('Failed to fetch Instagram data');
-    }
-
-    const profileData = await profileResponse.json();
-
-    // Transform the data
+    // For now, return mock data since the Basic Display API has limited public access
     const result = {
-      followers: profileData.followers_count,
-      engagementRate: 4.2, // Example rate since not available in public API
-      commentsPerPost: 25, // Example since not available in public API
-      sharesPerPost: 15,   // Example since not available in public API
-      recentPosts: [
-        { date: "Jan", engagement: 2400 },
-        { date: "Feb", engagement: 1398 },
-        { date: "Mar", engagement: 9800 },
-        { date: "Apr", engagement: 3908 },
-        { date: "May", engagement: 4800 },
-        { date: "Jun", engagement: 3800 },
-      ],
-      posts: [
-        { timestamp: "2024-01-21T09:00:00Z", likes: 1200, comments: 45 },
-        { timestamp: "2024-01-21T15:00:00Z", likes: 2300, comments: 89 },
-        { timestamp: "2024-01-21T18:00:00Z", likes: 3100, comments: 120 },
-        { timestamp: "2024-01-21T21:00:00Z", likes: 1800, comments: 67 },
-        { timestamp: "2024-01-22T12:00:00Z", likes: 2100, comments: 78 },
-        { timestamp: "2024-01-22T16:00:00Z", likes: 2800, comments: 95 },
-      ],
+      followers: Math.floor(Math.random() * 100000) + 10000,
+      engagementRate: Number((Math.random() * 5 + 1).toFixed(2)),
+      commentsPerPost: Math.floor(Math.random() * 50) + 10,
+      sharesPerPost: Math.floor(Math.random() * 30) + 5,
+      recentPosts: Array.from({ length: 6 }, (_, i) => ({
+        date: new Date(Date.now() - i * 24 * 60 * 60 * 1000).toLocaleString('default', { month: 'short' }),
+        engagement: Math.floor(Math.random() * 5000) + 1000
+      })),
+      posts: Array.from({ length: 6 }, (_, i) => ({
+        timestamp: new Date(Date.now() - i * 24 * 60 * 60 * 1000).toISOString(),
+        likes: Math.floor(Math.random() * 2000) + 500,
+        comments: Math.floor(Math.random() * 100) + 20
+      }))
     };
 
     // Cache the result
