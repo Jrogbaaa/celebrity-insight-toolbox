@@ -1,19 +1,26 @@
 import { EngagementChart } from "@/components/EngagementChart";
 import { MetricsGrid } from "@/components/MetricsGrid";
+import { PostTimingAnalyzer } from "@/components/PostTimingAnalyzer";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { Search } from "lucide-react";
+import { useSocialMediaMetrics } from "@/services/SocialMediaService";
 
 const Analytics = () => {
   const [username, setUsername] = useState("");
+  const { data: metrics, isLoading } = useSocialMediaMetrics();
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     // In a real implementation, this would trigger fetching data for the specified username
     console.log("Searching for:", username);
   };
+
+  if (isLoading) {
+    return <div>Loading analytics...</div>;
+  }
 
   return (
     <div className="container py-8">
@@ -40,6 +47,7 @@ const Analytics = () => {
       </div>
       <div className="grid gap-4 mt-8">
         <EngagementChart />
+        {metrics?.posts && <PostTimingAnalyzer posts={metrics.posts} />}
       </div>
     </div>
   );
