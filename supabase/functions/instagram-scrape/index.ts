@@ -19,13 +19,22 @@ async function delay(ms: number) {
 async function crawlWithRetry(firecrawl: any, url: string, retryCount = 0): Promise<any> {
   try {
     console.log(`Attempt ${retryCount + 1} to crawl URL: ${url}`);
-    return await firecrawl.crawlUrl(url, {
+    const response = await firecrawl.crawlUrl(url, {
       limit: 10,
       scrapeOptions: {
         formats: ['html']
       }
     });
+    return response;
   } catch (error) {
+    console.error('Crawl error:', error);
+    
+    // Check for Instagram scraping unsupported error
+    if (error.statusCode === 403 && error.message?.includes('no longer supported')) {
+      throw new Error('Instagram profile analysis is temporarily unavailable. We are working on restoring this functionality.');
+    }
+    
+    // Handle rate limiting
     if (error.statusCode === 429 && retryCount < MAX_RETRIES) {
       const waitTime = INITIAL_RETRY_DELAY * Math.pow(2, retryCount);
       console.log(`Rate limited. Waiting ${waitTime}ms before retry ${retryCount + 1}`);
@@ -80,87 +89,53 @@ serve(async (req) => {
       );
     }
 
-    const apiKey = Deno.env.get('FIRECRAWL_API_KEY');
-    if (!apiKey) {
-      console.error('FIRECRAWL_API_KEY not found in environment variables');
-      return new Response(
-        JSON.stringify({ error: 'API key configuration missing' }),
-        { 
-          status: 500,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        }
-      );
-    }
+    // For now, return mock data since Instagram scraping is not supported
+    console.log('Generating mock data for:', username);
+    const mockData = {
+      followers: Math.floor(Math.random() * 100000) + 10000,
+      engagementRate: Number((Math.random() * 5 + 1).toFixed(2)),
+      commentsPerPost: Math.floor(Math.random() * 50) + 10,
+      sharesPerPost: Math.floor(Math.random() * 30) + 5,
+      recentPosts: Array.from({ length: 6 }, (_, i) => ({
+        date: new Date(Date.now() - i * 24 * 60 * 60 * 1000).toLocaleString('default', { month: 'short' }),
+        engagement: Math.floor(Math.random() * 5000) + 1000
+      })),
+      posts: Array.from({ length: 6 }, (_, i) => ({
+        timestamp: new Date(Date.now() - i * 24 * 60 * 60 * 1000).toISOString(),
+        likes: Math.floor(Math.random() * 2000) + 500,
+        comments: Math.floor(Math.random() * 100) + 20
+      }))
+    };
 
-    const firecrawl = new FirecrawlApp({ apiKey });
-    
-    console.log(`Starting crawl for Instagram profile: ${username}`);
-    try {
-      const response = await crawlWithRetry(firecrawl, `https://www.instagram.com/${username}/`);
-      console.log('Crawl response:', response);
-      
-      // For now, return mock data while we refine the selectors
-      const mockData = {
-        followers: Math.floor(Math.random() * 100000) + 10000,
-        engagementRate: Number((Math.random() * 5 + 1).toFixed(2)),
-        commentsPerPost: Math.floor(Math.random() * 50) + 10,
-        sharesPerPost: Math.floor(Math.random() * 30) + 5,
-        recentPosts: Array.from({ length: 6 }, (_, i) => ({
-          date: new Date(Date.now() - i * 24 * 60 * 60 * 1000).toLocaleString('default', { month: 'short' }),
-          engagement: Math.floor(Math.random() * 5000) + 1000
-        })),
-        posts: Array.from({ length: 6 }, (_, i) => ({
-          timestamp: new Date(Date.now() - i * 24 * 60 * 60 * 1000).toISOString(),
-          likes: Math.floor(Math.random() * 2000) + 500,
-          comments: Math.floor(Math.random() * 100) + 20
-        }))
-      };
+    // Cache the mock data
+    await supabase
+      .from('instagram_cache')
+      .upsert({ 
+        username, 
+        data: mockData,
+        updated_at: new Date().toISOString()
+      });
 
-      // Cache the data
-      await supabase
-        .from('instagram_cache')
-        .upsert({ 
-          username, 
-          data: mockData,
-          updated_at: new Date().toISOString()
-        });
-
-      return new Response(
-        JSON.stringify(mockData),
-        { 
-          status: 200,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        }
-      );
-    } catch (error) {
-      if (error.statusCode === 429) {
-        console.log('Rate limit reached after retries');
-        return new Response(
-          JSON.stringify({ 
-            error: 'Rate limit reached. Please try again later.',
-            retryAfter: 60
-          }),
-          { 
-            status: 429,
-            headers: { 
-              ...corsHeaders, 
-              'Content-Type': 'application/json',
-              'Retry-After': '60'
-            },
-          }
-        );
+    return new Response(
+      JSON.stringify(mockData),
+      { 
+        status: 200,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       }
-      throw error;
-    }
+    );
+
   } catch (error) {
     console.error('Error in instagram-scrape function:', error);
     
+    const statusCode = error.statusCode || 500;
+    const errorMessage = error.message || 'An unexpected error occurred';
+    
     return new Response(
       JSON.stringify({ 
-        error: error instanceof Error ? error.message : 'An unexpected error occurred' 
+        error: errorMessage
       }),
       { 
-        status: 500,
+        status: statusCode,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       }
     );
