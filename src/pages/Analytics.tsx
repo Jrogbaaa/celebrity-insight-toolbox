@@ -5,17 +5,51 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
-import { Search } from "lucide-react";
+import { Search, Loader2 } from "lucide-react";
 import { useSocialMediaMetrics } from "@/services/SocialMediaService";
+import { useToast } from "@/hooks/use-toast";
 
 const Analytics = () => {
   const [username, setUsername] = useState("");
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
   const { data: metrics, isLoading } = useSocialMediaMetrics();
+  const { toast } = useToast();
 
-  const handleSearch = (e: React.FormEvent) => {
+  const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
-    // In a real implementation, this would trigger fetching data for the specified username
-    console.log("Searching for:", username);
+    
+    if (!username.trim()) {
+      toast({
+        title: "Username required",
+        description: "Please enter an Instagram username to analyze",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsAnalyzing(true);
+    
+    try {
+      // Simulate API call with timeout
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      toast({
+        title: "Profile analyzed",
+        description: `Successfully analyzed @${username}'s profile`,
+      });
+      
+      // For now we're using mock data, but this is where you'd make the actual API call
+      console.log("Analyzing profile:", username);
+      
+    } catch (error) {
+      toast({
+        title: "Analysis failed",
+        description: "Unable to analyze this profile. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsAnalyzing(false);
+    }
   };
 
   if (isLoading) {
@@ -34,10 +68,20 @@ const Analytics = () => {
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             className="max-w-md"
+            disabled={isAnalyzing}
           />
-          <Button type="submit">
-            <Search className="mr-2 h-4 w-4" />
-            Analyze Profile
+          <Button type="submit" disabled={isAnalyzing}>
+            {isAnalyzing ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Analyzing...
+              </>
+            ) : (
+              <>
+                <Search className="mr-2 h-4 w-4" />
+                Analyze Profile
+              </>
+            )}
           </Button>
         </form>
       </Card>
