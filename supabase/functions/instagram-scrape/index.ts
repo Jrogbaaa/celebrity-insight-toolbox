@@ -1,4 +1,4 @@
-import { serve } from 'https://deno.fresh.dev/std@v9.6.1/http/server.ts';
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import FirecrawlApp from 'npm:@mendable/firecrawl-js';
 
 const corsHeaders = {
@@ -9,17 +9,25 @@ const corsHeaders = {
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
+    return new Response(null, { 
+      headers: corsHeaders,
+      status: 204
+    });
   }
 
   try {
     const { username } = await req.json();
     console.log('Scraping Instagram profile:', username);
 
-    const firecrawl = new FirecrawlApp({ 
-      apiKey: Deno.env.get('FIRECRAWL_API_KEY') || ''
-    });
+    const apiKey = Deno.env.get('FIRECRAWL_API_KEY');
+    if (!apiKey) {
+      console.error('FIRECRAWL_API_KEY not found in environment variables');
+      throw new Error('API key configuration missing');
+    }
+
+    const firecrawl = new FirecrawlApp({ apiKey });
     
+    console.log(`Starting crawl for Instagram profile: ${username}`);
     const response = await firecrawl.crawlUrl(`https://www.instagram.com/${username}/`, {
       limit: 10,
       scrapeOptions: {
@@ -27,6 +35,7 @@ serve(async (req) => {
       }
     });
 
+    console.log('Crawl response:', response);
     if (!response.success) {
       throw new Error('Failed to scrape Instagram profile');
     }
@@ -49,15 +58,24 @@ serve(async (req) => {
     };
 
     return new Response(JSON.stringify(mockData), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      headers: { 
+        ...corsHeaders, 
+        'Content-Type': 'application/json' 
+      },
+      status: 200
     });
   } catch (error) {
-    console.error('Error:', error.message);
+    console.error('Error in instagram-scrape function:', error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ 
+        error: error instanceof Error ? error.message : 'An unexpected error occurred' 
+      }),
       { 
         status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        headers: { 
+          ...corsHeaders, 
+          'Content-Type': 'application/json' 
+        },
       }
     );
   }
