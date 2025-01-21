@@ -6,6 +6,7 @@ import { toast } from "@/hooks/use-toast";
 
 const Login = () => {
   const [clientId, setClientId] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const fetchClientId = async () => {
@@ -54,6 +55,7 @@ const Login = () => {
       return;
     }
 
+    setIsLoading(true);
     const redirectUri = `${window.location.origin}/instagram-callback`;
     const scope = 'instagram_basic,instagram_content_publish';
     
@@ -74,11 +76,11 @@ const Login = () => {
           </p>
           <Button 
             onClick={handleConnectInstagram}
-            className="gap-2"
-            disabled={!clientId}
+            className="w-full gap-2 hover:bg-primary/90 transition-colors"
+            disabled={!clientId || isLoading}
           >
             <Instagram className="h-5 w-5" />
-            Continue with Instagram
+            {isLoading ? "Connecting..." : "Continue with Instagram"}
           </Button>
         </div>
       </Card>
