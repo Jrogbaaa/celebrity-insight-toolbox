@@ -6,11 +6,12 @@ import { toast } from "@/hooks/use-toast";
 
 const Login = () => {
   const [clientId, setClientId] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchClientId = async () => {
       try {
+        setIsLoading(true);
         const response = await fetch(
           "https://ygweyscocelwjcqinkth.supabase.co/functions/v1/get-instagram-client-id",
           {
@@ -26,22 +27,33 @@ const Login = () => {
         if (error) {
           console.error("Error fetching client ID:", error);
           toast({
-            title: "Error",
-            description: "Failed to initialize Instagram login. Please try again.",
+            title: "Configuration Error",
+            description: "Instagram login is not properly configured. Please try again later.",
             variant: "destructive",
           });
           return;
         }
 
-        console.log("Received client ID:", data?.clientId);
-        setClientId(data?.clientId);
+        if (!data?.clientId) {
+          toast({
+            title: "Configuration Error",
+            description: "Instagram client ID is missing. Please try again later.",
+            variant: "destructive",
+          });
+          return;
+        }
+
+        console.log("Received client ID:", data.clientId);
+        setClientId(data.clientId);
       } catch (error) {
         console.error("Error:", error);
         toast({
           title: "Error",
-          description: "Failed to initialize Instagram login. Please try again.",
+          description: "Failed to initialize Instagram login. Please try again later.",
           variant: "destructive",
         });
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -81,7 +93,7 @@ const Login = () => {
             onClick={handleConnectInstagram}
             className="w-full gap-2 hover:bg-primary/90 transition-colors"
             variant="default"
-            disabled={isLoading}
+            disabled={isLoading || !clientId}
           >
             <Instagram className="h-5 w-5" />
             {isLoading ? "Connecting..." : "Continue with Instagram"}
