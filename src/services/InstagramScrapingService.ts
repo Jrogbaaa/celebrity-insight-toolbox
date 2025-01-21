@@ -4,8 +4,19 @@ export const scrapeInstagramProfile = async () => {
   try {
     console.log('Fetching Instagram profile data');
     
+    // Get the current session
+    const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+    
+    if (sessionError || !session) {
+      throw new Error('Please sign in to view your Instagram analytics');
+    }
+    
     const { data, error } = await supabase.functions.invoke('instagram-analyze', {
-      body: {} // No need to pass username anymore
+      body: {},
+      // Pass the access token in the headers
+      headers: {
+        Authorization: `Bearer ${session.access_token}`
+      }
     });
 
     if (error) {
