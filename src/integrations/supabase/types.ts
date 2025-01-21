@@ -9,6 +9,30 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      instagram_cache: {
+        Row: {
+          created_at: string | null
+          data: Json
+          id: string
+          updated_at: string | null
+          username: string
+        }
+        Insert: {
+          created_at?: string | null
+          data: Json
+          id?: string
+          updated_at?: string | null
+          username: string
+        }
+        Update: {
+          created_at?: string | null
+          data?: Json
+          id?: string
+          updated_at?: string | null
+          username?: string
+        }
+        Relationships: []
+      }
       instagram_messages: {
         Row: {
           created_at: string | null
