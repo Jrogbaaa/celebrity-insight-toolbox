@@ -22,52 +22,55 @@ const Analytics = () => {
     window.location.href = instagramUrl;
   };
 
-  if (error?.message === "Please connect your Instagram account first") {
-    return (
-      <div className="container py-8">
-        <h1 className="text-3xl font-bold mb-8">Instagram Analytics</h1>
-        <Card className="p-6">
-          <div className="text-center">
-            <Instagram className="mx-auto h-12 w-12 mb-4 text-pink-500" />
-            <h2 className="text-2xl font-semibold mb-4">Connect Your Instagram Account</h2>
-            <p className="text-muted-foreground mb-6">
-              Connect your Instagram Business account to view detailed analytics and insights about your profile.
-            </p>
-            <Button onClick={handleConnectInstagram}>
-              Connect Instagram
-            </Button>
-          </div>
-        </Card>
-      </div>
-    );
-  }
+  // Example data for demonstration
+  const exampleData = {
+    followers: 15400,
+    engagementRate: 4.2,
+    commentsPerPost: 25,
+    sharesPerPost: 15,
+    recentPosts: [
+      { date: "Jan", engagement: 2400 },
+      { date: "Feb", engagement: 1398 },
+      { date: "Mar", engagement: 9800 },
+      { date: "Apr", engagement: 3908 },
+      { date: "May", engagement: 4800 },
+      { date: "Jun", engagement: 3800 },
+    ],
+    posts: [
+      { timestamp: "2024-01-21T09:00:00Z", likes: 1200, comments: 45 },
+      { timestamp: "2024-01-21T15:00:00Z", likes: 2300, comments: 89 },
+      { timestamp: "2024-01-21T18:00:00Z", likes: 3100, comments: 120 },
+      { timestamp: "2024-01-21T21:00:00Z", likes: 1800, comments: 67 },
+      { timestamp: "2024-01-22T12:00:00Z", likes: 2100, comments: 78 },
+      { timestamp: "2024-01-22T16:00:00Z", likes: 2800, comments: 95 },
+    ],
+  };
 
   return (
     <div className="container py-8">
-      <h1 className="text-3xl font-bold mb-8">Your Instagram Analytics</h1>
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-3xl font-bold">Instagram Analytics</h1>
+        <Button onClick={handleConnectInstagram} className="flex items-center gap-2">
+          <Instagram className="h-5 w-5" />
+          Connect Your Account
+        </Button>
+      </div>
 
-      {error && error.message !== "Please connect your Instagram account first" && (
-        <Alert variant="destructive" className="mb-8">
-          <AlertDescription>{error.message}</AlertDescription>
-        </Alert>
-      )}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <MetricsGrid />
+      </div>
+      
+      <div className="grid gap-4 mt-8">
+        <EngagementChart />
+        <PostTimingAnalyzer posts={exampleData.posts} />
+      </div>
 
-      {isLoading ? (
-        <Card className="p-6 text-center">
-          <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
-          <p className="text-muted-foreground">Loading your Instagram metrics...</p>
-        </Card>
-      ) : metrics && (
-        <>
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            <MetricsGrid />
-          </div>
-          <div className="grid gap-4 mt-8">
-            <EngagementChart />
-            {metrics.posts && <PostTimingAnalyzer posts={metrics.posts} />}
-          </div>
-        </>
-      )}
+      <div className="mt-8 bg-muted/50 rounded-lg p-6">
+        <h2 className="text-lg font-semibold mb-2">👋 Welcome to the Demo</h2>
+        <p className="text-muted-foreground">
+          This is an example of how your Instagram analytics dashboard will look. Connect your Instagram account to see your real data!
+        </p>
+      </div>
     </div>
   );
 };

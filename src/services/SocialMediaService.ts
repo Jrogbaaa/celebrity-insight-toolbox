@@ -16,7 +16,7 @@ interface SocialMetrics {
   }[];
 }
 
-// This is mock data simulating public Instagram metrics
+// Example data simulating Instagram metrics
 const MOCK_DATA: SocialMetrics = {
   followers: 15400,
   engagementRate: 4.2,
@@ -44,7 +44,7 @@ export const useSocialMediaMetrics = () => {
   return useQuery({
     queryKey: ["social-metrics"],
     queryFn: async (): Promise<SocialMetrics> => {
-      // In a real implementation, this would fetch public data
+      // In a real implementation, this would fetch real data
       // For now using mock data
       return MOCK_DATA;
     },
