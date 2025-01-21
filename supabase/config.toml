@@ -18,3 +18,7 @@ verify_jwt = false
 [[functions]]
 [functions.get-instagram-client-id]
 verify_jwt = false
+
+[[functions]]
+[functions.instagram-analyze]
+verify_jwt = false

@@ -6,14 +6,15 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { Search, Loader2 } from "lucide-react";
-import { useSocialMediaMetrics } from "@/services/SocialMediaService";
+import { useInstagramAnalysis } from "@/services/InstagramService";
 import { useToast } from "@/hooks/use-toast";
 
 const Analytics = () => {
   const [username, setUsername] = useState("");
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const { data: metrics, isLoading } = useSocialMediaMetrics();
+  const [searchedUsername, setSearchedUsername] = useState("");
   const { toast } = useToast();
+  
+  const { data: metrics, isLoading, error } = useInstagramAnalysis(searchedUsername);
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -27,33 +28,15 @@ const Analytics = () => {
       return;
     }
 
-    setIsAnalyzing(true);
-    
-    try {
-      // Simulate API call with timeout
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      toast({
-        title: "Profile analyzed",
-        description: `Successfully analyzed @${username}'s profile`,
-      });
-      
-      // For now we're using mock data, but this is where you'd make the actual API call
-      console.log("Analyzing profile:", username);
-      
-    } catch (error) {
-      toast({
-        title: "Analysis failed",
-        description: "Unable to analyze this profile. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsAnalyzing(false);
-    }
+    setSearchedUsername(username.trim());
   };
 
-  if (isLoading) {
-    return <div>Loading analytics...</div>;
+  if (error) {
+    toast({
+      title: "Analysis failed",
+      description: error.message || "Unable to analyze this profile. Please try again.",
+      variant: "destructive",
+    });
   }
 
   return (
@@ -68,10 +51,10 @@ const Analytics = () => {
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             className="max-w-md"
-            disabled={isAnalyzing}
+            disabled={isLoading}
           />
-          <Button type="submit" disabled={isAnalyzing}>
-            {isAnalyzing ? (
+          <Button type="submit" disabled={isLoading}>
+            {isLoading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 Analyzing...
@@ -86,13 +69,17 @@ const Analytics = () => {
         </form>
       </Card>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <MetricsGrid />
-      </div>
-      <div className="grid gap-4 mt-8">
-        <EngagementChart />
-        {metrics?.posts && <PostTimingAnalyzer posts={metrics.posts} />}
-      </div>
+      {metrics && (
+        <>
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            <MetricsGrid />
+          </div>
+          <div className="grid gap-4 mt-8">
+            <EngagementChart />
+            {metrics.posts && <PostTimingAnalyzer posts={metrics.posts} />}
+          </div>
+        </>
+      )}
     </div>
   );
 };
