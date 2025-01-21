@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -20,27 +21,57 @@ serve(async (req) => {
 
     console.log('Analyzing Instagram profile:', username);
 
-    // Get Instagram Graph API credentials
-    const clientId = Deno.env.get('INSTAGRAM_CLIENT_ID');
-    const clientSecret = Deno.env.get('INSTAGRAM_CLIENT_SECRET');
+    // Initialize Supabase client
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabase = createClient(supabaseUrl, supabaseKey);
 
-    if (!clientId || !clientSecret) {
-      throw new Error('Instagram credentials not configured');
+    // Get user from auth header
+    const authHeader = req.headers.get('authorization')?.split(' ')[1];
+    if (!authHeader) {
+      throw new Error('Authentication required');
     }
 
-    // First get the user's Instagram Business Account ID
+    const { data: { user }, error: userError } = await supabase.auth.getUser(authHeader);
+    if (userError || !user) {
+      throw new Error('Failed to get user');
+    }
+
+    // Get user's Instagram token
+    const { data: tokenData, error: tokenError } = await supabase
+      .from('instagram_tokens')
+      .select('access_token')
+      .eq('user_id', user.id)
+      .maybeSingle();
+
+    if (tokenError) {
+      console.error('Error fetching token:', tokenError);
+      throw new Error('Failed to retrieve Instagram token');
+    }
+
+    if (!tokenData?.access_token) {
+      throw new Error('Please connect your Instagram account first');
+    }
+
+    console.log('Retrieved Instagram token, fetching profile data...');
+
+    // Use the token to fetch Instagram data
     const userResponse = await fetch(
-      `https://graph.facebook.com/v18.0/${username}?fields=business_discovery{followers_count,media_count,media{comments_count,like_count,timestamp}}&access_token=${clientSecret}`
+      `https://graph.facebook.com/v18.0/${username}?fields=business_discovery{followers_count,media_count,media{comments_count,like_count,timestamp}}&access_token=${tokenData.access_token}`
     );
 
     const userData = await userResponse.json();
 
     if (userData.error) {
       console.error('Instagram API error:', userData.error);
-      throw new Error(userData.error.message);
+      throw new Error(userData.error.message || 'Failed to fetch Instagram data');
     }
 
     const business_discovery = userData.business_discovery;
+    if (!business_discovery) {
+      throw new Error('Could not find business account with this username');
+    }
+
     const media = business_discovery.media.data;
 
     // Calculate engagement metrics

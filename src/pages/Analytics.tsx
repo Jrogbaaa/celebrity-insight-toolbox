@@ -5,9 +5,10 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
-import { Search, Loader2 } from "lucide-react";
+import { Search, Loader2, Instagram } from "lucide-react";
 import { useInstagramAnalysis } from "@/services/InstagramService";
 import { useToast } from "@/hooks/use-toast";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const Analytics = () => {
   const [username, setUsername] = useState("");
@@ -31,12 +32,35 @@ const Analytics = () => {
     setSearchedUsername(username.trim());
   };
 
-  if (error) {
-    toast({
-      title: "Analysis failed",
-      description: error.message || "Unable to analyze this profile. Please try again.",
-      variant: "destructive",
-    });
+  const handleConnectInstagram = () => {
+    // Construct Instagram OAuth URL
+    const clientId = import.meta.env.VITE_INSTAGRAM_CLIENT_ID;
+    const redirectUri = `${window.location.origin}/instagram-callback`;
+    const scope = 'instagram_basic,instagram_content_publish';
+    
+    const instagramUrl = `https://api.instagram.com/oauth/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scope}&response_type=code`;
+    
+    window.location.href = instagramUrl;
+  };
+
+  if (error?.message === "Please connect your Instagram account first") {
+    return (
+      <div className="container py-8">
+        <h1 className="text-3xl font-bold mb-8">Instagram Analytics</h1>
+        <Card className="p-6">
+          <div className="text-center">
+            <Instagram className="mx-auto h-12 w-12 mb-4 text-pink-500" />
+            <h2 className="text-2xl font-semibold mb-4">Connect Your Instagram Account</h2>
+            <p className="text-muted-foreground mb-6">
+              To analyze Instagram profiles, you need to connect your Instagram Business account first.
+            </p>
+            <Button onClick={handleConnectInstagram}>
+              Connect Instagram
+            </Button>
+          </div>
+        </Card>
+      </div>
+    );
   }
 
   return (
@@ -68,6 +92,12 @@ const Analytics = () => {
           </Button>
         </form>
       </Card>
+
+      {error && error.message !== "Please connect your Instagram account first" && (
+        <Alert variant="destructive" className="mb-8">
+          <AlertDescription>{error.message}</AlertDescription>
+        </Alert>
+      )}
 
       {metrics && (
         <>
