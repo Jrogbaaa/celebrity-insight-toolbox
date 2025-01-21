@@ -13,46 +13,37 @@ serve(async (req) => {
   }
 
   try {
-    const { username } = await req.json();
-    console.log('Analyzing Instagram profile for:', username);
-
-    if (!username) {
-      throw new Error('Username is required');
-    }
-
+    console.log('Starting Instagram profile analysis');
+    
     // Initialize Supabase client
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Check cache first
-    const { data: cachedData, error: cacheError } = await supabase
-      .from('instagram_cache')
+    // Get user from auth header
+    const authHeader = req.headers.get('authorization')?.split(' ')[1];
+    if (!authHeader) {
+      throw new Error('No authorization header');
+    }
+
+    const { data: { user }, error: userError } = await supabase.auth.getUser(authHeader);
+    if (userError || !user) {
+      throw new Error('Failed to get user');
+    }
+
+    // Get user's Instagram token
+    const { data: tokenData, error: tokenError } = await supabase
+      .from('instagram_tokens')
       .select('*')
-      .eq('username', username)
-      .maybeSingle();
+      .eq('user_id', user.id)
+      .single();
 
-    const cacheExpiry = 5 * 60 * 1000; // 5 minutes
-    if (cachedData && 
-        (new Date().getTime() - new Date(cachedData.updated_at).getTime()) < cacheExpiry) {
-      console.log('Returning cached data for:', username);
-      return new Response(
-        JSON.stringify(cachedData.data),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+    if (tokenError || !tokenData) {
+      throw new Error('Please connect your Instagram account first');
     }
 
-    // Get Instagram app access token
-    const clientId = Deno.env.get('INSTAGRAM_CLIENT_ID');
-    const clientSecret = Deno.env.get('INSTAGRAM_CLIENT_SECRET');
-
-    if (!clientId || !clientSecret) {
-      console.error('Missing Instagram credentials:', { clientId: !!clientId, clientSecret: !!clientSecret });
-      throw new Error('Instagram credentials not configured');
-    }
-
-    // For now, return mock data since we can't access the Instagram API without user authentication
-    console.log('Generating mock data for:', username);
+    // For now, return mock data since we haven't implemented the Instagram API calls yet
+    console.log('Generating mock data for authenticated user');
     const result = {
       followers: Math.floor(Math.random() * 100000) + 10000,
       engagementRate: Number((Math.random() * 5 + 1).toFixed(2)),
@@ -73,7 +64,7 @@ serve(async (req) => {
     const { error: upsertError } = await supabase
       .from('instagram_cache')
       .upsert({ 
-        username, 
+        username: user.id, // Using user.id as username for now
         data: result,
         updated_at: new Date().toISOString()
       });
