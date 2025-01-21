@@ -34,11 +34,22 @@ export const scrapeInstagramProfile = async (username: string): Promise<Instagra
       limit: 10,
       scrapeOptions: {
         formats: ['html'],
-        cssSelectors: {
-          followers: 'meta[name="description"]',
-          posts: 'article',
-          engagement: '.engagement-metrics'
-        }
+        waitForSelector: 'meta[name="description"]',
+        elements: [
+          {
+            selector: 'meta[name="description"]',
+            attribute: 'content',
+            name: 'followers'
+          },
+          {
+            selector: 'article',
+            name: 'posts'
+          },
+          {
+            selector: '.engagement-metrics',
+            name: 'engagement'
+          }
+        ]
       }
     });
 
