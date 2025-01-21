@@ -21,14 +21,26 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     const checkAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      const { data: tokens } = await supabase
-        .from('instagram_tokens')
-        .select('*')
-        .single();
-      
-      setIsAuthenticated(!!tokens);
-      if (!tokens) {
+      try {
+        const { data: tokens, error } = await supabase
+          .from('instagram_tokens')
+          .select('*')
+          .maybeSingle();
+        
+        if (error) {
+          console.error('Error checking authentication:', error);
+          setIsAuthenticated(false);
+          navigate("/login", { state: { from: location.pathname } });
+          return;
+        }
+
+        setIsAuthenticated(!!tokens);
+        if (!tokens) {
+          navigate("/login", { state: { from: location.pathname } });
+        }
+      } catch (error) {
+        console.error('Error in checkAuth:', error);
+        setIsAuthenticated(false);
         navigate("/login", { state: { from: location.pathname } });
       }
     };
