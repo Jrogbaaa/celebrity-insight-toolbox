@@ -33,22 +33,7 @@ export const scrapeInstagramProfile = async (username: string): Promise<Instagra
     const response = await firecrawl.crawlUrl(`https://www.instagram.com/${username}/`, {
       limit: 10,
       scrapeOptions: {
-        formats: ['html'],
-        elements: [
-          {
-            selector: 'meta[name="description"]',
-            attribute: 'content',
-            name: 'followers'
-          },
-          {
-            selector: 'article',
-            name: 'posts'
-          },
-          {
-            selector: '.engagement-metrics',
-            name: 'engagement'
-          }
-        ]
+        formats: ['html']
       }
     });
 
