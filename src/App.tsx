@@ -22,21 +22,18 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     const checkAuth = async () => {
       const { data: { session } } = await supabase.auth.getSession();
-      setIsAuthenticated(!!session);
-      if (!session) {
+      const { data: tokens } = await supabase
+        .from('instagram_tokens')
+        .select('*')
+        .single();
+      
+      setIsAuthenticated(!!tokens);
+      if (!tokens) {
         navigate("/login", { state: { from: location.pathname } });
       }
     };
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setIsAuthenticated(!!session);
-      if (!session) {
-        navigate("/login");
-      }
-    });
-
     checkAuth();
-    return () => subscription.unsubscribe();
   }, [navigate, location]);
 
   if (isAuthenticated === null) {
