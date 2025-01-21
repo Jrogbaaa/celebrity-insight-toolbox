@@ -21,8 +21,9 @@ serve(async (req) => {
     const supabase = createClient(supabaseUrl, supabaseKey);
 
     // Get user from auth header
-    const authHeader = req.headers.get('authorization')?.split(' ')[1];
+    const authHeader = req.headers.get('authorization');
     if (!authHeader) {
+      console.error('No authorization header provided');
       return new Response(
         JSON.stringify({ error: 'No authorization header' }),
         { 
@@ -32,8 +33,12 @@ serve(async (req) => {
       );
     }
 
-    const { data: { user }, error: userError } = await supabase.auth.getUser(authHeader);
+    // Extract the token from the Bearer header
+    const token = authHeader.replace('Bearer ', '');
+    const { data: { user }, error: userError } = await supabase.auth.getUser(token);
+    
     if (userError || !user) {
+      console.error('Failed to get user:', userError);
       return new Response(
         JSON.stringify({ error: 'Failed to get user' }),
         { 

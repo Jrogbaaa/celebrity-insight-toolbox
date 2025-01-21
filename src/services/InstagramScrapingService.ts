@@ -13,9 +13,9 @@ export const scrapeInstagramProfile = async () => {
     
     const { data, error } = await supabase.functions.invoke('instagram-analyze', {
       body: {},
-      // Pass the access token in the headers
       headers: {
-        Authorization: `Bearer ${session.access_token}`
+        // Use the session's access token directly
+        Authorization: `Bearer ${session?.access_token}`
       }
     });
 
