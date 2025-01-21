@@ -71,9 +71,8 @@ const Login = () => {
     }
 
     setIsLoading(true);
-    // Use the actual frontend application URL, not the Supabase project URL
     const redirectUri = `${window.location.origin}/instagram-callback`;
-    const scope = 'instagram_basic,instagram_content_publish';
+    const scope = 'instagram_basic,instagram_content_publish,instagram_graph_user_profile,instagram_graph_user_media,instagram_manage_insights';
     
     const instagramUrl = `https://api.instagram.com/oauth/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scope}&response_type=code`;
     
