@@ -10,7 +10,14 @@ export const scrapeInstagramProfile = async () => {
 
     if (error) {
       console.error('Error from edge function:', error);
-      throw error;
+      // Throw a more user-friendly error message based on the status code
+      if (error.message.includes('No authorization header') || error.message.includes('Failed to get user')) {
+        throw new Error('Please sign in to view your Instagram analytics');
+      }
+      if (error.message.includes('Please connect your Instagram account')) {
+        throw new Error('Please connect your Instagram account to view analytics');
+      }
+      throw new Error('Failed to fetch Instagram data. Please try again later.');
     }
 
     return data;

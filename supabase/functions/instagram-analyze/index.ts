@@ -23,23 +23,54 @@ serve(async (req) => {
     // Get user from auth header
     const authHeader = req.headers.get('authorization')?.split(' ')[1];
     if (!authHeader) {
-      throw new Error('No authorization header');
+      return new Response(
+        JSON.stringify({ error: 'No authorization header' }),
+        { 
+          status: 401,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
+      );
     }
 
     const { data: { user }, error: userError } = await supabase.auth.getUser(authHeader);
     if (userError || !user) {
-      throw new Error('Failed to get user');
+      return new Response(
+        JSON.stringify({ error: 'Failed to get user' }),
+        { 
+          status: 401,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
+      );
     }
+
+    console.log('Got user:', user.id);
 
     // Get user's Instagram token
     const { data: tokenData, error: tokenError } = await supabase
       .from('instagram_tokens')
       .select('*')
       .eq('user_id', user.id)
-      .single();
+      .maybeSingle();
 
-    if (tokenError || !tokenData) {
-      throw new Error('Please connect your Instagram account first');
+    if (tokenError) {
+      console.error('Error fetching token:', tokenError);
+      return new Response(
+        JSON.stringify({ error: 'Failed to fetch Instagram token' }),
+        { 
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
+      );
+    }
+
+    if (!tokenData) {
+      return new Response(
+        JSON.stringify({ error: 'Please connect your Instagram account first' }),
+        { 
+          status: 403,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
+      );
     }
 
     // For now, return mock data since we haven't implemented the Instagram API calls yet
@@ -64,7 +95,7 @@ serve(async (req) => {
     const { error: upsertError } = await supabase
       .from('instagram_cache')
       .upsert({ 
-        username: user.id, // Using user.id as username for now
+        username: user.id,
         data: result,
         updated_at: new Date().toISOString()
       });
@@ -79,13 +110,14 @@ serve(async (req) => {
     );
 
   } catch (error) {
-    console.error('Error analyzing Instagram profile:', error);
+    console.error('Error in instagram-analyze function:', error);
+    
     return new Response(
       JSON.stringify({ 
         error: error.message || 'An unexpected error occurred'
       }),
       { 
-        status: 400,
+        status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       }
     );
