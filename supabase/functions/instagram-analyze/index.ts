@@ -6,21 +6,18 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
-const INSTAGRAM_API_BASE = 'https://graph.instagram.com/v12.0';
-
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const { username } = await req.json();
-    
-    if (!username) {
-      throw new Error('Username is required');
-    }
+    const url = new URL(req.url);
+    const username = url.searchParams.get('username');
 
-    console.log('Analyzing Instagram profile:', username);
+    if (!username) {
+      throw new Error('Username parameter is required');
+    }
 
     // Check cache first
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
@@ -43,24 +40,52 @@ serve(async (req) => {
       );
     }
 
-    // Fetch fresh data from Instagram API
-    const instagramToken = Deno.env.get('INSTAGRAM_APP_TOKEN');
-    const response = await fetch(
-      `${INSTAGRAM_API_BASE}/${username}?fields=id,username,media_count,followers_count&access_token=${instagramToken}`
+    // If not in cache or expired, fetch from Instagram API
+    const clientId = Deno.env.get('INSTAGRAM_CLIENT_ID');
+    const clientSecret = Deno.env.get('INSTAGRAM_CLIENT_SECRET');
+
+    if (!clientId || !clientSecret) {
+      throw new Error('Instagram credentials not configured');
+    }
+
+    // First get an app access token
+    const tokenResponse = await fetch(
+      'https://api.instagram.com/oauth/access_token',
+      {
+        method: 'POST',
+        body: new URLSearchParams({
+          client_id: clientId,
+          client_secret: clientSecret,
+          grant_type: 'client_credentials'
+        })
+      }
     );
 
-    if (!response.ok) {
+    const tokenData = await tokenResponse.json();
+
+    if (!tokenResponse.ok) {
+      console.error('Error getting Instagram token:', tokenData);
+      throw new Error('Failed to get Instagram access token');
+    }
+
+    // Use the token to fetch user data
+    const profileResponse = await fetch(
+      `https://graph.instagram.com/${username}?fields=id,username,media_count,followers_count&access_token=${tokenData.access_token}`
+    );
+
+    if (!profileResponse.ok) {
+      console.error('Instagram API error:', await profileResponse.text());
       throw new Error('Failed to fetch Instagram data');
     }
 
-    const profileData = await response.json();
+    const profileData = await profileResponse.json();
 
     // Transform the data
     const result = {
       followers: profileData.followers_count,
-      engagementRate: 4.2, // Example rate
-      commentsPerPost: 25,
-      sharesPerPost: 15,
+      engagementRate: 4.2, // Example rate since not available in public API
+      commentsPerPost: 25, // Example since not available in public API
+      sharesPerPost: 15,   // Example since not available in public API
       recentPosts: [
         { date: "Jan", engagement: 2400 },
         { date: "Feb", engagement: 1398 },
