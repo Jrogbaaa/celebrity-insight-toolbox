@@ -1,5 +1,4 @@
 import FirecrawlApp from '@mendable/firecrawl-js';
-import { supabase } from "@/integrations/supabase/client";
 
 interface InstagramMetrics {
   followers: number;
@@ -19,16 +18,11 @@ interface InstagramMetrics {
 
 export const scrapeInstagramProfile = async (username: string): Promise<InstagramMetrics> => {
   try {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) {
-      throw new Error("Authentication required");
-    }
-
+    console.log('Scraping Instagram profile:', username);
+    
     const firecrawl = new FirecrawlApp({ 
       apiKey: process.env.FIRECRAWL_API_KEY || ''
     });
-
-    console.log('Scraping Instagram profile:', username);
     
     const response = await firecrawl.crawlUrl(`https://www.instagram.com/${username}/`, {
       limit: 10,
@@ -41,17 +35,6 @@ export const scrapeInstagramProfile = async (username: string): Promise<Instagra
       throw new Error('Failed to scrape Instagram profile');
     }
 
-    // Extract metrics from the scraped HTML
-    const metrics = extractMetricsFromHtml(response.data);
-    return metrics;
-  } catch (error) {
-    console.error('Error scraping Instagram profile:', error);
-    throw error;
-  }
-};
-
-function extractMetricsFromHtml(data: any): InstagramMetrics {
-  try {
     // For now, return mock data while we refine the selectors
     return {
       followers: Math.floor(Math.random() * 100000) + 10000,
@@ -69,7 +52,7 @@ function extractMetricsFromHtml(data: any): InstagramMetrics {
       }))
     };
   } catch (error) {
-    console.error('Error extracting metrics:', error);
-    throw new Error('Failed to extract metrics from scraped data');
+    console.error('Error scraping Instagram profile:', error);
+    throw error;
   }
-}
+};
