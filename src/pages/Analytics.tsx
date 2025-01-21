@@ -1,124 +1,39 @@
 import { EngagementChart } from "@/components/EngagementChart";
 import { MetricsGrid } from "@/components/MetricsGrid";
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/hooks/use-toast";
-import { Instagram } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import { Search } from "lucide-react";
 
 const Analytics = () => {
-  const { toast } = useToast();
-  const [isConnecting, setIsConnecting] = useState(false);
-  const [hasInstagramToken, setHasInstagramToken] = useState(false);
+  const [username, setUsername] = useState("");
 
-  useEffect(() => {
-    const checkInstagramConnection = async () => {
-      try {
-        const { data: tokens, error } = await supabase
-          .from('instagram_tokens')
-          .select('access_token')
-          .limit(1);
-        
-        if (error) {
-          console.error('Error checking Instagram connection:', error);
-          return;
-        }
-        
-        setHasInstagramToken(tokens && tokens.length > 0);
-      } catch (error) {
-        console.error('Error checking Instagram connection:', error);
-      }
-    };
-
-    checkInstagramConnection();
-  }, []);
-
-  const handleInstagramConnect = async () => {
-    try {
-      setIsConnecting(true);
-      const { data, error } = await supabase.functions.invoke('get-instagram-client-id');
-      
-      if (error) {
-        console.error('Error getting client ID:', error);
-        toast({
-          title: "Connection Error",
-          description: "Failed to initialize Instagram connection. Please try again.",
-          variant: "destructive",
-        });
-        return;
-      }
-      
-      const clientId = data?.clientId;
-      if (!clientId) {
-        toast({
-          title: "Configuration Error",
-          description: "Instagram client ID not configured. Please check your setup.",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      const redirectUri = 'https://b7ef9762-75f5-4f7b-8406-6beeef658060.lovableproject.com/instagram-callback';
-      console.log('Starting Instagram OAuth flow with:', {
-        clientId,
-        redirectUri,
-        scope: [
-          'instagram_basic',
-          'instagram_manage_insights',
-          'pages_show_list',
-          'pages_read_engagement',
-          'business_management'
-        ].join(',')
-      });
-      
-      const authUrl = `https://www.facebook.com/v18.0/dialog/oauth?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent([
-        'instagram_basic',
-        'instagram_manage_insights',
-        'pages_show_list',
-        'pages_read_engagement',
-        'business_management'
-      ].join(','))}&response_type=code&auth_type=rerequest`;
-
-      // Open in the same window for embedded browser OAuth
-      window.location.href = authUrl;
-      
-    } catch (error) {
-      console.error('Instagram connection error:', error);
-      toast({
-        title: "Connection Error",
-        description: "Unable to connect to Instagram. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsConnecting(false);
-    }
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    // In a real implementation, this would trigger fetching data for the specified username
+    console.log("Searching for:", username);
   };
 
   return (
     <div className="container py-8">
-      <h1 className="text-3xl font-bold mb-8">Data Analytics</h1>
+      <h1 className="text-3xl font-bold mb-8">Instagram Analytics</h1>
       
-      <div className="mb-8 p-4 border rounded-lg bg-card">
-        <h2 className="text-xl font-semibold mb-4">Connect with Instagram Business Login</h2>
-        <p className="text-sm text-muted-foreground mb-4">
-          Connect your Instagram Business or Creator account to access insights and manage your content using the Instagram API.
-        </p>
-        <div className="flex gap-4 max-w-md">
-          <Button 
-            onClick={handleInstagramConnect}
-            className="w-full"
-            disabled={isConnecting || hasInstagramToken}
-          >
-            <Instagram className="mr-2 h-4 w-4" />
-            {hasInstagramToken 
-              ? 'Connected to Instagram' 
-              : isConnecting 
-                ? 'Connecting...' 
-                : 'Connect Instagram'
-            }
+      <Card className="mb-8 p-6">
+        <form onSubmit={handleSearch} className="flex gap-4">
+          <Input
+            type="text"
+            placeholder="Enter Instagram username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            className="max-w-md"
+          />
+          <Button type="submit">
+            <Search className="mr-2 h-4 w-4" />
+            Analyze Profile
           </Button>
-        </div>
-      </div>
+        </form>
+      </Card>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <MetricsGrid />
