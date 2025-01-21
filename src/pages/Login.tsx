@@ -11,7 +11,7 @@ const Login = () => {
   useEffect(() => {
     const fetchClientId = async () => {
       try {
-        const { data, error } = await fetch(
+        const response = await fetch(
           "https://ygweyscocelwjcqinkth.supabase.co/functions/v1/get-instagram-client-id",
           {
             method: "GET",
@@ -19,7 +19,9 @@ const Login = () => {
               "Content-Type": "application/json",
             },
           }
-        ).then(res => res.json());
+        );
+        
+        const { data, error } = await response.json();
 
         if (error) {
           console.error("Error fetching client ID:", error);
@@ -31,6 +33,7 @@ const Login = () => {
           return;
         }
 
+        console.log("Received client ID:", data?.clientId);
         setClientId(data?.clientId);
       } catch (error) {
         console.error("Error:", error);
@@ -77,7 +80,8 @@ const Login = () => {
           <Button 
             onClick={handleConnectInstagram}
             className="w-full gap-2 hover:bg-primary/90 transition-colors"
-            disabled={!clientId || isLoading}
+            variant="default"
+            disabled={isLoading}
           >
             <Instagram className="h-5 w-5" />
             {isLoading ? "Connecting..." : "Continue with Instagram"}
