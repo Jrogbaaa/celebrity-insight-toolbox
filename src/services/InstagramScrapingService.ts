@@ -21,7 +21,7 @@ export const scrapeInstagramProfile = async (username: string): Promise<Instagra
     console.log('Scraping Instagram profile:', username);
     
     const firecrawl = new FirecrawlApp({ 
-      apiKey: process.env.FIRECRAWL_API_KEY || ''
+      apiKey: import.meta.env.VITE_FIRECRAWL_API_KEY || ''
     });
     
     const response = await firecrawl.crawlUrl(`https://www.instagram.com/${username}/`, {
