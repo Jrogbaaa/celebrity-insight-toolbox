@@ -1,11 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 import { scrapeInstagramProfile } from "./InstagramScrapingService";
 
-export const analyzeInstagramProfile = async (username: string) => {
-  console.log("Analyzing profile:", username);
-  
+export const analyzeInstagramProfile = async () => {
   try {
-    const data = await scrapeInstagramProfile(username);
+    const data = await scrapeInstagramProfile();
     return data;
   } catch (error) {
     console.error("Error analyzing profile:", error);
@@ -13,10 +11,9 @@ export const analyzeInstagramProfile = async (username: string) => {
   }
 };
 
-export const useInstagramAnalysis = (username: string) => {
+export const useInstagramAnalysis = () => {
   return useQuery({
-    queryKey: ['instagram-analysis', username],
-    queryFn: () => analyzeInstagramProfile(username),
-    enabled: !!username,
+    queryKey: ['instagram-analysis'],
+    queryFn: () => analyzeInstagramProfile(),
   });
 };

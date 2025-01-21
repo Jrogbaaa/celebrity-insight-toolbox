@@ -1,11 +1,11 @@
 import { supabase } from "@/integrations/supabase/client";
 
-export const scrapeInstagramProfile = async (username: string) => {
+export const scrapeInstagramProfile = async () => {
   try {
-    console.log('Fetching Instagram profile:', username);
+    console.log('Fetching Instagram profile data');
     
     const { data, error } = await supabase.functions.invoke('instagram-analyze', {
-      body: { username }
+      body: {}  // No need to pass username anymore
     });
 
     if (error) {
