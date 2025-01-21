@@ -6,19 +6,23 @@ const corsHeaders = {
 }
 
 serve(async (req) => {
+  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders })
   }
 
   try {
     const clientId = Deno.env.get('INSTAGRAM_CLIENT_ID')
+    console.log('Retrieved Instagram Client ID:', clientId ? 'Found' : 'Not found')
+    
     if (!clientId) {
+      console.error('INSTAGRAM_CLIENT_ID environment variable is not set')
       throw new Error('Instagram client ID not configured')
     }
 
     return new Response(
       JSON.stringify({ 
-        clientId,
+        data: { clientId },
         error: null 
       }),
       { 
@@ -29,10 +33,10 @@ serve(async (req) => {
       }
     )
   } catch (error) {
-    console.error('Error in get-instagram-client-id:', error)
+    console.error('Error in get-instagram-client-id:', error.message)
     return new Response(
       JSON.stringify({ 
-        clientId: null,
+        data: null,
         error: error.message 
       }),
       { 
