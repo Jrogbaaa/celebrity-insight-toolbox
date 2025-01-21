@@ -11,57 +11,37 @@ serve(async (req) => {
   }
 
   try {
-    console.log('Starting Instagram client ID retrieval process...');
-    const origin = req.headers.get('origin') || '';
-    console.log('Request origin:', origin);
-    
-    console.log('Environment check:', {
-      hasClientId: !!Deno.env.get('INSTAGRAM_CLIENT_ID'),
-      availableEnvVars: Object.keys(Deno.env.toObject())
-    });
-
-    const clientId = Deno.env.get('INSTAGRAM_CLIENT_ID');
-    
+    const clientId = Deno.env.get('INSTAGRAM_CLIENT_ID')
     if (!clientId) {
-      console.error('Instagram client ID not found in environment variables');
-      throw new Error('Instagram client ID not configured');
+      throw new Error('Instagram client ID not configured')
     }
 
-    console.log('Successfully retrieved Instagram client ID');
     return new Response(
       JSON.stringify({ 
         clientId,
-        status: 'success',
-        origin: origin
+        error: null 
       }),
       { 
         headers: { 
           ...corsHeaders,
           'Content-Type': 'application/json'
-        }
+        } 
       }
-    );
+    )
   } catch (error) {
-    console.error('Error in get-instagram-client-id function:', error);
-    console.error('Full error details:', {
-      message: error.message,
-      stack: error.stack,
-      name: error.name
-    });
-    
+    console.error('Error in get-instagram-client-id:', error)
     return new Response(
       JSON.stringify({ 
-        error: error.message,
-        status: 'error',
-        details: 'Check function logs for more information'
+        clientId: null,
+        error: error.message 
       }),
       { 
-        status: 400,
-        headers: {
+        status: 500,
+        headers: { 
           ...corsHeaders,
           'Content-Type': 'application/json'
         }
       }
-    );
+    )
   }
-});
+})
