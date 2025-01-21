@@ -6,108 +6,94 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
+const createSupabaseClient = () => {
+  const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+  const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+  return createClient(supabaseUrl, supabaseKey);
+};
+
+const getAuthenticatedUser = async (supabase: any, authHeader: string | null) => {
+  if (!authHeader) {
+    console.error('No authorization header provided');
+    throw new Error('No authorization header');
+  }
+
+  const token = authHeader.replace('Bearer ', '');
+  const { data: { user }, error: userError } = await supabase.auth.getUser(token);
+  
+  if (userError || !user) {
+    console.error('Failed to get user:', userError);
+    throw new Error('Failed to get user');
+  }
+
+  return user;
+};
+
+const getInstagramToken = async (supabase: any, userId: string) => {
+  const { data: tokenData, error: tokenError } = await supabase
+    .from('instagram_tokens')
+    .select('*')
+    .eq('user_id', userId)
+    .maybeSingle();
+
+  if (tokenError) {
+    console.error('Error fetching token:', tokenError);
+    throw new Error('Failed to fetch Instagram token');
+  }
+
+  if (!tokenData) {
+    throw new Error('Please connect your Instagram account first');
+  }
+
+  return tokenData;
+};
+
+const generateMockData = () => ({
+  followers: Math.floor(Math.random() * 100000) + 10000,
+  engagementRate: Number((Math.random() * 5 + 1).toFixed(2)),
+  commentsPerPost: Math.floor(Math.random() * 50) + 10,
+  sharesPerPost: Math.floor(Math.random() * 30) + 5,
+  recentPosts: Array.from({ length: 6 }, (_, i) => ({
+    date: new Date(Date.now() - i * 24 * 60 * 60 * 1000).toLocaleString('default', { month: 'short' }),
+    engagement: Math.floor(Math.random() * 5000) + 1000
+  })),
+  posts: Array.from({ length: 6 }, (_, i) => ({
+    timestamp: new Date(Date.now() - i * 24 * 60 * 60 * 1000).toISOString(),
+    likes: Math.floor(Math.random() * 2000) + 500,
+    comments: Math.floor(Math.random() * 100) + 20
+  }))
+});
+
+const cacheAnalyticsData = async (supabase: any, userId: string, data: any) => {
+  const { error: upsertError } = await supabase
+    .from('instagram_cache')
+    .upsert({ 
+      username: userId,
+      data,
+      updated_at: new Date().toISOString()
+    });
+
+  if (upsertError) {
+    console.error('Error caching data:', upsertError);
+  }
+};
+
 serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
     console.log('Starting Instagram profile analysis');
+    const supabase = createSupabaseClient();
     
-    // Initialize Supabase client
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const supabase = createClient(supabaseUrl, supabaseKey);
-
-    // Get user from auth header
-    const authHeader = req.headers.get('authorization');
-    if (!authHeader) {
-      console.error('No authorization header provided');
-      return new Response(
-        JSON.stringify({ error: 'No authorization header' }),
-        { 
-          status: 401,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        }
-      );
-    }
-
-    // Extract the token from the Bearer header
-    const token = authHeader.replace('Bearer ', '');
-    const { data: { user }, error: userError } = await supabase.auth.getUser(token);
-    
-    if (userError || !user) {
-      console.error('Failed to get user:', userError);
-      return new Response(
-        JSON.stringify({ error: 'Failed to get user' }),
-        { 
-          status: 401,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        }
-      );
-    }
-
+    const user = await getAuthenticatedUser(supabase, req.headers.get('authorization'));
     console.log('Got user:', user.id);
 
-    // Get user's Instagram token
-    const { data: tokenData, error: tokenError } = await supabase
-      .from('instagram_tokens')
-      .select('*')
-      .eq('user_id', user.id)
-      .maybeSingle();
-
-    if (tokenError) {
-      console.error('Error fetching token:', tokenError);
-      return new Response(
-        JSON.stringify({ error: 'Failed to fetch Instagram token' }),
-        { 
-          status: 500,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        }
-      );
-    }
-
-    if (!tokenData) {
-      return new Response(
-        JSON.stringify({ error: 'Please connect your Instagram account first' }),
-        { 
-          status: 403,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        }
-      );
-    }
-
-    // For now, return mock data since we haven't implemented the Instagram API calls yet
-    console.log('Generating mock data for authenticated user');
-    const result = {
-      followers: Math.floor(Math.random() * 100000) + 10000,
-      engagementRate: Number((Math.random() * 5 + 1).toFixed(2)),
-      commentsPerPost: Math.floor(Math.random() * 50) + 10,
-      sharesPerPost: Math.floor(Math.random() * 30) + 5,
-      recentPosts: Array.from({ length: 6 }, (_, i) => ({
-        date: new Date(Date.now() - i * 24 * 60 * 60 * 1000).toLocaleString('default', { month: 'short' }),
-        engagement: Math.floor(Math.random() * 5000) + 1000
-      })),
-      posts: Array.from({ length: 6 }, (_, i) => ({
-        timestamp: new Date(Date.now() - i * 24 * 60 * 60 * 1000).toISOString(),
-        likes: Math.floor(Math.random() * 2000) + 500,
-        comments: Math.floor(Math.random() * 100) + 20
-      }))
-    };
-
-    // Cache the result
-    const { error: upsertError } = await supabase
-      .from('instagram_cache')
-      .upsert({ 
-        username: user.id,
-        data: result,
-        updated_at: new Date().toISOString()
-      });
-
-    if (upsertError) {
-      console.error('Error caching data:', upsertError);
-    }
+    await getInstagramToken(supabase, user.id);
+    
+    const result = generateMockData();
+    await cacheAnalyticsData(supabase, user.id, result);
 
     return new Response(
       JSON.stringify(result),
@@ -122,7 +108,8 @@ serve(async (req) => {
         error: error.message || 'An unexpected error occurred'
       }),
       { 
-        status: 500,
+        status: error.message.includes('No authorization header') || 
+                error.message.includes('Failed to get user') ? 401 : 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       }
     );
