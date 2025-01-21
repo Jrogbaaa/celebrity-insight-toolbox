@@ -1,18 +1,19 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import FirecrawlApp from 'npm:@mendable/firecrawl-js';
+import { createClient } from '@supabase/supabase-js';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Cache duration in seconds (5 minutes)
+const CACHE_DURATION = 300;
+
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
-    return new Response(null, { 
-      headers: corsHeaders,
-      status: 204
-    });
+    return new Response(null, { headers: corsHeaders });
   }
 
   try {
@@ -27,7 +28,31 @@ serve(async (req) => {
       );
     }
 
-    console.log('Scraping Instagram profile:', username);
+    console.log('Processing request for Instagram profile:', username);
+
+    // Initialize Supabase client for caching
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
+    // Check cache first
+    const { data: cachedData } = await supabase
+      .from('instagram_cache')
+      .select('*')
+      .eq('username', username)
+      .single();
+
+    if (cachedData && 
+        (new Date().getTime() - new Date(cachedData.updated_at).getTime()) / 1000 < CACHE_DURATION) {
+      console.log('Returning cached data for:', username);
+      return new Response(
+        JSON.stringify(cachedData.data),
+        { 
+          status: 200,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        }
+      );
+    }
 
     const apiKey = Deno.env.get('FIRECRAWL_API_KEY');
     if (!apiKey) {
@@ -70,6 +95,15 @@ serve(async (req) => {
       }))
     };
 
+    // Cache the data
+    await supabase
+      .from('instagram_cache')
+      .upsert({ 
+        username, 
+        data: mockData,
+        updated_at: new Date().toISOString()
+      });
+
     return new Response(
       JSON.stringify(mockData),
       { 
@@ -79,6 +113,25 @@ serve(async (req) => {
     );
   } catch (error) {
     console.error('Error in instagram-scrape function:', error);
+    
+    // Check if it's a rate limit error
+    if (error.message?.includes('Rate limit exceeded')) {
+      return new Response(
+        JSON.stringify({ 
+          error: 'Rate limit reached. Please try again in a minute.',
+          retryAfter: 60 // Suggest retry after 1 minute
+        }),
+        { 
+          status: 429,
+          headers: { 
+            ...corsHeaders, 
+            'Content-Type': 'application/json',
+            'Retry-After': '60'
+          },
+        }
+      );
+    }
+
     return new Response(
       JSON.stringify({ 
         error: error instanceof Error ? error.message : 'An unexpected error occurred' 
