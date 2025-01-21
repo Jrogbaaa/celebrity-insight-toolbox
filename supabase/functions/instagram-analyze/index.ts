@@ -47,31 +47,12 @@ serve(async (req) => {
     const clientSecret = Deno.env.get('INSTAGRAM_CLIENT_SECRET');
 
     if (!clientId || !clientSecret) {
+      console.error('Missing Instagram credentials:', { clientId: !!clientId, clientSecret: !!clientSecret });
       throw new Error('Instagram credentials not configured');
     }
 
-    console.log('Getting Instagram app access token...');
-    const tokenResponse = await fetch(
-      'https://api.instagram.com/oauth/access_token',
-      {
-        method: 'POST',
-        body: new URLSearchParams({
-          client_id: clientId,
-          client_secret: clientSecret,
-          grant_type: 'client_credentials'
-        })
-      }
-    );
-
-    if (!tokenResponse.ok) {
-      console.error('Error getting access token:', await tokenResponse.text());
-      throw new Error('Failed to get Instagram access token');
-    }
-
-    const tokenData = await tokenResponse.json();
-    console.log('Got access token');
-
-    // For now, return mock data since the Basic Display API has limited public access
+    // For now, return mock data since we can't access the Instagram API without user authentication
+    console.log('Generating mock data for:', username);
     const result = {
       followers: Math.floor(Math.random() * 100000) + 10000,
       engagementRate: Number((Math.random() * 5 + 1).toFixed(2)),
@@ -89,13 +70,17 @@ serve(async (req) => {
     };
 
     // Cache the result
-    await supabase
+    const { error: upsertError } = await supabase
       .from('instagram_cache')
       .upsert({ 
         username, 
         data: result,
         updated_at: new Date().toISOString()
       });
+
+    if (upsertError) {
+      console.error('Error caching data:', upsertError);
+    }
 
     return new Response(
       JSON.stringify(result),
