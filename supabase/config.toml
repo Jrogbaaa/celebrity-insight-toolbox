@@ -22,3 +22,7 @@ verify_jwt = false
 [[functions]]
 [functions.instagram-analyze]
 verify_jwt = false
+
+[[functions]]
+[functions.instagram-scrape]
+verify_jwt = false
