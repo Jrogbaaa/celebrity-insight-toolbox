@@ -1,6 +1,6 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Instagram } from "lucide-react";
+import { Instagram, BarChart2, MessageCircle } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "@/hooks/use-toast";
 
@@ -86,9 +86,19 @@ const Login = () => {
         <div className="text-center">
           <Instagram className="mx-auto h-12 w-12 mb-4 text-pink-500" />
           <h1 className="text-2xl font-bold mb-4">Welcome to Instagram Analytics</h1>
-          <p className="text-muted-foreground mb-8">
-            Connect your Instagram Business account to view detailed analytics and insights about your profile.
+          <p className="text-muted-foreground mb-6">
+            Connect your Instagram Business account to:
           </p>
+          <div className="flex flex-col gap-3 mb-8">
+            <div className="flex items-center gap-2 text-left">
+              <BarChart2 className="h-5 w-5 text-blue-500" />
+              <span>View detailed analytics and insights</span>
+            </div>
+            <div className="flex items-center gap-2 text-left">
+              <MessageCircle className="h-5 w-5 text-green-500" />
+              <span>Manage your Instagram messages</span>
+            </div>
+          </div>
           <Button 
             onClick={handleConnectInstagram}
             className="w-full gap-2 hover:bg-primary/90 transition-colors"
@@ -98,6 +108,9 @@ const Login = () => {
             <Instagram className="h-5 w-5" />
             {isLoading ? "Connecting..." : "Continue with Instagram"}
           </Button>
+          <p className="text-xs text-muted-foreground mt-4">
+            This app is categorized under Social Networks & Messaging on Meta
+          </p>
         </div>
       </Card>
     </div>
