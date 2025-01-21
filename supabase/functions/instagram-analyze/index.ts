@@ -27,15 +27,29 @@ serve(async (req) => {
     const supabase = createClient(supabaseUrl, supabaseKey);
 
     // Get user from auth header
-    const authHeader = req.headers.get('authorization')?.split(' ')[1];
+    const authHeader = req.headers.get('authorization');
+    console.log('Auth header present:', !!authHeader);
+    
     if (!authHeader) {
       throw new Error('Authentication required');
     }
 
-    const { data: { user }, error: userError } = await supabase.auth.getUser(authHeader);
-    if (userError || !user) {
-      throw new Error('Failed to get user');
+    const token = authHeader.replace('Bearer ', '');
+    console.log('Attempting to get user with token');
+
+    const { data: { user }, error: userError } = await supabase.auth.getUser(token);
+    
+    if (userError) {
+      console.error('Error getting user:', userError);
+      throw new Error('Failed to authenticate user');
     }
+    
+    if (!user) {
+      console.error('No user found with token');
+      throw new Error('User not found');
+    }
+
+    console.log('Successfully authenticated user:', user.id);
 
     // Get user's Instagram token
     const { data: tokenData, error: tokenError } = await supabase
