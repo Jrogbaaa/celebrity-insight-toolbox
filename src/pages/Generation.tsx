@@ -90,19 +90,19 @@ const Generation = () => {
   };
 
   return (
-    <div className="container max-w-4xl py-4">
-      <h1 className="text-2xl font-bold mb-4 text-primary">AI Content Expert</h1>
+    <div className="container max-w-4xl py-2">
+      <h1 className="text-xl font-bold mb-2 text-primary">AI Content Expert</h1>
       
-      <Card className="h-[calc(100vh-8rem)] shadow-lg">
-        <CardHeader className="border-b bg-muted/50 py-3">
-          <CardTitle className="text-xl font-semibold text-primary">Chat with AI</CardTitle>
+      <Card className="h-[calc(100vh-6rem)] shadow-lg">
+        <CardHeader className="border-b bg-muted/50 py-2">
+          <CardTitle className="text-lg font-semibold text-primary">Chat with AI</CardTitle>
         </CardHeader>
-        <CardContent className="flex flex-col h-[calc(100%-4rem)] p-0">
+        <CardContent className="flex flex-col h-[calc(100%-3.5rem)] p-0">
           <div 
             ref={scrollAreaRef}
-            className="flex-1 overflow-y-auto p-4 space-y-4"
+            className="flex-1 overflow-y-auto p-3 space-y-3"
           >
-            <div className="space-y-4">
+            <div className="space-y-3">
               {messages.map((message, index) => (
                 <div
                   key={index}
@@ -111,7 +111,7 @@ const Generation = () => {
                   } animate-fade-in`}
                 >
                   <div
-                    className={`max-w-[80%] rounded-lg px-4 py-2 shadow-sm ${
+                    className={`max-w-[80%] rounded-lg px-3 py-1.5 shadow-sm ${
                       message.role === 'user'
                         ? 'bg-primary text-primary-foreground ml-4'
                         : 'bg-muted mr-4'
@@ -134,13 +134,13 @@ const Generation = () => {
             </div>
           </div>
           
-          <form onSubmit={handleSubmit} className="p-3 border-t bg-muted/30">
+          <form onSubmit={handleSubmit} className="p-2 border-t bg-muted/30">
             <div className="flex gap-2">
               <Textarea
                 placeholder="Type your message..."
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
-                className="min-h-[45px] max-h-[45px] bg-background resize-none"
+                className="min-h-[35px] max-h-[35px] bg-background resize-none"
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault();
@@ -151,7 +151,7 @@ const Generation = () => {
               <Button 
                 type="submit"
                 disabled={loading} 
-                className="px-4 h-[45px]"
+                className="px-3 h-[35px]"
               >
                 <Send className="h-4 w-4" />
               </Button>
