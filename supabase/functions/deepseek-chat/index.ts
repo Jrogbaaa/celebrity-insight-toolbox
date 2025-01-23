@@ -35,7 +35,7 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'deepseek-coder-33b-instruct',  // Updated to use the correct model
+        model: 'deepseek-chat',  // Using the general chat model
         messages: apiMessages,
         temperature: 0.7,
         max_tokens: 1000,
