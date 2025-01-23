@@ -1,6 +1,6 @@
 import * as React from "react"
 import { reducer } from "@/lib/toast-reducer"
-import { State, ToasterToast } from "@/types/toast"
+import { State, ToasterToast, Action } from "@/types/toast"
 
 let count = 0
 
@@ -13,8 +13,8 @@ const listeners: Array<(state: State) => void> = []
 
 let memoryState: State = { toasts: [] }
 
-function dispatch(action: any) {
-  memoryState = reducer(memoryState, action)
+function dispatch(action: Action) {
+  memoryState = reducer(memoryState, action, dispatch)
   listeners.forEach((listener) => {
     listener(memoryState)
   })
