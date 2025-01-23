@@ -35,49 +35,49 @@ const Recommendations = () => {
         {
           type: 'engagement',
           title: 'Engagement Opportunities',
-          description: `Your engagement rate is currently at 2.1%. Consider responding to comments within 1 hour and using more engaging captions with questions to boost interaction.`,
+          description: 'Your engagement rate is currently at 2.1%. Consider responding to comments within 1 hour and using more engaging captions with questions to boost interaction.',
           impact: 'Potential 40% increase in engagement'
         },
         {
           type: 'content',
           title: 'Content Strategy Enhancement',
-          description: `Your best-performing content type is carousel posts with how-to guides. Creating more educational series could significantly boost your reach.`,
+          description: 'Your best-performing content type is carousel posts with how-to guides. Creating more educational series could significantly boost your reach.',
           impact: 'Historical 3x higher save rate'
         },
         {
           type: 'timing',
           title: 'Optimal Posting Schedule',
-          description: `Your audience is most active between 6-8 PM EST on weekdays. Currently, 60% of your posts are outside this window.`,
+          description: 'Your audience is most active between 6-8 PM EST on weekdays. Currently, 60% of your posts are outside this window.',
           impact: 'Up to 50% more reach potential'
         },
         {
           type: 'audience',
           title: 'Audience Growth Strategy',
-          description: `Your follower growth rate is 2.3% monthly. Implementing consistent storytelling and behind-the-scenes content could accelerate this growth.`,
+          description: 'Your follower growth rate is 2.3% monthly. Implementing consistent storytelling and behind-the-scenes content could accelerate this growth.',
           impact: 'Target: 5% monthly growth rate'
         },
         {
           type: 'hashtags',
           title: 'Hashtag Performance',
-          description: `Your current hashtag strategy reaches only 15% of potential viewers. Using more niche-specific hashtags could expand your reach significantly.`,
+          description: 'Your current hashtag strategy reaches only 15% of potential viewers. Using more niche-specific hashtags could expand your reach significantly.',
           impact: '85% more discoverable content'
         },
         {
           type: 'consistency',
           title: 'Content Consistency',
-          description: `Posting frequency varies between 2-7 days. Maintaining a consistent 3-post per week schedule aligns with your audience's expectations.`,
+          description: 'Posting frequency varies between 2-7 days. Maintaining a consistent 3-post per week schedule aligns with your audience\'s expectations.',
           impact: 'Steady engagement increase'
         },
         {
           type: 'interaction',
           title: 'Community Building',
-          description: `Your story reply rate is 5%. Increasing interactive elements like polls and questions could boost audience participation.`,
+          description: 'Your story reply rate is 5%. Increasing interactive elements like polls and questions could boost audience participation.',
           impact: 'Double community engagement'
         },
         {
           type: 'visual',
           title: 'Visual Cohesion',
-          description: `Posts with consistent color schemes and branding receive 40% more saves. Consider developing a signature visual style.`,
+          description: 'Posts with consistent color schemes and branding receive 40% more saves. Consider developing a signature visual style.',
           impact: 'Enhanced brand recognition'
         }
       ] as AIInsight[];
@@ -168,7 +168,7 @@ const Recommendations = () => {
           <div className="flex items-center gap-2 text-muted-foreground">
             <Brain className="h-5 w-5" />
             <p>
-              These insights are generated based on your account's historical performance and industry best practices.
+              These insights are generated based on your account\'s historical performance and industry best practices.
               Updated daily to provide you with the most relevant recommendations.
             </p>
           </div>
