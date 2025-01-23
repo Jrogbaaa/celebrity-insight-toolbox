@@ -1,3 +1,4 @@
+import React, { useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Brain, TrendingUp, Clock, Target, Loader2 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
@@ -12,7 +13,7 @@ interface AIInsight {
 }
 
 const Recommendations = () => {
-  const { data: insights, isLoading } = useQuery({
+  const { data: insights, isLoading, error } = useQuery({
     queryKey: ['ai-insights'],
     queryFn: async () => {
       const { data: tokens } = await supabase
@@ -63,9 +64,8 @@ const Recommendations = () => {
     retry: false
   });
 
-  // Handle errors using the useEffect pattern instead
-  React.useEffect(() => {
-    if (error) {
+  useEffect(() => {
+    if (error instanceof Error) {
       toast({
         title: "Error loading insights",
         description: error.message,
