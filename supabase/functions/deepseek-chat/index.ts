@@ -26,7 +26,7 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'deepseek-chat',
+        model: 'deepseek-1.5-chat',  // Updated to new model name
         messages: [
           { role: 'system', content: 'You are a helpful AI content expert that helps users generate creative and engaging content.' },
           { role: 'user', content: prompt }
@@ -55,14 +55,14 @@ serve(async (req) => {
         );
       }
 
-      // The API is in beta and free, so this might be a temporary issue
-      if (data.error === "Insufficient Balance") {
+      // Handle model-related errors
+      if (data.error?.message?.includes('model')) {
         return new Response(
           JSON.stringify({
-            error: "Service Unavailable",
-            details: "The DeepSeek API service is temporarily unavailable. Please try again later."
+            error: "Model Error",
+            details: "There was an issue with the AI model. Please try again later."
           }), {
-            status: 503,
+            status: 400,
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
           }
         );
