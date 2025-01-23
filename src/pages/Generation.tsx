@@ -41,12 +41,20 @@ const Generation = () => {
 
       if (conversations && conversations.length > 0) {
         setConversationId(conversations[0].id);
-        setMessages(conversations[0].messages as Message[]);
+        // Safely cast the JSON messages to our Message type
+        const savedMessages = conversations[0].messages as Array<{
+          role: 'user' | 'assistant';
+          content: string;
+        }>;
+        setMessages(savedMessages);
       } else {
-        // Create a new conversation
+        // Create a new conversation with user_id
         const { data: newConversation, error: createError } = await supabase
           .from('chat_conversations')
-          .insert([{ messages: [] }])
+          .insert([{ 
+            messages: [],
+            user_id: session.user.id 
+          }])
           .select()
           .single();
 
@@ -69,7 +77,10 @@ const Generation = () => {
 
     const { error } = await supabase
       .from('chat_conversations')
-      .update({ messages: newMessages, updated_at: new Date().toISOString() })
+      .update({ 
+        messages: newMessages as any, // Cast to any to satisfy the Json type
+        updated_at: new Date().toISOString() 
+      })
       .eq('id', conversationId);
 
     if (error) {
@@ -128,11 +139,12 @@ const Generation = () => {
         throw new Error(errorMessage);
       }
 
-      const updatedMessages = [...newMessages, { 
+      const assistantMessage: Message = { 
         role: 'assistant', 
         content: data.generatedText 
-      }];
+      };
       
+      const updatedMessages = [...newMessages, assistantMessage];
       setMessages(updatedMessages);
       await updateConversation(updatedMessages);
 
