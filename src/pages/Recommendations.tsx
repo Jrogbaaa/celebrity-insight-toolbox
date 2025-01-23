@@ -65,7 +65,7 @@ const Recommendations = () => {
         {
           type: 'consistency',
           title: 'Content Consistency',
-          description: 'Posting frequency varies between 2-7 days. Maintaining a consistent 3-post per week schedule aligns with your audience\'s expectations.',
+          description: 'Posting frequency varies between 2-7 days. Maintaining a consistent 3-post per week schedule aligns with your audience's expectations.',
           impact: 'Steady engagement increase'
         },
         {
@@ -168,7 +168,7 @@ const Recommendations = () => {
           <div className="flex items-center gap-2 text-muted-foreground">
             <Brain className="h-5 w-5" />
             <p>
-              These insights are generated based on your account\'s historical performance and industry best practices.
+              These insights are generated based on your account's historical performance and industry best practices.
               Updated daily to provide you with the most relevant recommendations.
             </p>
           </div>
