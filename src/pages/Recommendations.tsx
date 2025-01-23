@@ -39,7 +39,7 @@ const Recommendations = () => {
         {
           type: 'audience',
           title: 'Audience Growth Strategy',
-          description: 'Your follower growth has plateaued. Increase collaboration with complementary creators and engage more with your target audience's comments.',
+          description: "Your follower growth has plateaued. Increase collaboration with complementary creators and engage more with your target audience's comments.",
           impact: 'Similar accounts see 2x faster growth with this approach'
         },
         {
