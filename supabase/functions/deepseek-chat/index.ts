@@ -26,13 +26,16 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'deepseek-1.5-chat',  // Updated to new model name
+        model: 'deepseek-1.5-chat',
         messages: [
           { role: 'system', content: 'You are a helpful AI content expert that helps users generate creative and engaging content.' },
           { role: 'user', content: prompt }
         ],
         temperature: 0.7,
         max_tokens: 1000,
+        top_p: 0.95,  // Added for better text generation
+        frequency_penalty: 0.0,  // Added to maintain natural word frequency
+        presence_penalty: 0.0,   // Added to maintain topic consistency
       }),
     });
 
