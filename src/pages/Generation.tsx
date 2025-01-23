@@ -5,6 +5,7 @@ import { useToast } from "@/hooks/use-toast";
 import { ChatMessages } from "@/components/chat/ChatMessages";
 import { ChatInput } from "@/components/chat/ChatInput";
 import { Json } from "@/integrations/supabase/types";
+import { useNavigate } from "react-router-dom";
 
 interface Message {
   role: 'user' | 'assistant';
@@ -17,11 +18,29 @@ const Generation = () => {
   const [loading, setLoading] = useState(false);
   const [conversationId, setConversationId] = useState<string | null>(null);
   const { toast } = useToast();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        toast({
+          title: "Authentication required",
+          description: "Please log in to access this feature",
+          variant: "destructive",
+        });
+        navigate("/auth");
+        return;
+      }
+    };
+
+    checkAuth();
+  }, [navigate, toast]);
 
   useEffect(() => {
     const loadConversation = async () => {
-      // Get the current session
       const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
       
       const { data: conversations, error } = await supabase
         .from('chat_conversations')
@@ -31,6 +50,11 @@ const Generation = () => {
 
       if (error) {
         console.error('Error loading conversation:', error);
+        toast({
+          title: "Error",
+          description: "Failed to load conversation. Please try again.",
+          variant: "destructive",
+        });
         return;
       }
 
@@ -44,14 +68,18 @@ const Generation = () => {
           .from('chat_conversations')
           .insert([{ 
             messages: [],
-            // Use the anonymous user ID or a default one if not authenticated
-            user_id: session?.user?.id || '00000000-0000-0000-0000-000000000000'
+            user_id: session.user.id
           }])
           .select()
           .single();
 
         if (createError) {
           console.error('Error creating conversation:', createError);
+          toast({
+            title: "Error",
+            description: "Failed to create conversation. Please try again.",
+            variant: "destructive",
+          });
           return;
         }
 
@@ -62,7 +90,7 @@ const Generation = () => {
     };
 
     loadConversation();
-  }, []);
+  }, [toast]);
 
   const updateConversation = async (newMessages: Message[]) => {
     if (!conversationId) return;
