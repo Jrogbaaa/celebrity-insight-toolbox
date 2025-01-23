@@ -35,7 +35,7 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'deepseek-1.5-chat',
+        model: 'deepseek-chat',  // Updated model name
         messages: apiMessages,
         temperature: 0.7,
         max_tokens: 1000,
