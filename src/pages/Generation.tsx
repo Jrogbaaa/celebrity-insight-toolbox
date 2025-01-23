@@ -4,7 +4,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { useState, useRef, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Send } from "lucide-react";
 
@@ -20,7 +19,6 @@ const Generation = () => {
   const { toast } = useToast();
   const scrollAreaRef = useRef<HTMLDivElement>(null);
 
-  // Modified scroll behavior to only auto-scroll when user sends a message
   useEffect(() => {
     if (scrollAreaRef.current && !loading) {
       const shouldScroll = messages[messages.length - 1]?.role === 'user';
@@ -42,7 +40,6 @@ const Generation = () => {
       return;
     }
 
-    // Add user message immediately
     const userMessage: Message = { role: 'user', content: prompt.trim() };
     setMessages(prev => [...prev, userMessage]);
     setPrompt("");
@@ -75,7 +72,6 @@ const Generation = () => {
         throw new Error(errorMessage);
       }
 
-      // Add AI response to messages
       setMessages(prev => [...prev, { 
         role: 'assistant', 
         content: data.generatedText 
@@ -94,19 +90,19 @@ const Generation = () => {
   };
 
   return (
-    <div className="container max-w-4xl py-8">
-      <h1 className="text-3xl font-bold mb-8 text-primary">AI Content Expert</h1>
+    <div className="container max-w-4xl py-4">
+      <h1 className="text-2xl font-bold mb-4 text-primary">AI Content Expert</h1>
       
-      <Card className="h-[calc(100vh-12rem)] shadow-lg">
-        <CardHeader className="border-b bg-muted/50">
-          <CardTitle className="text-2xl font-semibold text-primary">Chat with AI</CardTitle>
+      <Card className="h-[calc(100vh-8rem)] shadow-lg">
+        <CardHeader className="border-b bg-muted/50 py-3">
+          <CardTitle className="text-xl font-semibold text-primary">Chat with AI</CardTitle>
         </CardHeader>
-        <CardContent className="flex flex-col h-[calc(100%-5rem)] p-0">
+        <CardContent className="flex flex-col h-[calc(100%-4rem)] p-0">
           <div 
             ref={scrollAreaRef}
-            className="flex-1 overflow-y-auto p-6 space-y-6"
+            className="flex-1 overflow-y-auto p-4 space-y-4"
           >
-            <div className="space-y-6">
+            <div className="space-y-4">
               {messages.map((message, index) => (
                 <div
                   key={index}
@@ -115,7 +111,7 @@ const Generation = () => {
                   } animate-fade-in`}
                 >
                   <div
-                    className={`max-w-[80%] rounded-lg px-4 py-3 shadow-sm ${
+                    className={`max-w-[80%] rounded-lg px-4 py-2 shadow-sm ${
                       message.role === 'user'
                         ? 'bg-primary text-primary-foreground ml-4'
                         : 'bg-muted mr-4'
@@ -138,13 +134,13 @@ const Generation = () => {
             </div>
           </div>
           
-          <form onSubmit={handleSubmit} className="p-4 border-t bg-muted/30">
+          <form onSubmit={handleSubmit} className="p-3 border-t bg-muted/30">
             <div className="flex gap-2">
               <Textarea
                 placeholder="Type your message..."
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
-                className="min-h-[60px] bg-background resize-none"
+                className="min-h-[45px] max-h-[45px] bg-background resize-none"
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault();
@@ -155,7 +151,7 @@ const Generation = () => {
               <Button 
                 type="submit"
                 disabled={loading} 
-                className="px-6 h-[60px]"
+                className="px-4 h-[45px]"
               >
                 <Send className="h-4 w-4" />
               </Button>
