@@ -22,6 +22,10 @@ const Login = () => {
           }
         );
         
+        if (!response.ok) {
+          throw new Error('Failed to fetch client ID');
+        }
+
         const { data, error } = await response.json();
 
         if (error) {
@@ -70,14 +74,24 @@ const Login = () => {
       return;
     }
 
-    setIsLoading(true);
-    const redirectUri = `${window.location.origin}/instagram-callback`;
-    const scope = 'instagram_basic,instagram_content_publish,instagram_graph_user_profile,instagram_graph_user_media,instagram_manage_insights';
-    
-    const instagramUrl = `https://api.instagram.com/oauth/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scope}&response_type=code`;
-    
-    console.log('Redirecting to Instagram OAuth URL:', instagramUrl);
-    window.location.href = instagramUrl;
+    try {
+      setIsLoading(true);
+      const redirectUri = encodeURIComponent(`${window.location.origin}/instagram-callback`);
+      const scope = encodeURIComponent('instagram_basic,instagram_content_publish,instagram_graph_user_profile,instagram_graph_user_media,instagram_manage_insights');
+      
+      const instagramUrl = `https://api.instagram.com/oauth/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scope}&response_type=code`;
+      
+      console.log('Redirecting to Instagram OAuth URL:', instagramUrl);
+      window.location.href = instagramUrl;
+    } catch (error) {
+      console.error("Error during Instagram redirect:", error);
+      setIsLoading(false);
+      toast({
+        title: "Error",
+        description: "Failed to redirect to Instagram. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
