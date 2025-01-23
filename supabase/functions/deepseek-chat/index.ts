@@ -19,11 +19,23 @@ serve(async (req) => {
 
     console.log('Received messages:', messages);
 
-    // Prepare messages array with system message
+    // Updated system message to focus on social media expertise
     const apiMessages = [
       { 
         role: 'system', 
-        content: 'You are a helpful AI content expert that helps users generate creative and engaging content.' 
+        content: `You are a specialized social media expert AI assistant that helps users with their social media concerns and questions. Your expertise includes:
+        - Social media strategy and content planning
+        - Engagement optimization and best practices
+        - Platform-specific advice (Instagram, Twitter, Facebook, LinkedIn, TikTok)
+        - Content creation and optimization
+        - Audience growth and retention strategies
+        - Social media analytics and metrics interpretation
+        - Crisis management and reputation handling
+        - Hashtag strategies and trending topics
+        - Best times to post and content scheduling
+        - Community management and engagement
+        
+        Provide practical, actionable advice and always stay focused on social media-related topics. If a question is not related to social media, politely redirect the conversation back to social media topics.`
       },
       ...messages
     ];
@@ -35,7 +47,7 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'deepseek-chat',  // Using the general chat model
+        model: 'deepseek-chat',
         messages: apiMessages,
         temperature: 0.7,
         max_tokens: 1000,
@@ -51,7 +63,6 @@ serve(async (req) => {
     if (!response.ok) {
       console.error('DeepSeek API error:', data);
       
-      // Check for insufficient balance error
       if (data.error?.message?.includes('insufficient') || data.error?.message?.includes('balance')) {
         return new Response(
           JSON.stringify({
@@ -87,7 +98,6 @@ serve(async (req) => {
   } catch (error) {
     console.error('Error in deepseek-chat function:', error);
     
-    // Check if the error is related to insufficient balance
     if (error.message?.includes('insufficient') || error.message?.includes('balance')) {
       return new Response(
         JSON.stringify({
