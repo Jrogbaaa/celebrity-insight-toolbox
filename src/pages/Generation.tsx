@@ -16,31 +16,35 @@ const Generation = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [prompt, setPrompt] = useState("");
   const [loading, setLoading] = useState(false);
+  const [isAuthChecking, setIsAuthChecking] = useState(true);
   const [conversationId, setConversationId] = useState<string | null>(null);
   const { toast } = useToast();
   const navigate = useNavigate();
 
   useEffect(() => {
-    const checkAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_OUT' || (!session && !isAuthChecking)) {
+        navigate("/auth");
         toast({
           title: "Authentication required",
           description: "Please log in to access this feature",
           variant: "destructive",
         });
-        navigate("/auth");
-        return;
       }
-    };
+      setIsAuthChecking(false);
+    });
 
-    checkAuth();
-  }, [navigate, toast]);
+    return () => subscription.unsubscribe();
+  }, [navigate, toast, isAuthChecking]);
 
   useEffect(() => {
     const loadConversation = async () => {
       const { data: { session } } = await supabase.auth.getSession();
-      if (!session) return;
+      
+      if (!session) {
+        setIsAuthChecking(false);
+        return;
+      }
       
       const { data: conversations, error } = await supabase
         .from('chat_conversations')
@@ -88,10 +92,13 @@ const Generation = () => {
           setConversationId(newConversation.id);
         }
       }
+      setIsAuthChecking(false);
     };
 
-    loadConversation();
-  }, [toast]);
+    if (!isAuthChecking) {
+      loadConversation();
+    }
+  }, [toast, isAuthChecking]);
 
   const updateConversation = async (newMessages: Message[]) => {
     if (!conversationId) return;
@@ -179,6 +186,16 @@ const Generation = () => {
       setLoading(false);
     }
   };
+
+  if (isAuthChecking) {
+    return (
+      <div className="container max-w-4xl py-2">
+        <Card className="h-[calc(100vh-6rem)] shadow-lg flex items-center justify-center">
+          <p className="text-muted-foreground">Loading...</p>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="container max-w-4xl py-2">
