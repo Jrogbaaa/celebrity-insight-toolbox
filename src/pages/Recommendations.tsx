@@ -12,7 +12,7 @@ interface AIInsight {
 }
 
 const Recommendations = () => {
-  const { data: insights, isLoading, error } = useQuery({
+  const { data: insights, isLoading } = useQuery({
     queryKey: ['ai-insights'],
     queryFn: async () => {
       const { data: tokens } = await supabase
@@ -57,15 +57,22 @@ const Recommendations = () => {
         }
       ] as AIInsight[];
     },
-    retry: false,
-    onError: (error) => {
+    meta: {
+      errorMessage: "Error loading insights"
+    },
+    retry: false
+  });
+
+  // Handle errors using the useEffect pattern instead
+  React.useEffect(() => {
+    if (error) {
       toast({
         title: "Error loading insights",
         description: error.message,
         variant: "destructive",
       });
     }
-  });
+  }, [error]);
 
   if (isLoading) {
     return (
