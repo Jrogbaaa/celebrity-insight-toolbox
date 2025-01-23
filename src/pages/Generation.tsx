@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 
 const Generation = () => {
   const [prompt, setPrompt] = useState("");
@@ -28,9 +28,10 @@ const Generation = () => {
       });
 
       if (error) {
-        // Check for the specific insufficient balance error
-        if (error.message?.includes('DeepSeek API credits exhausted')) {
-          throw new Error('The AI service is currently unavailable due to insufficient credits. Please try again later.');
+        // Check if the error response contains details about insufficient balance
+        const errorBody = error.message && JSON.parse(error.message);
+        if (errorBody?.error === "Insufficient Balance") {
+          throw new Error("The AI service is currently unavailable due to insufficient credits. Please contact support.");
         }
         throw error;
       }

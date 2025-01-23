@@ -40,8 +40,17 @@ serve(async (req) => {
     console.log('DeepSeek API response:', data);
 
     if (!response.ok) {
+      // Handle insufficient balance error specifically
       if (data.error === "Insufficient Balance") {
-        throw new Error("DeepSeek API credits exhausted. Please check your account balance.");
+        return new Response(
+          JSON.stringify({
+            error: "Insufficient Balance",
+            details: "DeepSeek API credits exhausted. Please check your account balance."
+          }), {
+            status: 402, // Using 402 Payment Required for insufficient credits
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          }
+        );
       }
       throw new Error(data.error?.message || 'Failed to generate content');
     }
@@ -53,13 +62,15 @@ serve(async (req) => {
     });
   } catch (error) {
     console.error('Error in deepseek-chat function:', error);
+    
     return new Response(
-      JSON.stringify({ 
-        error: error.message || 'An unexpected error occurred',
-        details: error instanceof Error ? error.message : 'Unknown error'
+      JSON.stringify({
+        error: error instanceof Error ? error.message : 'An unexpected error occurred',
+        details: error instanceof Error ? error.stack : 'Unknown error'
       }), {
-      status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      }
+    );
   }
 });
