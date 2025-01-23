@@ -4,34 +4,50 @@ import { Textarea } from "@/components/ui/textarea";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Send } from "lucide-react";
+
+interface Message {
+  role: 'user' | 'assistant';
+  content: string;
+}
 
 const Generation = () => {
+  const [messages, setMessages] = useState<Message[]>([]);
   const [prompt, setPrompt] = useState("");
   const [loading, setLoading] = useState(false);
-  const [response, setResponse] = useState("");
   const { toast } = useToast();
 
-  const handleGenerate = async () => {
+  const handleSubmit = async (e?: React.FormEvent) => {
+    e?.preventDefault();
+    
     if (!prompt.trim()) {
       toast({
         title: "Error",
-        description: "Please enter a prompt first",
+        description: "Please enter a message first",
         variant: "destructive",
       });
       return;
     }
 
+    // Add user message immediately
+    const userMessage: Message = { role: 'user', content: prompt.trim() };
+    setMessages(prev => [...prev, userMessage]);
+    setPrompt("");
     setLoading(true);
+
     try {
       const { data, error } = await supabase.functions.invoke('deepseek-chat', {
-        body: { prompt },
+        body: { 
+          messages: [...messages, userMessage]
+        },
       });
 
       if (error) {
-        // Parse the error response
         const errorBody = error.message && JSON.parse(error.message);
         
-        // Handle specific error cases
         if (errorBody?.error === "Rate Limit Exceeded") {
           throw new Error("The service is currently busy. Please try again in a few minutes.");
         }
@@ -42,16 +58,17 @@ const Generation = () => {
         throw error;
       }
 
-      setResponse(data.generatedText);
-      toast({
-        title: "Success",
-        description: "Content generated successfully!",
-      });
+      // Add AI response to messages
+      setMessages(prev => [...prev, { 
+        role: 'assistant', 
+        content: data.generatedText 
+      }]);
+
     } catch (error) {
-      console.error('Error generating content:', error);
+      console.error('Error generating response:', error);
       toast({
         title: "Error",
-        description: error instanceof Error ? error.message : "Failed to generate content. Please try again.",
+        description: error instanceof Error ? error.message : "Failed to generate response. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -60,41 +77,75 @@ const Generation = () => {
   };
 
   return (
-    <div className="container py-8">
+    <div className="container max-w-4xl py-8">
       <h1 className="text-3xl font-bold mb-8">AI Content Expert</h1>
-      <div className="grid gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Generate Content</CardTitle>
-          </CardHeader>
-          <CardContent>
+      <Card className="h-[calc(100vh-16rem)]">
+        <CardHeader>
+          <CardTitle>Chat with AI</CardTitle>
+        </CardHeader>
+        <CardContent className="flex flex-col h-[calc(100%-5rem)] pb-4">
+          <ScrollArea className="flex-1 pr-4">
+            {messages.length === 0 ? (
+              <Alert>
+                <AlertDescription>
+                  Start a conversation with the AI Content Expert. Ask questions or request content generation!
+                </AlertDescription>
+              </Alert>
+            ) : (
+              <div className="space-y-4">
+                {messages.map((message, index) => (
+                  <div
+                    key={index}
+                    className={`flex ${
+                      message.role === 'user' ? 'justify-end' : 'justify-start'
+                    }`}
+                  >
+                    <div
+                      className={`max-w-[80%] rounded-lg px-4 py-2 ${
+                        message.role === 'user'
+                          ? 'bg-primary text-primary-foreground'
+                          : 'bg-muted'
+                      }`}
+                    >
+                      <div className="whitespace-pre-wrap">{message.content}</div>
+                    </div>
+                  </div>
+                ))}
+                {loading && (
+                  <div className="flex justify-start">
+                    <div className="max-w-[80%] space-y-2">
+                      <Skeleton className="h-4 w-[250px]" />
+                      <Skeleton className="h-4 w-[200px]" />
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </ScrollArea>
+          
+          <form onSubmit={handleSubmit} className="mt-4 flex gap-2">
             <Textarea
-              placeholder="Describe what kind of content you want to generate..."
+              placeholder="Type your message..."
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
-              className="mb-4 min-h-[100px]"
+              className="min-h-[60px]"
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  handleSubmit();
+                }
+              }}
             />
             <Button 
-              onClick={handleGenerate} 
+              type="submit"
               disabled={loading} 
-              className="w-full"
+              className="px-6"
             >
-              {loading ? "Generating..." : "Generate Content"}
+              <Send className="h-4 w-4" />
             </Button>
-          </CardContent>
-        </Card>
-
-        {response && (
-          <Card>
-            <CardHeader>
-              <CardTitle>Generated Content</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="whitespace-pre-wrap">{response}</div>
-            </CardContent>
-          </Card>
-        )}
-      </div>
+          </form>
+        </CardContent>
+      </Card>
     </div>
   );
 };

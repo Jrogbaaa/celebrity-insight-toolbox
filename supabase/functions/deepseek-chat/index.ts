@@ -15,9 +15,18 @@ serve(async (req) => {
   }
 
   try {
-    const { prompt } = await req.json();
+    const { messages } = await req.json();
 
-    console.log('Received prompt:', prompt);
+    console.log('Received messages:', messages);
+
+    // Prepare messages array with system message
+    const apiMessages = [
+      { 
+        role: 'system', 
+        content: 'You are a helpful AI content expert that helps users generate creative and engaging content.' 
+      },
+      ...messages
+    ];
 
     const response = await fetch('https://api.deepseek.com/v1/chat/completions', {
       method: 'POST',
@@ -27,15 +36,12 @@ serve(async (req) => {
       },
       body: JSON.stringify({
         model: 'deepseek-1.5-chat',
-        messages: [
-          { role: 'system', content: 'You are a helpful AI content expert that helps users generate creative and engaging content.' },
-          { role: 'user', content: prompt }
-        ],
+        messages: apiMessages,
         temperature: 0.7,
         max_tokens: 1000,
-        top_p: 0.95,  // Added for better text generation
-        frequency_penalty: 0.0,  // Added to maintain natural word frequency
-        presence_penalty: 0.0,   // Added to maintain topic consistency
+        top_p: 0.95,
+        frequency_penalty: 0.0,
+        presence_penalty: 0.0,
       }),
     });
 
@@ -43,7 +49,6 @@ serve(async (req) => {
     console.log('DeepSeek API response:', data);
 
     if (!response.ok) {
-      // Log the full error response for debugging
       console.error('DeepSeek API error:', data);
       
       if (data.error?.message?.includes('rate limit')) {
@@ -58,7 +63,6 @@ serve(async (req) => {
         );
       }
 
-      // Handle model-related errors
       if (data.error?.message?.includes('model')) {
         return new Response(
           JSON.stringify({
