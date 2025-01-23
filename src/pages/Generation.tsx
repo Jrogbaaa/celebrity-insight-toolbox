@@ -6,8 +6,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Send } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Send, Info } from "lucide-react";
 
 interface Message {
   role: 'user' | 'assistant';
@@ -95,6 +95,15 @@ const Generation = () => {
   return (
     <div className="container max-w-4xl py-8">
       <h1 className="text-3xl font-bold mb-8 text-primary">AI Content Expert</h1>
+      
+      <Alert className="mb-4">
+        <Info className="h-4 w-4" />
+        <AlertTitle>Usage Information</AlertTitle>
+        <AlertDescription>
+          This chat uses the DeepSeek API. Each message is charged based on the number of tokens used (approximately 1000 tokens per 750 words). The exact cost depends on your usage and DeepSeek's pricing.
+        </AlertDescription>
+      </Alert>
+
       <Card className="h-[calc(100vh-12rem)] shadow-lg">
         <CardHeader className="border-b bg-muted/50">
           <CardTitle className="text-2xl font-semibold text-primary">Chat with AI</CardTitle>
