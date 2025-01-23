@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -13,7 +13,6 @@ import Login from "./pages/Login";
 
 const queryClient = new QueryClient();
 
-// Temporarily removed authentication check
 const App = () => (
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
