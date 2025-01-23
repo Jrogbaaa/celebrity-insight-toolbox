@@ -1,9 +1,10 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { ChatMessages } from "@/components/chat/ChatMessages";
 import { ChatInput } from "@/components/chat/ChatInput";
+import { useNavigate } from "react-router-dom";
 
 interface Message {
   role: 'user' | 'assistant';
@@ -14,7 +15,72 @@ const Generation = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [prompt, setPrompt] = useState("");
   const [loading, setLoading] = useState(false);
+  const [conversationId, setConversationId] = useState<string | null>(null);
   const { toast } = useToast();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const loadConversation = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        navigate('/login');
+        return;
+      }
+
+      const { data: conversations, error } = await supabase
+        .from('chat_conversations')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(1);
+
+      if (error) {
+        console.error('Error loading conversation:', error);
+        return;
+      }
+
+      if (conversations && conversations.length > 0) {
+        setConversationId(conversations[0].id);
+        setMessages(conversations[0].messages as Message[]);
+      } else {
+        // Create a new conversation
+        const { data: newConversation, error: createError } = await supabase
+          .from('chat_conversations')
+          .insert([{ messages: [] }])
+          .select()
+          .single();
+
+        if (createError) {
+          console.error('Error creating conversation:', createError);
+          return;
+        }
+
+        if (newConversation) {
+          setConversationId(newConversation.id);
+        }
+      }
+    };
+
+    loadConversation();
+  }, [navigate]);
+
+  const updateConversation = async (newMessages: Message[]) => {
+    if (!conversationId) return;
+
+    const { error } = await supabase
+      .from('chat_conversations')
+      .update({ messages: newMessages, updated_at: new Date().toISOString() })
+      .eq('id', conversationId);
+
+    if (error) {
+      console.error('Error updating conversation:', error);
+      toast({
+        title: "Error",
+        description: "Failed to save conversation. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
 
   const handleSubmit = async () => {
     if (!prompt.trim()) {
@@ -27,14 +93,18 @@ const Generation = () => {
     }
 
     const userMessage: Message = { role: 'user', content: prompt.trim() };
-    setMessages(prev => [...prev, userMessage]);
+    const newMessages = [...messages, userMessage];
+    setMessages(newMessages);
     setPrompt("");
     setLoading(true);
+
+    // Update conversation with user message
+    await updateConversation(newMessages);
 
     try {
       const { data, error } = await supabase.functions.invoke('deepseek-chat', {
         body: { 
-          messages: [...messages, userMessage]
+          messages: newMessages
         },
       });
 
@@ -58,10 +128,13 @@ const Generation = () => {
         throw new Error(errorMessage);
       }
 
-      setMessages(prev => [...prev, { 
+      const updatedMessages = [...newMessages, { 
         role: 'assistant', 
         content: data.generatedText 
-      }]);
+      }];
+      
+      setMessages(updatedMessages);
+      await updateConversation(updatedMessages);
 
     } catch (error) {
       console.error('Error generating response:', error);
