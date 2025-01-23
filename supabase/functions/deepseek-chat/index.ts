@@ -40,6 +40,9 @@ serve(async (req) => {
     console.log('DeepSeek API response:', data);
 
     if (!response.ok) {
+      if (data.error === "Insufficient Balance") {
+        throw new Error("DeepSeek API credits exhausted. Please check your account balance.");
+      }
       throw new Error(data.error?.message || 'Failed to generate content');
     }
 
@@ -50,7 +53,11 @@ serve(async (req) => {
     });
   } catch (error) {
     console.error('Error in deepseek-chat function:', error);
-    return new Response(JSON.stringify({ error: error.message }), {
+    return new Response(
+      JSON.stringify({ 
+        error: error.message || 'An unexpected error occurred',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });

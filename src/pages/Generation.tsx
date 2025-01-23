@@ -27,7 +27,13 @@ const Generation = () => {
         body: { prompt },
       });
 
-      if (error) throw error;
+      if (error) {
+        // Check for the specific insufficient balance error
+        if (error.message?.includes('DeepSeek API credits exhausted')) {
+          throw new Error('The AI service is currently unavailable due to insufficient credits. Please try again later.');
+        }
+        throw error;
+      }
 
       setResponse(data.generatedText);
       toast({
@@ -38,7 +44,7 @@ const Generation = () => {
       console.error('Error generating content:', error);
       toast({
         title: "Error",
-        description: "Failed to generate content. Please try again.",
+        description: error instanceof Error ? error.message : "Failed to generate content. Please try again.",
         variant: "destructive",
       });
     } finally {
