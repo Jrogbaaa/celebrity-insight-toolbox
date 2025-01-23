@@ -4,7 +4,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { ChatMessages } from "@/components/chat/ChatMessages";
 import { ChatInput } from "@/components/chat/ChatInput";
-import { useNavigate } from "react-router-dom";
 
 interface Message {
   role: 'user' | 'assistant';
@@ -17,17 +16,9 @@ const Generation = () => {
   const [loading, setLoading] = useState(false);
   const [conversationId, setConversationId] = useState<string | null>(null);
   const { toast } = useToast();
-  const navigate = useNavigate();
 
   useEffect(() => {
     const loadConversation = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      if (!session) {
-        navigate('/login');
-        return;
-      }
-
       const { data: conversations, error } = await supabase
         .from('chat_conversations')
         .select('*')
@@ -41,20 +32,15 @@ const Generation = () => {
 
       if (conversations && conversations.length > 0) {
         setConversationId(conversations[0].id);
-        // Safely cast the JSON messages to our Message type
         const savedMessages = conversations[0].messages as Array<{
           role: 'user' | 'assistant';
           content: string;
         }>;
         setMessages(savedMessages);
       } else {
-        // Create a new conversation with user_id
         const { data: newConversation, error: createError } = await supabase
           .from('chat_conversations')
-          .insert([{ 
-            messages: [],
-            user_id: session.user.id 
-          }])
+          .insert([{ messages: [] }])
           .select()
           .single();
 
@@ -70,7 +56,7 @@ const Generation = () => {
     };
 
     loadConversation();
-  }, [navigate]);
+  }, []);
 
   const updateConversation = async (newMessages: Message[]) => {
     if (!conversationId) return;
@@ -78,7 +64,7 @@ const Generation = () => {
     const { error } = await supabase
       .from('chat_conversations')
       .update({ 
-        messages: newMessages as any, // Cast to any to satisfy the Json type
+        messages: newMessages,
         updated_at: new Date().toISOString() 
       })
       .eq('id', conversationId);
@@ -109,7 +95,6 @@ const Generation = () => {
     setPrompt("");
     setLoading(true);
 
-    // Update conversation with user message
     await updateConversation(newMessages);
 
     try {
