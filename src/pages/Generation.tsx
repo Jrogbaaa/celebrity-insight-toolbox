@@ -46,16 +46,24 @@ const Generation = () => {
       });
 
       if (error) {
-        const errorBody = error.message && JSON.parse(error.message);
+        let errorMessage = "Failed to generate response. Please try again.";
         
-        if (errorBody?.error === "Rate Limit Exceeded") {
-          throw new Error("The service is currently busy. Please try again in a few minutes.");
-        }
-        if (errorBody?.error === "Service Unavailable") {
-          throw new Error("The AI service is temporarily unavailable. Please try again later.");
+        // Parse the error message if it's in JSON format
+        try {
+          const errorBody = error.message && JSON.parse(error.message);
+          
+          if (errorBody?.error === "Insufficient Balance") {
+            errorMessage = "The AI service is currently unavailable due to insufficient credits. Please try again later or contact support.";
+          } else if (errorBody?.error === "Rate Limit Exceeded") {
+            errorMessage = "The service is currently busy. Please try again in a few minutes.";
+          } else if (errorBody?.error === "Service Unavailable") {
+            errorMessage = "The AI service is temporarily unavailable. Please try again later.";
+          }
+        } catch (parseError) {
+          console.error('Error parsing error message:', parseError);
         }
         
-        throw error;
+        throw new Error(errorMessage);
       }
 
       // Add AI response to messages

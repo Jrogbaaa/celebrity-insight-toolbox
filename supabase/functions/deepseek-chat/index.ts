@@ -51,6 +51,19 @@ serve(async (req) => {
     if (!response.ok) {
       console.error('DeepSeek API error:', data);
       
+      // Check for insufficient balance error
+      if (data.error?.message?.includes('insufficient') || data.error?.message?.includes('balance')) {
+        return new Response(
+          JSON.stringify({
+            error: "Insufficient Balance",
+            details: "The AI service is currently unavailable due to insufficient credits. Please try again later or contact support."
+          }), {
+            status: 402,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          }
+        );
+      }
+
       if (data.error?.message?.includes('rate limit')) {
         return new Response(
           JSON.stringify({
@@ -58,18 +71,6 @@ serve(async (req) => {
             details: "The API is currently rate limited. Please try again in a few minutes."
           }), {
             status: 429,
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          }
-        );
-      }
-
-      if (data.error?.message?.includes('model')) {
-        return new Response(
-          JSON.stringify({
-            error: "Model Error",
-            details: "There was an issue with the AI model. Please try again later."
-          }), {
-            status: 400,
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
           }
         );
@@ -85,6 +86,19 @@ serve(async (req) => {
     });
   } catch (error) {
     console.error('Error in deepseek-chat function:', error);
+    
+    // Check if the error is related to insufficient balance
+    if (error.message?.includes('insufficient') || error.message?.includes('balance')) {
+      return new Response(
+        JSON.stringify({
+          error: "Insufficient Balance",
+          details: "The AI service is currently unavailable due to insufficient credits. Please try again later or contact support."
+        }), {
+          status: 402,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        }
+      );
+    }
     
     return new Response(
       JSON.stringify({
