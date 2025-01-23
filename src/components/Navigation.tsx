@@ -16,7 +16,7 @@ export const Navigation = () => {
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="/analytics">Analytics</TabsTrigger>
             <TabsTrigger value="/recommendations">AI Insights</TabsTrigger>
-            <TabsTrigger value="/generation">Create Content</TabsTrigger>
+            <TabsTrigger value="/generation">AI Content Expert</TabsTrigger>
           </TabsList>
         </Tabs>
       </div>
