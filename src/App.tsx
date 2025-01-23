@@ -8,8 +8,6 @@ import { Navigation } from "@/components/Navigation";
 import Analytics from "./pages/Analytics";
 import Recommendations from "./pages/Recommendations";
 import Generation from "./pages/Generation";
-import InstagramCallback from "./pages/InstagramCallback";
-import Login from "./pages/Login";
 
 const queryClient = new QueryClient();
 
@@ -22,12 +20,10 @@ const App = () => (
         <BrowserRouter>
           <div className="min-h-screen bg-background pb-14">
             <Routes>
-              <Route path="/login" element={<Login />} />
               <Route path="/" element={<Navigate to="/recommendations" replace />} />
               <Route path="/analytics" element={<Analytics />} />
               <Route path="/recommendations" element={<Recommendations />} />
               <Route path="/generation" element={<Generation />} />
-              <Route path="/instagram-callback" element={<InstagramCallback />} />
             </Routes>
             <Navigation />
           </div>
