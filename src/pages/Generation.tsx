@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { ChatMessages } from "@/components/chat/ChatMessages";
 import { ChatInput } from "@/components/chat/ChatInput";
+import { Json } from "@/integrations/supabase/types";
 
 interface Message {
   role: 'user' | 'assistant';
@@ -19,6 +20,9 @@ const Generation = () => {
 
   useEffect(() => {
     const loadConversation = async () => {
+      // Get the current session
+      const { data: { session } } = await supabase.auth.getSession();
+      
       const { data: conversations, error } = await supabase
         .from('chat_conversations')
         .select('*')
@@ -32,15 +36,17 @@ const Generation = () => {
 
       if (conversations && conversations.length > 0) {
         setConversationId(conversations[0].id);
-        const savedMessages = conversations[0].messages as Array<{
-          role: 'user' | 'assistant';
-          content: string;
-        }>;
+        const savedMessages = conversations[0].messages as Message[];
         setMessages(savedMessages);
       } else {
+        // Create a new conversation with an empty messages array
         const { data: newConversation, error: createError } = await supabase
           .from('chat_conversations')
-          .insert([{ messages: [] }])
+          .insert([{ 
+            messages: [],
+            // Use the anonymous user ID or a default one if not authenticated
+            user_id: session?.user?.id || '00000000-0000-0000-0000-000000000000'
+          }])
           .select()
           .single();
 
@@ -64,7 +70,7 @@ const Generation = () => {
     const { error } = await supabase
       .from('chat_conversations')
       .update({ 
-        messages: newMessages,
+        messages: newMessages as Json,
         updated_at: new Date().toISOString() 
       })
       .eq('id', conversationId);
