@@ -40,18 +40,34 @@ serve(async (req) => {
     console.log('DeepSeek API response:', data);
 
     if (!response.ok) {
-      // Handle insufficient balance error specifically
-      if (data.error === "Insufficient Balance") {
+      // Log the full error response for debugging
+      console.error('DeepSeek API error:', data);
+      
+      if (data.error?.message?.includes('rate limit')) {
         return new Response(
           JSON.stringify({
-            error: "Insufficient Balance",
-            details: "DeepSeek API credits exhausted. Please check your account balance."
+            error: "Rate Limit Exceeded",
+            details: "The API is currently rate limited. Please try again in a few minutes."
           }), {
-            status: 402, // Using 402 Payment Required for insufficient credits
+            status: 429,
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
           }
         );
       }
+
+      // The API is in beta and free, so this might be a temporary issue
+      if (data.error === "Insufficient Balance") {
+        return new Response(
+          JSON.stringify({
+            error: "Service Unavailable",
+            details: "The DeepSeek API service is temporarily unavailable. Please try again later."
+          }), {
+            status: 503,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          }
+        );
+      }
+
       throw new Error(data.error?.message || 'Failed to generate content');
     }
 

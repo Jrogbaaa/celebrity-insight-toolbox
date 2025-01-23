@@ -28,11 +28,17 @@ const Generation = () => {
       });
 
       if (error) {
-        // Check if the error response contains details about insufficient balance
+        // Parse the error response
         const errorBody = error.message && JSON.parse(error.message);
-        if (errorBody?.error === "Insufficient Balance") {
-          throw new Error("The AI service is currently unavailable due to insufficient credits. Please contact support.");
+        
+        // Handle specific error cases
+        if (errorBody?.error === "Rate Limit Exceeded") {
+          throw new Error("The service is currently busy. Please try again in a few minutes.");
         }
+        if (errorBody?.error === "Service Unavailable") {
+          throw new Error("The AI service is temporarily unavailable. Please try again later.");
+        }
+        
         throw error;
       }
 
