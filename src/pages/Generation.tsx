@@ -21,9 +21,11 @@ const Generation = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
 
+  // Initial auth check
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'SIGNED_OUT' || (!session && !isAuthChecking)) {
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session && !isAuthChecking) {
         navigate("/auth");
         toast({
           title: "Authentication required",
@@ -32,6 +34,19 @@ const Generation = () => {
         });
       }
       setIsAuthChecking(false);
+    };
+
+    checkAuth();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_OUT' || !session) {
+        navigate("/auth");
+        toast({
+          title: "Authentication required",
+          description: "Please log in to access this feature",
+          variant: "destructive",
+        });
+      }
     });
 
     return () => subscription.unsubscribe();
@@ -42,7 +57,6 @@ const Generation = () => {
       const { data: { session } } = await supabase.auth.getSession();
       
       if (!session) {
-        setIsAuthChecking(false);
         return;
       }
       
@@ -64,11 +78,9 @@ const Generation = () => {
 
       if (conversations && conversations.length > 0) {
         setConversationId(conversations[0].id);
-        // Type assertion to ensure the messages array matches the Message interface
-        const savedMessages = (conversations[0].messages as unknown) as Message[];
-        setMessages(savedMessages);
+        const savedMessages = conversations[0].messages as Message[];
+        setMessages(savedMessages || []);
       } else {
-        // Create a new conversation with an empty messages array
         const { data: newConversation, error: createError } = await supabase
           .from('chat_conversations')
           .insert([{ 
@@ -92,7 +104,6 @@ const Generation = () => {
           setConversationId(newConversation.id);
         }
       }
-      setIsAuthChecking(false);
     };
 
     if (!isAuthChecking) {
