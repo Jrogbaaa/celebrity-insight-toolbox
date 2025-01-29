@@ -39,11 +39,20 @@ const handleAnalyzeError = (error: any) => {
   throw new Error('Failed to fetch Instagram data. Please try again later.');
 };
 
-export const scrapeInstagramProfile = async () => {
+export const scrapeInstagramProfile = async (username: string) => {
   try {
-    console.log('Fetching Instagram profile data');
-    const session = await getAuthSession();
-    return await invokeAnalyzeFunction(session.access_token);
+    console.log('Fetching Instagram profile data for:', username);
+    
+    const { data, error } = await supabase.functions.invoke('instagram-scrape', {
+      body: { username }
+    });
+
+    if (error) {
+      console.error('Error from edge function:', error);
+      throw error;
+    }
+
+    return data;
   } catch (error) {
     console.error('Error fetching Instagram profile:', error);
     throw error;
