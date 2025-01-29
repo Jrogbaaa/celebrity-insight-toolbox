@@ -7,10 +7,13 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { EngagementChart } from "@/components/EngagementChart";
 import { MetricsGrid } from "@/components/MetricsGrid";
 import { PostTimingAnalyzer } from "@/components/PostTimingAnalyzer";
+import { useState } from "react";
+import { Input } from "@/components/ui/input";
 
 const Analytics = () => {
   const { toast } = useToast();
-  const { data: metrics, isLoading, error } = useInstagramAnalysis();
+  const [username, setUsername] = useState<string>("");
+  const { data: metrics, isLoading, error } = useInstagramAnalysis(username);
 
   const handleConnectInstagram = () => {
     const clientId = import.meta.env.VITE_INSTAGRAM_CLIENT_ID;
@@ -20,6 +23,17 @@ const Analytics = () => {
     const instagramUrl = `https://api.instagram.com/oauth/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scope}&response_type=code`;
     
     window.location.href = instagramUrl;
+  };
+
+  const handleAnalyze = () => {
+    if (!username) {
+      toast({
+        title: "Username Required",
+        description: "Please enter an Instagram username to analyze",
+        variant: "destructive",
+      });
+      return;
+    }
   };
 
   // Example data for demonstration
@@ -50,11 +64,39 @@ const Analytics = () => {
     <div className="container py-8">
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold">Instagram Analytics</h1>
-        <Button onClick={handleConnectInstagram} className="flex items-center gap-2">
-          <Instagram className="h-5 w-5" />
-          Connect Your Account
-        </Button>
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
+            <Input
+              placeholder="Enter Instagram username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              className="w-64"
+            />
+            <Button onClick={handleAnalyze} disabled={isLoading}>
+              {isLoading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Analyzing...
+                </>
+              ) : (
+                "Analyze"
+              )}
+            </Button>
+          </div>
+          <Button onClick={handleConnectInstagram} className="flex items-center gap-2">
+            <Instagram className="h-5 w-5" />
+            Connect Your Account
+          </Button>
+        </div>
       </div>
+
+      {error && (
+        <Alert variant="destructive" className="mb-4">
+          <AlertDescription>
+            Failed to fetch Instagram data. Please try again.
+          </AlertDescription>
+        </Alert>
+      )}
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <MetricsGrid />
@@ -65,12 +107,14 @@ const Analytics = () => {
         <PostTimingAnalyzer posts={exampleData.posts} />
       </div>
 
-      <div className="mt-8 bg-muted/50 rounded-lg p-6">
-        <h2 className="text-lg font-semibold mb-2">👋 Welcome to the Demo</h2>
-        <p className="text-muted-foreground">
-          This is an example of how your Instagram analytics dashboard will look. Connect your Instagram account to see your real data!
-        </p>
-      </div>
+      {!username && (
+        <div className="mt-8 bg-muted/50 rounded-lg p-6">
+          <h2 className="text-lg font-semibold mb-2">👋 Welcome to the Demo</h2>
+          <p className="text-muted-foreground">
+            Enter an Instagram username above to analyze their profile, or connect your own Instagram account to see your real data!
+          </p>
+        </div>
+      )}
     </div>
   );
 };
