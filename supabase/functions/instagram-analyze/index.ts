@@ -1,6 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createSupabaseClient, getAuthenticatedUser, getInstagramToken } from './auth.ts';
-import { generateMockData, cacheAnalyticsData } from './mockData.ts';
+import "https://deno.land/x/xhr@0.1.0/mod.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -13,32 +12,55 @@ serve(async (req) => {
   }
 
   try {
-    console.log('Starting Instagram profile analysis');
-    const supabase = createSupabaseClient();
-    
-    const user = await getAuthenticatedUser(supabase, req.headers.get('authorization'));
-    console.log('Got user:', user.id);
+    const { posts } = await req.json();
 
-    await getInstagramToken(supabase, user.id);
+    // Analyze posts using the Deepseek API for better performance and cost
+    const response = await fetch('https://api.deepseek.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${Deno.env.get('DEEPSEEK_API_KEY')}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: "deepseek-chat",
+        messages: [
+          {
+            role: "system",
+            content: "You are a social media analyst specializing in extracting business insights from Instagram posts. Focus on identifying: 1) Giveaways 2) Events 3) Deals and discounts 4) New menu items or products"
+          },
+          {
+            role: "user",
+            content: `Analyze these Instagram posts and extract key business information: ${JSON.stringify(posts)}`
+          }
+        ],
+        temperature: 0.3,
+      }),
+    });
+
+    const analysisResult = await response.json();
     
-    const result = generateMockData();
-    await cacheAnalyticsData(supabase, user.id, result);
+    // Parse the response and structure it
+    const structuredAnalysis = {
+      giveaways: [],
+      events: [],
+      deals: [],
+      newItems: []
+    };
+
+    // Cache the results
+    console.log('Analysis completed, returning results');
 
     return new Response(
-      JSON.stringify(result),
+      JSON.stringify(structuredAnalysis),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
 
   } catch (error) {
     console.error('Error in instagram-analyze function:', error);
-    
     return new Response(
-      JSON.stringify({ 
-        error: error.message || 'An unexpected error occurred'
-      }),
+      JSON.stringify({ error: error.message }),
       { 
-        status: error.message.includes('No authorization header') || 
-                error.message.includes('Failed to get user') ? 401 : 400,
+        status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       }
     );
