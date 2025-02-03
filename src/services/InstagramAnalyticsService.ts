@@ -35,6 +35,7 @@ interface AnalysisResult {
 
 export const analyzeInstagramContent = async (posts: AnalyticsData[]): Promise<AnalysisResult> => {
   try {
+    console.log('Starting Instagram content analysis');
     const { data, error } = await supabase.functions.invoke('instagram-analyze', {
       body: { posts },
     });
@@ -49,6 +50,7 @@ export const analyzeInstagramContent = async (posts: AnalyticsData[]): Promise<A
       throw error;
     }
 
+    console.log('Analysis completed successfully');
     return data;
   } catch (error) {
     console.error('Error in analyzeInstagramContent:', error);
