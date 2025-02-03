@@ -1,5 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+import { Json } from "@/integrations/supabase/types";
 
 interface AnalyticsData {
   content: string;
@@ -57,11 +58,19 @@ export const analyzeInstagramContent = async (posts: AnalyticsData[]): Promise<A
 
 export const cacheAnalysisResults = async (username: string, results: AnalysisResult) => {
   try {
+    // Convert AnalysisResult to a plain object that matches Json type
+    const jsonData = {
+      giveaways: results.giveaways,
+      events: results.events,
+      deals: results.deals,
+      newItems: results.newItems
+    } as Json;
+
     const { error } = await supabase
       .from('instagram_cache')
       .upsert({
         username,
-        data: results,
+        data: jsonData,
         updated_at: new Date().toISOString()
       });
 
