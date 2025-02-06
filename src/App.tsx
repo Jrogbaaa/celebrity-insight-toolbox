@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -8,6 +9,29 @@ import { Navigation } from "@/components/Navigation";
 import Analytics from "./pages/Analytics";
 import Recommendations from "./pages/Recommendations";
 import Generation from "./pages/Generation";
+import TermsOfService from "./pages/TermsOfService";
+import { Button } from "./components/ui/button";
+import { useNavigate } from "react-router-dom";
+
+const Layout = ({ children }: { children: React.ReactNode }) => {
+  const navigate = useNavigate();
+  
+  return (
+    <div className="min-h-screen bg-background pb-14">
+      <div className="container flex justify-end p-4">
+        <Button
+          variant="ghost"
+          className="text-sm"
+          onClick={() => navigate("/terms")}
+        >
+          Terms of Service
+        </Button>
+      </div>
+      {children}
+      <Navigation />
+    </div>
+  );
+};
 
 const queryClient = new QueryClient();
 
@@ -18,15 +42,13 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
-          <div className="min-h-screen bg-background pb-14">
-            <Routes>
-              <Route path="/" element={<Navigate to="/recommendations" replace />} />
-              <Route path="/analytics" element={<Analytics />} />
-              <Route path="/recommendations" element={<Recommendations />} />
-              <Route path="/generation" element={<Generation />} />
-            </Routes>
-            <Navigation />
-          </div>
+          <Routes>
+            <Route path="/" element={<Layout><Navigate to="/recommendations" replace /></Layout>} />
+            <Route path="/analytics" element={<Layout><Analytics /></Layout>} />
+            <Route path="/recommendations" element={<Layout><Recommendations /></Layout>} />
+            <Route path="/generation" element={<Layout><Generation /></Layout>} />
+            <Route path="/terms" element={<TermsOfService />} />
+          </Routes>
         </BrowserRouter>
       </TooltipProvider>
     </QueryClientProvider>
