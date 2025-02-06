@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -115,8 +114,6 @@ const TermsOfService = () => {
           <ul className="list-disc list-inside pl-4">
             <li>Email: jack@lookafteryou.es</li>
             <li>TikTok Verification URL: https://ygweyscocelwjcqinkth.supabase.co/functions/v1/tiktok-verify</li>
-            <li>App Store URL: https://apps.apple.com/app/celebrity-insight-toolbox/6477085438</li>
-            <li>Bundle ID: app.lovable.b7ef976275f54f7b84066beeef658060</li>
           </ul>
         </section>
 
