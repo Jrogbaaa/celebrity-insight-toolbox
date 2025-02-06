@@ -13,7 +13,7 @@ serve(async (req) => {
   }
 
   // TikTok verification file content
-  const verificationContent = `tiktok-domain-verification=YOUR_TIKTOK_VERIFICATION_CODE`;
+  const verificationContent = `tiktok-developers-site-verification=LKD8lCOdnyqfdgWZ49XRFZIW2bke3OPv`;
 
   return new Response(verificationContent, {
     headers: {
