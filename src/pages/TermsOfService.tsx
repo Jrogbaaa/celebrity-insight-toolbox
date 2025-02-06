@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -74,14 +73,47 @@ const TermsOfService = () => {
           </ol>
         </section>
 
-        {/* ... Continue with remaining sections ... */}
-        
+        <section>
+          <h2 className="text-xl font-semibold mt-6 mb-4">7. Intellectual Property</h2>
+          <p>All content, trademarks, and other intellectual property rights in the app are owned by TheSocialTool or its licensors. You may not use, reproduce, or distribute any content without our prior written consent.</p>
+        </section>
+
+        <section>
+          <h2 className="text-xl font-semibold mt-6 mb-4">8. Limitation of Liability</h2>
+          <p>To the fullest extent permitted by law, TheSocialTool shall not be liable for any indirect, incidental, special, consequential, or punitive damages arising from your use of the app.</p>
+        </section>
+
+        <section>
+          <h2 className="text-xl font-semibold mt-6 mb-4">9. Indemnification</h2>
+          <p>You agree to indemnify and hold harmless TheSocialTool and its affiliates from any claims, losses, liabilities, damages, costs, or expenses arising out of your use of the app or violation of these Terms.</p>
+        </section>
+
+        <section>
+          <h2 className="text-xl font-semibold mt-6 mb-4">10. Governing Law</h2>
+          <p>These Terms shall be governed by and construed in accordance with the laws of the jurisdiction in which TheSocialTool operates, without regard to its conflict of law principles.</p>
+        </section>
+
+        <section>
+          <h2 className="text-xl font-semibold mt-6 mb-4">11. Changes to Terms</h2>
+          <p>We reserve the right to modify these Terms at any time. Any changes will be effective immediately upon posting on the app. Your continued use of the app after changes constitutes your acceptance of the new Terms.</p>
+        </section>
+
+        <section>
+          <h2 className="text-xl font-semibold mt-6 mb-4">12. Termination</h2>
+          <p>We may terminate or suspend your access to the app at any time, without prior notice or liability, for any reason, including if you breach these Terms.</p>
+        </section>
+
+        <section>
+          <h2 className="text-xl font-semibold mt-6 mb-4">13. Miscellaneous</h2>
+          <p>If any provision of these Terms is found to be invalid or unenforceable, the remaining provisions shall remain in full force and effect. These Terms constitute the entire agreement between you and TheSocialTool regarding your use of the app.</p>
+        </section>
+
         <section>
           <h2 className="text-xl font-semibold mt-6 mb-4">14. Contact Information</h2>
           <p>For questions or concerns about these Terms, please contact us at:</p>
           <ul className="list-disc list-inside pl-4">
             <li>Email: jack@lookafteryou.es</li>
-            <li>Address: [Insert Physical Address]</li>
+            <li>TikTok Verification URL: https://ygweyscocelwjcqinkth.supabase.co/functions/v1/tiktok-verify</li>
           </ul>
         </section>
 
