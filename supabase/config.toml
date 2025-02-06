@@ -35,3 +35,7 @@ verify_jwt = false
 [[functions]]
 [functions.tiktok-auth]
 verify_jwt = true
+
+[[functions]]
+[functions.tiktok-verify]
+verify_jwt = false
