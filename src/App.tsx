@@ -10,6 +10,7 @@ import Analytics from "./pages/Analytics";
 import Recommendations from "./pages/Recommendations";
 import Generation from "./pages/Generation";
 import TermsOfService from "./pages/TermsOfService";
+import TikTokCallback from "./pages/TikTokCallback";
 import { Button } from "./components/ui/button";
 import { useNavigate } from "react-router-dom";
 
@@ -48,6 +49,7 @@ const App = () => (
             <Route path="/recommendations" element={<Layout><Recommendations /></Layout>} />
             <Route path="/generation" element={<Layout><Generation /></Layout>} />
             <Route path="/terms" element={<TermsOfService />} />
+            <Route path="/tiktok-callback" element={<TikTokCallback />} />
           </Routes>
         </BrowserRouter>
       </TooltipProvider>
