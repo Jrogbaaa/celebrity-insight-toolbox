@@ -1,3 +1,4 @@
+
 project_id = "ygweyscocelwjcqinkth"
 
 [api]
@@ -30,3 +31,7 @@ verify_jwt = false
 [[functions]]
 [functions.deepseek-chat]
 verify_jwt = false
+
+[[functions]]
+[functions.tiktok-auth]
+verify_jwt = true
