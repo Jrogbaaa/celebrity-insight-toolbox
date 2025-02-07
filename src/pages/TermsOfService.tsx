@@ -32,7 +32,7 @@ const TermsOfService = () => {
           <p>For TikTok platform verification purposes:</p>
           <ul className="list-disc list-inside pl-4 space-y-2">
             <li>TikTok Verification URL: https://ygweyscocelwjcqinkth.supabase.co/functions/v1/tiktok-verify</li>
-            <li>TikTok Verification Code: tiktok-developers-site-verification=VoC4ABaDj2nBgJw5lPhNwv6dsran76CL</li>
+            <li>TikTok Verification Code: tiktok-developers-site-verification=FACHd0WWbFoVY1eESS9vroWmE9DAz0yp</li>
           </ul>
         </section>
 
