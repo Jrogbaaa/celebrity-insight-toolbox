@@ -147,6 +147,51 @@ export type Database = {
         }
         Relationships: []
       }
+      tiktok_user_data: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          display_name: string | null
+          follower_count: number | null
+          following_count: number | null
+          id: number
+          likes_count: number | null
+          tiktok_user_id: string
+          updated_at: string
+          user_id: string
+          username: string | null
+          video_count: number | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          display_name?: string | null
+          follower_count?: number | null
+          following_count?: number | null
+          id?: number
+          likes_count?: number | null
+          tiktok_user_id: string
+          updated_at?: string
+          user_id: string
+          username?: string | null
+          video_count?: number | null
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          display_name?: string | null
+          follower_count?: number | null
+          following_count?: number | null
+          id?: number
+          likes_count?: number | null
+          tiktok_user_id?: string
+          updated_at?: string
+          user_id?: string
+          username?: string | null
+          video_count?: number | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
