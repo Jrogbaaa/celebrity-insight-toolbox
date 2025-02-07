@@ -1,16 +1,20 @@
+
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Instagram, Loader2 } from "lucide-react";
+import { Instagram, Loader2, BrandTiktok } from "lucide-react";
 import { useInstagramAnalysis } from "@/services/InstagramService";
 import { useToast } from "@/hooks/use-toast";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { EngagementChart } from "@/components/EngagementChart";
 import { MetricsGrid } from "@/components/MetricsGrid";
 import { PostTimingAnalyzer } from "@/components/PostTimingAnalyzer";
+import { TikTokLoginButton } from "@/components/tiktok/TikTokLoginButton";
+import { useTikTokAuth } from "@/hooks/useTikTokAuth";
 
 const Analytics = () => {
   const { toast } = useToast();
   const { data: metrics, isLoading, error } = useInstagramAnalysis();
+  const { handleTikTokLogin, isLoading: isTikTokLoading } = useTikTokAuth();
 
   const handleConnectInstagram = () => {
     const clientId = import.meta.env.VITE_INSTAGRAM_CLIENT_ID;
@@ -49,11 +53,14 @@ const Analytics = () => {
   return (
     <div className="container py-8">
       <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold">Instagram Analytics</h1>
-        <Button onClick={handleConnectInstagram} className="flex items-center gap-2">
-          <Instagram className="h-5 w-5" />
-          Connect Your Account
-        </Button>
+        <h1 className="text-3xl font-bold">Social Media Analytics</h1>
+        <div className="flex gap-4">
+          <Button onClick={handleConnectInstagram} className="flex items-center gap-2">
+            <Instagram className="h-5 w-5" />
+            Connect Instagram
+          </Button>
+          <TikTokLoginButton onClick={handleTikTokLogin} isLoading={isTikTokLoading} />
+        </div>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -66,9 +73,9 @@ const Analytics = () => {
       </div>
 
       <div className="mt-8 bg-muted/50 rounded-lg p-6">
-        <h2 className="text-lg font-semibold mb-2">👋 Welcome to the Demo</h2>
+        <h2 className="text-lg font-semibold mb-2">👋 Welcome to the Analytics Dashboard</h2>
         <p className="text-muted-foreground">
-          This is an example of how your Instagram analytics dashboard will look. Connect your Instagram account to see your real data!
+          Connect your Instagram and TikTok accounts to see your real social media analytics and insights!
         </p>
       </div>
     </div>
