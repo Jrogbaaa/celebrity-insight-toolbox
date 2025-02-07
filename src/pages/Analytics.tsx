@@ -1,7 +1,7 @@
 
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Instagram, Loader2, BrandTiktok } from "lucide-react";
+import { Instagram, Loader2 } from "lucide-react";
 import { useInstagramAnalysis } from "@/services/InstagramService";
 import { useToast } from "@/hooks/use-toast";
 import { Alert, AlertDescription } from "@/components/ui/alert";
