@@ -23,7 +23,7 @@ const TermsOfService = () => {
 
         <section>
           <h2 className="text-xl font-semibold mt-6 mb-4">Terms of Service</h2>
-          <p>Our complete Terms of Service can be found at: <a href="https://docs.google.com/document/d/e/2PACX-1vQdwI9Szmpv_y5bxk1bkiJiM3StuAD6LImEyiv_Q8huebJ7undXs6DvMKwCoPKaGEkdELXXI8MfyJk_/pub" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">Terms of Service Document</a></p>
+          <p>Our complete Terms of Service can be found at: <a href="https://docs.google.com/document/d/e/2PACX-1vTXLIdkNd4jjC5Wi-MAz3uz4dHrtFw_xwnLUh1zYCdu80IZxsIT9PD4kMlCmQccnhpkaC55BYaAPY1P/pub" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">Terms of Service Document</a></p>
         </section>
 
         <section>
