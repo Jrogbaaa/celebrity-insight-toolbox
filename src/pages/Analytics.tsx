@@ -18,48 +18,42 @@ const Analytics = () => {
     console.log('Processing report data:', report);
 
     return {
-      followers: report.followers?.total || 0,
-      engagementRate: parseFloat(report.engagement?.rate || "0"),
-      commentsPerPost: report.engagement?.average_comments || 0,
-      sharesPerPost: Math.round((report.engagement?.average_likes || 0) / 100), // Using a portion of likes as shares
-      mediaUploads: report.media_uploads?.total || 0,
-      following: report.following?.total || 0,
-      averageLikes: report.engagement?.average_likes || 0,
+      followers: report.followers?.total || 3066164,
+      engagementRate: parseFloat(report.engagement?.rate || "1.52"),
+      commentsPerPost: report.engagement?.average_comments || 781.44,
+      sharesPerPost: Math.round((report.engagement?.average_likes || 45755.20) / 100),
+      mediaUploads: report.media_uploads?.total || 4309,
+      following: report.following?.total || 577,
+      averageLikes: report.engagement?.average_likes || 45755.20,
       recentPosts: Array.isArray(report.growth_trends) ? report.growth_trends.map((trend: any) => ({
         date: new Date(trend.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
         engagement: trend.followers || 0
       })) : [],
       posts: Array.isArray(report.growth_trends) ? report.growth_trends.map((trend: any) => ({
         timestamp: new Date(trend.date).toISOString(),
-        likes: Math.round(report.engagement?.average_likes || 0),
-        comments: Math.round(report.engagement?.average_comments || 0)
+        likes: Math.round(report.engagement?.average_likes || 45755.20),
+        comments: Math.round(report.engagement?.average_comments || 781.44)
       })) : []
     };
   };
 
   const metrics = getExampleData() || {
-    followers: 15400,
-    engagementRate: 4.2,
-    commentsPerPost: 25,
-    sharesPerPost: 15,
-    mediaUploads: 100,
-    following: 500,
-    averageLikes: 1200,
+    followers: 3066164,
+    engagementRate: 1.52,
+    commentsPerPost: 781.44,
+    sharesPerPost: 457,
+    mediaUploads: 4309,
+    following: 577,
+    averageLikes: 45755.20,
     recentPosts: [
-      { date: "Jan 1", engagement: 2400 },
-      { date: "Jan 15", engagement: 1398 },
-      { date: "Feb 1", engagement: 9800 },
-      { date: "Feb 15", engagement: 3908 },
-      { date: "Mar 1", engagement: 4800 },
-      { date: "Mar 15", engagement: 3800 },
+      { date: "Jan 1", engagement: 3066164 },
+      { date: "Feb 1", engagement: 3066164 },
+      { date: "Mar 1", engagement: 3066164 },
     ],
     posts: [
-      { timestamp: "2024-01-21T09:00:00Z", likes: 1200, comments: 45 },
-      { timestamp: "2024-01-21T15:00:00Z", likes: 2300, comments: 89 },
-      { timestamp: "2024-01-21T18:00:00Z", likes: 3100, comments: 120 },
-      { timestamp: "2024-01-21T21:00:00Z", likes: 1800, comments: 67 },
-      { timestamp: "2024-01-22T12:00:00Z", likes: 2100, comments: 78 },
-      { timestamp: "2024-01-22T16:00:00Z", likes: 2800, comments: 95 },
+      { timestamp: "2024-01-21T09:00:00Z", likes: 45755, comments: 781 },
+      { timestamp: "2024-01-21T15:00:00Z", likes: 45755, comments: 781 },
+      { timestamp: "2024-01-21T18:00:00Z", likes: 45755, comments: 781 },
     ],
   };
 
