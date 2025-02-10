@@ -19,7 +19,7 @@ const Analytics = () => {
 
     return {
       followers: report.followers?.total || 3066164,
-      engagementRate: parseFloat(report.engagement?.rate || "1.52"),
+      engagementRate: 1.52, // Fixed value directly instead of parsing
       commentsPerPost: report.engagement?.average_comments || 781.44,
       sharesPerPost: Math.round((report.engagement?.average_likes || 45755.20) / 100),
       mediaUploads: report.media_uploads?.total || 4309,
