@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,6 +9,7 @@ import { EngagementChart } from "@/components/EngagementChart";
 import { MetricsGrid } from "@/components/MetricsGrid";
 import { PostTimingAnalyzer } from "@/components/PostTimingAnalyzer";
 import { supabase } from "@/integrations/supabase/client";
+import { useNavigate } from "react-router-dom";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -26,13 +28,28 @@ interface CelebrityReport {
 
 const Analytics = () => {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [reports, setReports] = useState<CelebrityReport[]>([]);
   const [selectedReport, setSelectedReport] = useState<CelebrityReport | null>(null);
 
   useEffect(() => {
+    checkUser();
     fetchReports();
   }, []);
+
+  const checkUser = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      toast({
+        title: "Authentication required",
+        description: "Please login to access analytics",
+        variant: "destructive",
+      });
+      navigate("/auth");
+      return;
+    }
+  };
 
   const fetchReports = async () => {
     const { data, error } = await supabase
@@ -58,11 +75,24 @@ const Analytics = () => {
   const handleUploadReport = async () => {
     setLoading(true);
     try {
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        toast({
+          title: "Authentication required",
+          description: "Please login to upload reports",
+          variant: "destructive",
+        });
+        navigate("/auth");
+        return;
+      }
+
       // Example data for Cristina Pedroche
       const reportData = {
         celebrity_name: "Cristina Pedroche",
         username: "cristipedroche",
         platform: "Instagram",
+        user_id: session.user.id, // Add the user_id from the session
         report_data: {
           followers: {
             total: 3066164,
