@@ -36,6 +36,42 @@ export type Database = {
         }
         Relationships: []
       }
+      celebrity_reports: {
+        Row: {
+          celebrity_name: string
+          created_at: string | null
+          id: string
+          platform: string
+          report_data: Json
+          report_date: string
+          updated_at: string | null
+          user_id: string | null
+          username: string
+        }
+        Insert: {
+          celebrity_name: string
+          created_at?: string | null
+          id?: string
+          platform: string
+          report_data: Json
+          report_date: string
+          updated_at?: string | null
+          user_id?: string | null
+          username: string
+        }
+        Update: {
+          celebrity_name?: string
+          created_at?: string | null
+          id?: string
+          platform?: string
+          report_data?: Json
+          report_date?: string
+          updated_at?: string | null
+          user_id?: string | null
+          username?: string
+        }
+        Relationships: []
+      }
       chat_conversations: {
         Row: {
           created_at: string | null
