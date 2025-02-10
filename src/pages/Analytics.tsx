@@ -15,11 +15,13 @@ const Analytics = () => {
     if (!selectedReport) return null;
 
     const report = selectedReport.report_data;
+    console.log('Selected report data:', report);
+
     return {
       followers: report.followers.total,
       engagementRate: parseFloat(report.engagement.rate),
       commentsPerPost: Math.round(report.engagement.average_comments),
-      sharesPerPost: Math.round(report.engagement.average_likes / 100), // Estimated
+      sharesPerPost: Math.round(report.engagement.average_likes / 100), // Using a portion of likes as shares
       recentPosts: report.growth_trends.map((trend: any) => ({
         date: new Date(trend.date).toLocaleDateString('en-US', { month: 'short' }),
         engagement: trend.followers
@@ -32,7 +34,7 @@ const Analytics = () => {
     };
   };
 
-  const exampleData = getExampleData() || {
+  const metrics = getExampleData() || {
     followers: 15400,
     engagementRate: 4.2,
     commentsPerPost: 25,
@@ -80,12 +82,12 @@ const Analytics = () => {
       )}
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <MetricsGrid />
+        <MetricsGrid data={metrics} />
       </div>
       
       <div className="grid gap-4 mt-8">
-        <EngagementChart />
-        <PostTimingAnalyzer posts={exampleData.posts} />
+        <EngagementChart data={metrics.recentPosts} />
+        <PostTimingAnalyzer posts={metrics.posts} />
       </div>
 
       <div className="mt-8 bg-card rounded-lg p-6 shadow-lg border border-border/50">

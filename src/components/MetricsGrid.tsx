@@ -1,39 +1,42 @@
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowUpRight, ArrowDownRight, Users, Heart, MessageCircle, Share2 } from "lucide-react";
-import { useSocialMediaMetrics } from "@/services/SocialMediaService";
 
-export const MetricsGrid = () => {
-  const { data: metrics, isLoading } = useSocialMediaMetrics();
+interface MetricsGridProps {
+  data: {
+    followers: number;
+    engagementRate: number;
+    commentsPerPost: number;
+    sharesPerPost: number;
+  };
+}
 
-  if (isLoading) {
-    return <div>Loading metrics...</div>;
-  }
-
+export const MetricsGrid = ({ data }: MetricsGridProps) => {
   const metricsConfig = [
     {
       title: "Total Followers",
-      value: metrics ? `${(metrics.followers / 1000).toFixed(1)}K` : "0",
+      value: data ? `${(data.followers / 1000).toFixed(1)}K` : "0",
       change: "+2.5%",
       isPositive: true,
       icon: Users,
     },
     {
       title: "Engagement Rate",
-      value: metrics ? `${metrics.engagementRate}%` : "0%",
+      value: data ? `${data.engagementRate}%` : "0%",
       change: "+0.3%",
       isPositive: true,
       icon: Heart,
     },
     {
       title: "Comments/Post",
-      value: metrics ? metrics.commentsPerPost.toString() : "0",
+      value: data ? data.commentsPerPost.toString() : "0",
       change: "-1.2%",
       isPositive: false,
       icon: MessageCircle,
     },
     {
       title: "Shares/Post",
-      value: metrics ? metrics.sharesPerPost.toString() : "0",
+      value: data ? data.sharesPerPost.toString() : "0",
       change: "+4.5%",
       isPositive: true,
       icon: Share2,
