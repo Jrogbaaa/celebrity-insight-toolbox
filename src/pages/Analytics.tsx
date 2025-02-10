@@ -1,157 +1,14 @@
 
-import { useState, useEffect } from "react";
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Upload, Loader2, ChevronDown } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { EngagementChart } from "@/components/EngagementChart";
 import { MetricsGrid } from "@/components/MetricsGrid";
 import { PostTimingAnalyzer } from "@/components/PostTimingAnalyzer";
-import { supabase } from "@/integrations/supabase/client";
-import { useNavigate } from "react-router-dom";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-
-interface CelebrityReport {
-  id: string;
-  celebrity_name: string;
-  username: string;
-  platform: string;
-  report_data: any;
-  report_date: string;
-}
+import { CelebrityReportUploader } from "@/components/analytics/CelebrityReportUploader";
+import { CelebrityReportSelector } from "@/components/analytics/CelebrityReportSelector";
+import { useReportsData } from "@/components/analytics/useReportsData";
 
 const Analytics = () => {
-  const { toast } = useToast();
-  const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
-  const [reports, setReports] = useState<CelebrityReport[]>([]);
-  const [selectedReport, setSelectedReport] = useState<CelebrityReport | null>(null);
-
-  useEffect(() => {
-    checkUser();
-    fetchReports();
-  }, []);
-
-  const checkUser = async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) {
-      toast({
-        title: "Authentication required",
-        description: "Please login to access analytics",
-        variant: "destructive",
-      });
-      navigate("/auth");
-      return;
-    }
-  };
-
-  const fetchReports = async () => {
-    const { data, error } = await supabase
-      .from('celebrity_reports')
-      .select('*')
-      .order('created_at', { ascending: false });
-
-    if (error) {
-      toast({
-        title: "Error",
-        description: "Failed to fetch celebrity reports",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setReports(data || []);
-    if (data && data.length > 0 && !selectedReport) {
-      setSelectedReport(data[0]);
-    }
-  };
-
-  const handleUploadReport = async () => {
-    setLoading(true);
-    try {
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      if (!session) {
-        toast({
-          title: "Authentication required",
-          description: "Please login to upload reports",
-          variant: "destructive",
-        });
-        navigate("/auth");
-        return;
-      }
-
-      // Example data for Cristina Pedroche
-      const reportData = {
-        celebrity_name: "Cristina Pedroche",
-        username: "cristipedroche",
-        platform: "Instagram",
-        user_id: session.user.id, // Add the user_id from the session
-        report_data: {
-          followers: {
-            total: 3066164,
-            last_30_days: -3660,
-            daily_average: -122
-          },
-          following: {
-            total: 577,
-            last_30_days: -30,
-            daily_average: -1
-          },
-          media_uploads: {
-            total: 4309,
-            last_30_days: 30,
-            daily_average: 1
-          },
-          engagement: {
-            rate: "1.52%",
-            average_likes: 45755.20,
-            average_comments: 781.44
-          },
-          ranks: {
-            total_grade: "B+",
-            followers_rank: 10770,
-            engagement_rank: 340023
-          },
-          growth_trends: [
-            {"date": "2025-01-28", "followers": 3067295, "following": 590, "media": 4301},
-            {"date": "2025-02-10", "followers": 3066164, "following": 577, "media": 4309}
-          ]
-        },
-        report_date: new Date().toISOString().split('T')[0]
-      };
-
-      const { data, error } = await supabase
-        .from('celebrity_reports')
-        .insert([reportData])
-        .select()
-        .single();
-
-      if (error) throw error;
-
-      toast({
-        title: "Success",
-        description: "Report uploaded successfully!",
-      });
-
-      await fetchReports();
-    } catch (error) {
-      console.error('Error uploading report:', error);
-      toast({
-        title: "Error",
-        description: "Failed to upload report. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
+  const { reports, selectedReport, setSelectedReport, fetchReports } = useReportsData();
 
   // Update example data based on selected report
   const getExampleData = () => {
@@ -205,37 +62,12 @@ const Analytics = () => {
           Celebrity Analytics Hub
         </h1>
         <div className="flex gap-4">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="flex items-center gap-2">
-                {selectedReport ? selectedReport.celebrity_name : "Select Celebrity"}
-                <ChevronDown className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-56">
-              {reports.map((report) => (
-                <DropdownMenuItem
-                  key={report.id}
-                  onClick={() => setSelectedReport(report)}
-                >
-                  {report.celebrity_name} ({report.platform})
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
-          
-          <Button 
-            onClick={handleUploadReport} 
-            className="flex items-center gap-2 bg-primary hover:bg-primary/90 transition-all"
-            disabled={loading}
-          >
-            {loading ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <Upload className="h-4 w-4" />
-            )}
-            Upload Report
-          </Button>
+          <CelebrityReportSelector
+            reports={reports}
+            selectedReport={selectedReport}
+            onSelectReport={setSelectedReport}
+          />
+          <CelebrityReportUploader onUploadSuccess={fetchReports} />
         </div>
       </div>
 
