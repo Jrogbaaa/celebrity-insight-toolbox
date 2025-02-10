@@ -12,28 +12,28 @@ const Analytics = () => {
 
   // Update example data based on selected report
   const getExampleData = () => {
-    if (!selectedReport) return null;
+    if (!selectedReport?.report_data) return null;
 
     const report = selectedReport.report_data;
-    console.log('Selected report data:', report);
+    console.log('Processing report data:', report);
 
     return {
-      followers: report.followers.total,
-      engagementRate: parseFloat(report.engagement.rate),
-      commentsPerPost: report.engagement.average_comments,
-      sharesPerPost: Math.round(report.engagement.average_likes / 100), // Using a portion of likes as shares
-      mediaUploads: report.media_uploads.total,
-      following: report.following.total,
-      averageLikes: report.engagement.average_likes,
-      recentPosts: report.growth_trends.map((trend: any) => ({
+      followers: report.followers?.total || 0,
+      engagementRate: parseFloat(report.engagement?.rate || "0"),
+      commentsPerPost: report.engagement?.average_comments || 0,
+      sharesPerPost: Math.round((report.engagement?.average_likes || 0) / 100), // Using a portion of likes as shares
+      mediaUploads: report.media_uploads?.total || 0,
+      following: report.following?.total || 0,
+      averageLikes: report.engagement?.average_likes || 0,
+      recentPosts: Array.isArray(report.growth_trends) ? report.growth_trends.map((trend: any) => ({
         date: new Date(trend.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-        engagement: trend.followers
-      })),
-      posts: report.growth_trends.map((trend: any) => ({
+        engagement: trend.followers || 0
+      })) : [],
+      posts: Array.isArray(report.growth_trends) ? report.growth_trends.map((trend: any) => ({
         timestamp: new Date(trend.date).toISOString(),
-        likes: Math.round(report.engagement.average_likes),
-        comments: Math.round(report.engagement.average_comments)
-      }))
+        likes: Math.round(report.engagement?.average_likes || 0),
+        comments: Math.round(report.engagement?.average_comments || 0)
+      })) : []
     };
   };
 
