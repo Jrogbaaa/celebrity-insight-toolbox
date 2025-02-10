@@ -20,10 +20,13 @@ const Analytics = () => {
     return {
       followers: report.followers.total,
       engagementRate: parseFloat(report.engagement.rate),
-      commentsPerPost: Math.round(report.engagement.average_comments),
+      commentsPerPost: report.engagement.average_comments,
       sharesPerPost: Math.round(report.engagement.average_likes / 100), // Using a portion of likes as shares
+      mediaUploads: report.media_uploads.total,
+      following: report.following.total,
+      averageLikes: report.engagement.average_likes,
       recentPosts: report.growth_trends.map((trend: any) => ({
-        date: new Date(trend.date).toLocaleDateString('en-US', { month: 'short' }),
+        date: new Date(trend.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
         engagement: trend.followers
       })),
       posts: report.growth_trends.map((trend: any) => ({
@@ -39,13 +42,16 @@ const Analytics = () => {
     engagementRate: 4.2,
     commentsPerPost: 25,
     sharesPerPost: 15,
+    mediaUploads: 100,
+    following: 500,
+    averageLikes: 1200,
     recentPosts: [
-      { date: "Jan", engagement: 2400 },
-      { date: "Feb", engagement: 1398 },
-      { date: "Mar", engagement: 9800 },
-      { date: "Apr", engagement: 3908 },
-      { date: "May", engagement: 4800 },
-      { date: "Jun", engagement: 3800 },
+      { date: "Jan 1", engagement: 2400 },
+      { date: "Jan 15", engagement: 1398 },
+      { date: "Feb 1", engagement: 9800 },
+      { date: "Feb 15", engagement: 3908 },
+      { date: "Mar 1", engagement: 4800 },
+      { date: "Mar 15", engagement: 3800 },
     ],
     posts: [
       { timestamp: "2024-01-21T09:00:00Z", likes: 1200, comments: 45 },
@@ -81,7 +87,7 @@ const Analytics = () => {
         </Alert>
       )}
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         <MetricsGrid data={metrics} />
       </div>
       

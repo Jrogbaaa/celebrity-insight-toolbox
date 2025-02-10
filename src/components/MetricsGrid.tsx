@@ -1,6 +1,6 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowUpRight, ArrowDownRight, Users, Heart, MessageCircle, Share2 } from "lucide-react";
+import { ArrowUpRight, ArrowDownRight, Users, Heart, MessageCircle, Share2, Upload } from "lucide-react";
 
 interface MetricsGridProps {
   data: {
@@ -8,16 +8,42 @@ interface MetricsGridProps {
     engagementRate: number;
     commentsPerPost: number;
     sharesPerPost: number;
+    mediaUploads?: number;
+    following?: number;
+    averageLikes?: number;
   };
 }
 
 export const MetricsGrid = ({ data }: MetricsGridProps) => {
+  const formatNumber = (num: number) => {
+    if (num >= 1000000) {
+      return `${(num / 1000000).toFixed(1)}M`;
+    } else if (num >= 1000) {
+      return `${(num / 1000).toFixed(1)}K`;
+    }
+    return num.toString();
+  };
+
   const metricsConfig = [
     {
       title: "Total Followers",
-      value: data ? `${(data.followers / 1000).toFixed(1)}K` : "0",
-      change: "+2.5%",
+      value: data ? formatNumber(data.followers) : "0",
+      change: "-3,660",
+      isPositive: false,
+      icon: Users,
+    },
+    {
+      title: "Media Uploads",
+      value: data?.mediaUploads?.toString() || "0",
+      change: "+30",
       isPositive: true,
+      icon: Upload,
+    },
+    {
+      title: "Following",
+      value: data?.following?.toString() || "0",
+      change: "-30",
+      isPositive: false,
       icon: Users,
     },
     {
@@ -28,18 +54,18 @@ export const MetricsGrid = ({ data }: MetricsGridProps) => {
       icon: Heart,
     },
     {
-      title: "Comments/Post",
-      value: data ? data.commentsPerPost.toString() : "0",
-      change: "-1.2%",
-      isPositive: false,
-      icon: MessageCircle,
+      title: "Average Likes",
+      value: data?.averageLikes ? formatNumber(data.averageLikes) : "0",
+      change: "+2.5%",
+      isPositive: true,
+      icon: Heart,
     },
     {
-      title: "Shares/Post",
-      value: data ? data.sharesPerPost.toString() : "0",
-      change: "+4.5%",
+      title: "Comments/Post",
+      value: data ? formatNumber(data.commentsPerPost) : "0",
+      change: "+1.2%",
       isPositive: true,
-      icon: Share2,
+      icon: MessageCircle,
     },
   ];
 
