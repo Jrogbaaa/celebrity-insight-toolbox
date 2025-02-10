@@ -9,6 +9,33 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      ai_configuration: {
+        Row: {
+          configuration: Json | null
+          created_at: string | null
+          id: string
+          model_name: string
+          provider: string
+          updated_at: string | null
+        }
+        Insert: {
+          configuration?: Json | null
+          created_at?: string | null
+          id?: string
+          model_name: string
+          provider: string
+          updated_at?: string | null
+        }
+        Update: {
+          configuration?: Json | null
+          created_at?: string | null
+          id?: string
+          model_name?: string
+          provider?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       chat_conversations: {
         Row: {
           created_at: string | null
