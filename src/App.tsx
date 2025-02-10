@@ -11,23 +11,10 @@ import Recommendations from "./pages/Recommendations";
 import Generation from "./pages/Generation";
 import TermsOfService from "./pages/TermsOfService";
 import TikTokCallback from "./pages/TikTokCallback";
-import { Button } from "./components/ui/button";
-import { useNavigate } from "react-router-dom";
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
-  const navigate = useNavigate();
-  
   return (
     <div className="min-h-screen bg-background pb-14">
-      <div className="container flex justify-end p-4">
-        <Button
-          variant="ghost"
-          className="text-sm"
-          onClick={() => navigate("/terms")}
-        >
-          Terms of Service
-        </Button>
-      </div>
       {children}
       <Navigation />
     </div>
