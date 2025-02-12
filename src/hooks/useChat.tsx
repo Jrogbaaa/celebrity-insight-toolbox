@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -116,35 +117,20 @@ export const useChat = () => {
     await updateConversation(newMessages);
 
     try {
-      const { data, error } = await supabase.functions.invoke('deepseek-chat', {
+      const { data, error } = await supabase.functions.invoke('gemini-chat', {
         body: { 
-          messages: newMessages
+          prompt: prompt.trim(),
+          context: messages.length > 0 ? messages[messages.length - 1].content : undefined
         },
       });
 
       if (error) {
-        let errorMessage = "Failed to generate response. Please try again.";
-        
-        try {
-          const errorBody = error.message && JSON.parse(error.message);
-          
-          if (errorBody?.error === "Insufficient Balance") {
-            errorMessage = "The AI service is currently unavailable due to insufficient credits. Please try again later or contact support.";
-          } else if (errorBody?.error === "Rate Limit Exceeded") {
-            errorMessage = "The service is currently busy. Please try again in a few minutes.";
-          } else if (errorBody?.error === "Service Unavailable") {
-            errorMessage = "The AI service is temporarily unavailable. Please try again later.";
-          }
-        } catch (parseError) {
-          console.error('Error parsing error message:', parseError);
-        }
-        
-        throw new Error(errorMessage);
+        throw error;
       }
 
       const assistantMessage: Message = { 
         role: 'assistant', 
-        content: data.generatedText 
+        content: data.response 
       };
       
       const updatedMessages = [...newMessages, assistantMessage];
