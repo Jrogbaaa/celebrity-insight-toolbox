@@ -4,6 +4,7 @@ import { EngagementChart } from "@/components/EngagementChart";
 import { MetricsGrid } from "@/components/MetricsGrid";
 import { PostTimingAnalyzer } from "@/components/PostTimingAnalyzer";
 import { CelebrityReportSelector } from "@/components/analytics/CelebrityReportSelector";
+import { PostingInsights } from "@/components/analytics/PostingInsights";
 import { useReportsData } from "@/components/analytics/useReportsData";
 
 const Analytics = () => {
@@ -87,6 +88,9 @@ const Analytics = () => {
       <div className="grid gap-4 mt-8">
         <EngagementChart data={metrics.recentPosts} />
         <PostTimingAnalyzer posts={metrics.posts} />
+        {selectedReport?.report_data?.posting_insights && (
+          <PostingInsights insights={selectedReport.report_data.posting_insights} />
+        )}
       </div>
 
       <div className="mt-8 bg-card rounded-lg p-6 shadow-lg border border-border/50">
