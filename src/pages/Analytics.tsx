@@ -1,8 +1,6 @@
 
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { EngagementChart } from "@/components/EngagementChart";
 import { MetricsGrid } from "@/components/MetricsGrid";
-import { PostTimingAnalyzer } from "@/components/PostTimingAnalyzer";
 import { CelebrityReportSelector } from "@/components/analytics/CelebrityReportSelector";
 import { PostingInsights } from "@/components/analytics/PostingInsights";
 import { useReportsData } from "@/components/analytics/useReportsData";
@@ -25,15 +23,6 @@ const Analytics = () => {
       mediaUploads: report.media_uploads?.total || 4310,
       following: report.following?.total || 575,
       averageLikes: report.engagement?.average_likes || 38663.80,
-      recentPosts: Array.isArray(report.growth_trends) ? report.growth_trends.map((trend: any) => ({
-        date: new Date(trend.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-        engagement: trend.followers || 0
-      })) : [],
-      posts: Array.isArray(report.growth_trends) ? report.growth_trends.map((trend: any) => ({
-        timestamp: new Date(trend.date).toISOString(),
-        likes: Math.round(report.engagement?.average_likes || 38663.80),
-        comments: Math.round(report.engagement?.average_comments || 605.13)
-      })) : []
     };
   };
 
@@ -46,16 +35,6 @@ const Analytics = () => {
     mediaUploads: 4310,
     following: 575,
     averageLikes: 38663.80,
-    recentPosts: [
-      { date: "Jan 1", engagement: 3066019 },
-      { date: "Feb 1", engagement: 3066019 },
-      { date: "Mar 1", engagement: 3066019 },
-    ],
-    posts: [
-      { timestamp: "2024-01-21T09:00:00Z", likes: 38664, comments: 605 },
-      { timestamp: "2024-01-21T15:00:00Z", likes: 38664, comments: 605 },
-      { timestamp: "2024-01-21T18:00:00Z", likes: 38664, comments: 605 },
-    ],
   };
 
   const metrics = getExampleData() || defaultMetrics;
@@ -86,8 +65,6 @@ const Analytics = () => {
       </div>
       
       <div className="grid gap-4 mt-8">
-        <EngagementChart data={metrics.recentPosts} />
-        <PostTimingAnalyzer posts={metrics.posts} />
         {selectedReport?.report_data?.posting_insights && (
           <PostingInsights insights={selectedReport.report_data.posting_insights} />
         )}
