@@ -3,12 +3,11 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { EngagementChart } from "@/components/EngagementChart";
 import { MetricsGrid } from "@/components/MetricsGrid";
 import { PostTimingAnalyzer } from "@/components/PostTimingAnalyzer";
-import { CelebrityReportUploader } from "@/components/analytics/CelebrityReportUploader";
 import { CelebrityReportSelector } from "@/components/analytics/CelebrityReportSelector";
 import { useReportsData } from "@/components/analytics/useReportsData";
 
 const Analytics = () => {
-  const { reports, selectedReport, setSelectedReport, fetchReports } = useReportsData();
+  const { reports, selectedReport, setSelectedReport } = useReportsData();
 
   // Update example data based on selected report
   const getExampleData = () => {
@@ -66,14 +65,11 @@ const Analytics = () => {
         <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
           Celebrity Analytics Hub
         </h1>
-        <div className="flex gap-4">
-          <CelebrityReportSelector
-            reports={reports}
-            selectedReport={selectedReport}
-            onSelectReport={setSelectedReport}
-          />
-          <CelebrityReportUploader onUploadSuccess={fetchReports} />
-        </div>
+        <CelebrityReportSelector
+          reports={reports}
+          selectedReport={selectedReport}
+          onSelectReport={setSelectedReport}
+        />
       </div>
 
       {selectedReport && (
@@ -96,7 +92,7 @@ const Analytics = () => {
       <div className="mt-8 bg-card rounded-lg p-6 shadow-lg border border-border/50">
         <h2 className="text-lg font-semibold mb-2">👋 Welcome to the Analytics Hub</h2>
         <p className="text-muted-foreground">
-          Upload celebrity social media reports to analyze metrics, engagement rates, and discover valuable insights across platforms.
+          Reports are uploaded through chat for analysis. Select a report from the dropdown to view detailed analytics.
         </p>
       </div>
     </div>
