@@ -1,9 +1,11 @@
-import React, { useEffect } from 'react';
+
+import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Brain, TrendingUp, Clock, Target, Users, Image, MessageCircle, Sparkles, Loader2 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+import { useReportsData } from "@/components/analytics/useReportsData";
 
 interface AIInsight {
   type: string;
@@ -12,84 +14,122 @@ interface AIInsight {
   impact: string;
 }
 
-const Recommendations = () => {
-  const { data: insights, isLoading, error } = useQuery({
-    queryKey: ['ai-insights'],
-    queryFn: async () => {
-      // For now, return mock insights that focus on improvement opportunities
-      return [
-        {
-          type: 'engagement',
-          title: 'Engagement Opportunities',
-          description: 'Your posts receive good initial engagement but drop off after 24 hours. Consider using Instagram Stories and Reels to maintain consistent engagement throughout the week.',
-          impact: 'Potential 40% increase in weekly engagement'
-        },
-        {
-          type: 'content',
-          title: 'Content Strategy Enhancement',
-          description: 'Your most successful posts combine educational content with personal insights. Try creating more "behind-the-scenes" content and sharing industry tips to boost engagement.',
-          impact: 'Historical 65% higher engagement on educational content'
-        },
-        {
-          type: 'timing',
-          title: 'Optimal Posting Schedule',
-          description: 'Your audience is most active between 7-9 AM and 5-7 PM EST. Currently, most of your posts are outside these windows.',
-          impact: 'Up to 50% more reach with optimal timing'
-        },
-        {
-          type: 'audience',
-          title: 'Audience Growth Strategy',
-          description: "Your follower growth has plateaued. Increase collaboration with complementary creators and engage more with your target audience's comments.",
-          impact: 'Similar accounts see 2x faster growth with this approach'
-        },
-        {
-          type: 'content-mix',
-          title: 'Content Format Distribution',
-          description: 'Your feed is currently 80% static posts. Incorporating more Reels and carousel posts could significantly boost engagement.',
-          impact: 'Reels typically see 3x more engagement'
-        },
-        {
-          type: 'interaction',
-          title: 'Community Engagement',
-          description: 'Quick responses to comments within 2 hours can create a more engaged community. Consider dedicating specific times for community interaction.',
-          impact: 'Can increase follower retention by 40%'
-        },
-        {
-          type: 'hashtags',
-          title: 'Hashtag Strategy',
-          description: 'Your current hashtags are too broad. Using a mix of niche-specific hashtags with 10K-500K posts could improve visibility.',
-          impact: '75% better reach with optimized hashtags'
-        },
-        {
-          type: 'visual',
-          title: 'Visual Consistency',
-          description: 'Posts with consistent color schemes and branding receive more saves. Consider developing a signature visual style.',
-          impact: 'Branded content sees 30% more saves'
-        }
-      ] as AIInsight[];
-    },
-    meta: {
-      errorMessage: "Error loading insights"
-    },
-    retry: false
-  });
+const generateInsightsFromReport = (reportData: any): AIInsight[] => {
+  if (!reportData) return [];
 
-  useEffect(() => {
-    if (error instanceof Error) {
-      toast({
-        title: "Error loading insights",
-        description: error.message,
-        variant: "destructive",
-      });
-    }
-  }, [error]);
+  const insights: AIInsight[] = [];
+
+  // Engagement Rate Insight
+  if (reportData.engagement?.rate) {
+    const engagementRate = parseFloat(reportData.engagement.rate);
+    insights.push({
+      type: 'engagement',
+      title: 'Engagement Analysis',
+      description: `Your current engagement rate is ${engagementRate}%. ${
+        engagementRate < 2 
+          ? 'Consider increasing interaction with your followers to boost engagement.'
+          : 'You have a healthy engagement rate, keep up the good work!'
+      }`,
+      impact: `Current engagement rate: ${engagementRate}%`
+    });
+  }
+
+  // Posting Time Insight
+  if (reportData.posting_insights?.peak_engagement_times) {
+    insights.push({
+      type: 'timing',
+      title: 'Optimal Posting Schedule',
+      description: `Your audience is most active at ${reportData.posting_insights.peak_engagement_times.join(' and ')}. Align your posting schedule with these peak times.`,
+      impact: 'Up to 50% more reach with optimal timing'
+    });
+  }
+
+  // Followers vs Following Ratio
+  if (reportData.followers?.total && reportData.following?.total) {
+    const ratio = (reportData.followers.total / reportData.following.total).toFixed(2);
+    insights.push({
+      type: 'audience',
+      title: 'Audience Growth Analysis',
+      description: `Your followers to following ratio is ${ratio}:1. ${
+        parseFloat(ratio) < 10 
+          ? 'Consider being more selective with who you follow to maintain influencer status.'
+          : 'You have a strong influencer ratio, which helps maintain authority in your niche.'
+      }`,
+      impact: `Current follower/following ratio: ${ratio}`
+    });
+  }
+
+  // Content Engagement
+  if (reportData.engagement?.average_likes && reportData.engagement?.average_comments) {
+    const likesPerComment = (reportData.engagement.average_likes / reportData.engagement.average_comments).toFixed(1);
+    insights.push({
+      type: 'content',
+      title: 'Content Impact Assessment',
+      description: `You receive an average of ${likesPerComment} likes per comment. ${
+        parseFloat(likesPerComment) < 50 
+          ? 'Your content drives good conversation. Focus on creating more engaging captions to maintain this interaction.'
+          : 'Your content receives high appreciation. Consider adding more call-to-actions to increase comments.'
+      }`,
+      impact: `${reportData.engagement.average_likes.toFixed(0)} average likes per post`
+    });
+  }
+
+  // Media Performance
+  if (reportData.media_uploads?.total) {
+    insights.push({
+      type: 'content-mix',
+      title: 'Content Strategy Review',
+      description: `With ${reportData.media_uploads.total} total posts, you have established a strong presence. Maintain a consistent posting schedule to keep engagement high.`,
+      impact: 'Regular posting can increase follower retention by 40%'
+    });
+  }
+
+  // Posting Tips
+  if (reportData.posting_insights?.posting_tips) {
+    insights.push({
+      type: 'hashtags',
+      title: 'Strategic Recommendations',
+      description: reportData.posting_insights.posting_tips.join(' '),
+      impact: 'Implementation of these tips can boost engagement by 25%'
+    });
+  }
+
+  return insights;
+};
+
+const Recommendations = () => {
+  const { selectedReport } = useReportsData();
+
+  const { data: insights, isLoading } = useQuery({
+    queryKey: ['ai-insights', selectedReport?.id],
+    queryFn: async () => {
+      if (!selectedReport?.report_data) {
+        return [];
+      }
+      return generateInsightsFromReport(selectedReport.report_data);
+    },
+    enabled: !!selectedReport,
+  });
 
   if (isLoading) {
     return (
       <div className="container py-8 flex items-center justify-center min-h-[80vh]">
         <div className="flex items-center gap-2">
           <Loader2 className="h-6 w-6 animate-spin" />
-          <span>Analyzing your Instagram data...</span>
+          <span>Analyzing profile data...</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (!selectedReport) {
+    return (
+      <div className="container py-8">
+        <div className="text-center">
+          <h2 className="text-xl font-semibold mb-2">No Profile Selected</h2>
+          <p className="text-muted-foreground">
+            Please select a celebrity profile from the Analytics page to view personalized insights.
+          </p>
         </div>
       </div>
     );
@@ -123,7 +163,7 @@ const Recommendations = () => {
       <div className="mb-8">
         <h1 className="text-3xl font-bold">Growth Insights & Recommendations</h1>
         <p className="text-muted-foreground mt-2">
-          Actionable recommendations to enhance your Instagram presence and engagement
+          Personalized recommendations for {selectedReport.celebrity_name} ({selectedReport.platform})
         </p>
       </div>
 
@@ -156,7 +196,7 @@ const Recommendations = () => {
           <div className="flex items-center gap-2 text-muted-foreground">
             <Brain className="h-5 w-5" />
             <p>
-              These insights are generated based on industry best practices and successful growth patterns observed across similar accounts.
+              These insights are generated based on {selectedReport.celebrity_name}'s profile data and industry best practices.
             </p>
           </div>
         </CardContent>
