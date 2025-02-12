@@ -26,7 +26,7 @@ export const CelebrityReportUploader = ({ onUploadSuccess }: { onUploadSuccess: 
         return;
       }
 
-      // Example data for Cristina Pedroche
+      // Example data with correct metrics
       const reportData = {
         celebrity_name: "Cristina Pedroche",
         username: "cristipedroche",
@@ -34,38 +34,35 @@ export const CelebrityReportUploader = ({ onUploadSuccess }: { onUploadSuccess: 
         user_id: session.user.id,
         report_data: {
           followers: {
-            total: 3066164,
-            last_30_days: -3660,
-            daily_average: -122
+            total: 3066019
           },
           following: {
-            total: 577,
-            last_30_days: -30,
-            daily_average: -1
+            total: 575
           },
           media_uploads: {
-            total: 4309,
-            last_30_days: 30,
-            daily_average: 1
+            total: 4310
           },
           engagement: {
-            rate: "1.52%",
-            average_likes: 45755.20,
-            average_comments: 781.44
-          },
-          ranks: {
-            total_grade: "B+",
-            followers_rank: 10770,
-            engagement_rank: 340023
+            rate: "1.28",
+            average_likes: 38663.80,
+            average_comments: 605.13
           },
           growth_trends: [
-            {"date": "2025-01-28", "followers": 3067295, "following": 590, "media": 4301},
-            {"date": "2025-02-10", "followers": 3066164, "following": 577, "media": 4309}
+            {"date": "2024-01-01", "followers": 3066019},
+            {"date": "2024-02-01", "followers": 3066019},
+            {"date": "2024-03-01", "followers": 3066019}
           ]
         },
         report_date: new Date().toISOString().split('T')[0]
       };
 
+      // Delete existing reports first
+      await supabase
+        .from('celebrity_reports')
+        .delete()
+        .not('id', 'is', null);
+
+      // Insert new report with correct data
       const { data, error } = await supabase
         .from('celebrity_reports')
         .insert([reportData])
