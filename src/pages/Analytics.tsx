@@ -4,9 +4,10 @@ import { MetricsGrid } from "@/components/MetricsGrid";
 import { CelebrityReportSelector } from "@/components/analytics/CelebrityReportSelector";
 import { PostingInsights } from "@/components/analytics/PostingInsights";
 import { useReportsData } from "@/components/analytics/useReportsData";
+import { CelebrityReportUploader } from "@/components/analytics/CelebrityReportUploader";
 
 const Analytics = () => {
-  const { reports, selectedReport, setSelectedReport } = useReportsData();
+  const { reports, selectedReport, setSelectedReport, fetchReports } = useReportsData();
 
   // Update example data based on selected report
   const getExampleData = () => {
@@ -39,17 +40,29 @@ const Analytics = () => {
 
   const metrics = getExampleData() || defaultMetrics;
 
+  // Calculate next recommended update date
+  const getNextUpdateDate = () => {
+    if (!selectedReport?.report_date) return null;
+    const reportDate = new Date(selectedReport.report_date);
+    const nextUpdate = new Date(reportDate);
+    nextUpdate.setMonth(nextUpdate.getMonth() + 2);
+    return nextUpdate.toLocaleDateString();
+  };
+
   return (
     <div className="container py-8 animate-fade-in">
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
           Celebrity Analytics Hub
         </h1>
-        <CelebrityReportSelector
-          reports={reports}
-          selectedReport={selectedReport}
-          onSelectReport={setSelectedReport}
-        />
+        <div className="flex items-center gap-4">
+          <CelebrityReportSelector
+            reports={reports}
+            selectedReport={selectedReport}
+            onSelectReport={setSelectedReport}
+          />
+          <CelebrityReportUploader onUploadSuccess={fetchReports} />
+        </div>
       </div>
 
       {selectedReport && (
@@ -71,10 +84,21 @@ const Analytics = () => {
       </div>
 
       <div className="mt-8 bg-card rounded-lg p-6 shadow-lg border border-border/50">
-        <h2 className="text-lg font-semibold mb-2">👋 Welcome to the Analytics Hub</h2>
-        <p className="text-muted-foreground">
-          Reports are uploaded through chat for analysis. Select a report from the dropdown to view detailed analytics.
-        </p>
+        {selectedReport ? (
+          <>
+            <h2 className="text-lg font-semibold mb-2">📅 Report Update Reminder</h2>
+            <p className="text-muted-foreground">
+              For the most accurate insights, we recommend uploading a new report for {selectedReport.celebrity_name} by {getNextUpdateDate()}. Regular updates help maintain data accuracy and track growth trends effectively.
+            </p>
+          </>
+        ) : (
+          <>
+            <h2 className="text-lg font-semibold mb-2">👋 Welcome to the Analytics Hub</h2>
+            <p className="text-muted-foreground">
+              Reports are uploaded through chat for analysis. Select a report from the dropdown to view detailed analytics.
+            </p>
+          </>
+        )}
       </div>
     </div>
   );

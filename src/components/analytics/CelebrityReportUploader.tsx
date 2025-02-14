@@ -26,7 +26,7 @@ export const CelebrityReportUploader = ({ onUploadSuccess }: { onUploadSuccess: 
         return;
       }
 
-      // Example data with correct metrics
+      // Validate report data schema before upload
       const reportData = {
         celebrity_name: "Cristina Pedroche",
         username: "cristipedroche",
@@ -51,18 +51,42 @@ export const CelebrityReportUploader = ({ onUploadSuccess }: { onUploadSuccess: 
             {"date": "2024-01-01", "followers": 3066019},
             {"date": "2024-02-01", "followers": 3066019},
             {"date": "2024-03-01", "followers": 3066019}
-          ]
+          ],
+          posting_insights: {
+            peak_engagement_times: ["9:00 AM", "6:00 PM"],
+            posting_tips: [
+              "Share more behind-the-scenes content",
+              "Increase video content frequency",
+              "Engage with followers' comments regularly"
+            ]
+          }
         },
         report_date: new Date().toISOString().split('T')[0]
       };
 
-      // Delete existing reports first
-      await supabase
-        .from('celebrity_reports')
-        .delete()
-        .not('id', 'is', null);
+      // Validate required metrics
+      const requiredMetrics = [
+        'followers.total',
+        'following.total',
+        'media_uploads.total',
+        'engagement.rate',
+        'engagement.average_likes',
+        'engagement.average_comments'
+      ];
 
-      // Insert new report with correct data
+      const validateMetrics = (data: any, path: string) => {
+        return path.split('.').reduce((obj, key) => obj && obj[key], data) !== undefined;
+      };
+
+      const missingMetrics = requiredMetrics.filter(metric => 
+        !validateMetrics(reportData.report_data, metric)
+      );
+
+      if (missingMetrics.length > 0) {
+        throw new Error(`Missing required metrics: ${missingMetrics.join(', ')}`);
+      }
+
+      // Insert new report
       const { data, error } = await supabase
         .from('celebrity_reports')
         .insert([reportData])
@@ -81,7 +105,7 @@ export const CelebrityReportUploader = ({ onUploadSuccess }: { onUploadSuccess: 
       console.error('Error uploading report:', error);
       toast({
         title: "Error",
-        description: "Failed to upload report. Please try again.",
+        description: error instanceof Error ? error.message : "Failed to upload report. Please try again.",
         variant: "destructive",
       });
     } finally {
