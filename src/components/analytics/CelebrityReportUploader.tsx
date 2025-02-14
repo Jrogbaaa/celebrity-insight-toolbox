@@ -4,11 +4,9 @@ import { Button } from "@/components/ui/button";
 import { Upload, Loader2, File } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { useNavigate } from "react-router-dom";
 
 export const CelebrityReportUploader = ({ onUploadSuccess }: { onUploadSuccess: () => Promise<void> }) => {
   const { toast } = useToast();
-  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -31,18 +29,6 @@ export const CelebrityReportUploader = ({ onUploadSuccess }: { onUploadSuccess: 
   const handleUploadReport = async () => {
     setLoading(true);
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      if (!session) {
-        toast({
-          title: "Authentication required",
-          description: "Please login to upload reports",
-          variant: "destructive",
-        });
-        navigate("/auth");
-        return;
-      }
-
       if (!selectedFile) {
         toast({
           title: "No file selected",
@@ -54,7 +40,7 @@ export const CelebrityReportUploader = ({ onUploadSuccess }: { onUploadSuccess: 
 
       // Upload PDF to storage
       const timestamp = new Date().getTime();
-      const filePath = `${session.user.id}/${timestamp}_${selectedFile.name.replace(/[^\x00-\x7F]/g, '')}`;
+      const filePath = `public/${timestamp}_${selectedFile.name.replace(/[^\x00-\x7F]/g, '')}`;
       
       const { error: uploadError } = await supabase.storage
         .from('pdf_reports')
@@ -74,7 +60,6 @@ export const CelebrityReportUploader = ({ onUploadSuccess }: { onUploadSuccess: 
         celebrity_name: "Cristina Pedroche", // This would come from PDF parsing in a real implementation
         username: "cristipedroche",
         platform: "Instagram",
-        user_id: session.user.id,
         report_data: {
           pdf_url: publicUrl,
           followers: {
