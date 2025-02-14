@@ -1,7 +1,7 @@
 
 import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { Upload, Loader2, File } from "lucide-react";
+import { Upload, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -9,46 +9,31 @@ export const CelebrityReportUploader = ({ onUploadSuccess }: { onUploadSuccess: 
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
-  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (file) {
-      if (file.type !== 'application/pdf') {
-        toast({
-          title: "Invalid file type",
-          description: "Please upload a PDF file",
-          variant: "destructive",
-        });
-        return;
-      }
-      setSelectedFile(file);
-    }
-  };
+    if (!file) return;
 
-  const handleUploadReport = async () => {
+    if (file.type !== 'application/pdf') {
+      toast({
+        title: "Invalid file type",
+        description: "Please upload a PDF file",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setLoading(true);
     try {
-      if (!selectedFile) {
-        toast({
-          title: "No file selected",
-          description: "Please select a PDF file to upload",
-          variant: "destructive",
-        });
-        return;
-      }
-
       // Upload PDF to storage
       const timestamp = new Date().getTime();
-      const filePath = `public/${timestamp}_${selectedFile.name.replace(/[^\x00-\x7F]/g, '')}`;
+      const filePath = `public/${timestamp}_${file.name.replace(/[^\x00-\x7F]/g, '')}`;
       
       const { error: uploadError } = await supabase.storage
         .from('pdf_reports')
-        .upload(filePath, selectedFile);
+        .upload(filePath, file);
 
-      if (uploadError) {
-        throw uploadError;
-      }
+      if (uploadError) throw uploadError;
 
       // Get the public URL for the uploaded file
       const { data: { publicUrl } } = supabase.storage
@@ -93,7 +78,6 @@ export const CelebrityReportUploader = ({ onUploadSuccess }: { onUploadSuccess: 
         description: "Report uploaded successfully!",
       });
 
-      setSelectedFile(null);
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
       }
@@ -120,29 +104,18 @@ export const CelebrityReportUploader = ({ onUploadSuccess }: { onUploadSuccess: 
         className="hidden"
         ref={fileInputRef}
       />
-      <div className="flex items-center gap-4">
-        <Button 
-          onClick={() => fileInputRef.current?.click()} 
-          variant="outline"
-          className="flex items-center gap-2"
-          disabled={loading}
-        >
-          <File className="h-4 w-4" />
-          {selectedFile ? selectedFile.name : "Select PDF Report"}
-        </Button>
-        <Button 
-          onClick={handleUploadReport} 
-          className="flex items-center gap-2 bg-primary hover:bg-primary/90 transition-all"
-          disabled={loading || !selectedFile}
-        >
-          {loading ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
-          ) : (
-            <Upload className="h-4 w-4" />
-          )}
-          Upload Report
-        </Button>
-      </div>
+      <Button 
+        onClick={() => fileInputRef.current?.click()} 
+        className="flex items-center gap-2 bg-primary hover:bg-primary/90 transition-all"
+        disabled={loading}
+      >
+        {loading ? (
+          <Loader2 className="h-4 w-4 animate-spin" />
+        ) : (
+          <Upload className="h-4 w-4" />
+        )}
+        Upload PDF Report
+      </Button>
     </div>
   );
 };
