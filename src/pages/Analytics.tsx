@@ -34,11 +34,11 @@ const Analytics = () => {
 
   return (
     <div className="container py-8 animate-fade-in relative min-h-screen">
-      <div className="flex justify-between items-center mb-8">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-0 mb-8">
         <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
           Analytics Hub
         </h1>
-        <div className="flex items-center gap-4">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full sm:w-auto">
           <CelebrityReportSelector
             reports={reports}
             selectedReport={selectedReport}
