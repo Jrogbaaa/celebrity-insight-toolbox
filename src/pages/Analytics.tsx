@@ -2,13 +2,13 @@
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { CelebrityReportSelector } from "@/components/analytics/CelebrityReportSelector";
 import { useReportsData } from "@/components/analytics/useReportsData";
-import { CelebrityReportUploader } from "@/components/analytics/CelebrityReportUploader";
 import { PlatformTabs } from "@/components/analytics/PlatformTabs";
 import { UpdateReminder } from "@/components/analytics/UpdateReminder";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { ChatContainer } from "@/components/chat/ChatContainer";
 import { MessageCircle } from "lucide-react";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 
 const Analytics = () => {
   const { reports, selectedReport, setSelectedReport, fetchReports } = useReportsData();
@@ -58,14 +58,43 @@ const Analytics = () => {
 
       <UpdateReminder selectedReport={selectedReport} />
 
-      {/* AI Content Expert Floating Button */}
+      {/* AI Insights Section */}
+      <div className="mt-8">
+        <Card className="bg-muted/50">
+          <CardHeader>
+            <CardTitle>AI Insights</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {selectedReport && selectedReport.report_data.posting_insights ? (
+              <div className="space-y-4">
+                <h3 className="font-semibold">Engagement Optimization</h3>
+                <ul className="list-disc list-inside space-y-2">
+                  {selectedReport.report_data.posting_insights.posting_tips.map((tip: string, index: number) => (
+                    <li key={index} className="text-muted-foreground">{tip}</li>
+                  ))}
+                </ul>
+                
+                <h3 className="font-semibold mt-4">Best Posting Times</h3>
+                <p className="text-muted-foreground">
+                  Optimal engagement at: {selectedReport.report_data.posting_insights.peak_engagement_times.join(', ')}
+                </p>
+              </div>
+            ) : (
+              <p className="text-muted-foreground">Select a celebrity to view AI insights.</p>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* AI Social Expert Chat Button */}
       <Dialog>
         <DialogTrigger asChild>
           <Button
-            className="fixed bottom-20 right-4 rounded-full w-12 h-12 p-0 shadow-lg"
-            size="icon"
+            className="fixed bottom-8 right-4 rounded-full px-6 shadow-lg flex items-center gap-2"
+            size="lg"
           >
-            <MessageCircle className="h-6 w-6" />
+            <MessageCircle className="h-5 w-5" />
+            AI Social Expert Chat
           </Button>
         </DialogTrigger>
         <DialogContent className="max-w-[800px] h-[600px] p-0">
