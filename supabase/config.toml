@@ -3,43 +3,37 @@ project_id = "ygweyscocelwjcqinkth"
 
 [api]
 enabled = true
+
 [auth]
 enabled = true
+
 [realtime]
 enabled = true
 
-[[functions]]
+[functions]
 [functions.instagram-auth]
 verify_jwt = true
 
-[[functions]]
 [functions.instagram-webhook]
 verify_jwt = false
 
-[[functions]]
 [functions.get-instagram-client-id]
 verify_jwt = false
 
-[[functions]]
 [functions.instagram-analyze]
 verify_jwt = false
 
-[[functions]]
 [functions.instagram-scrape]
 verify_jwt = false
 
-[[functions]]
 [functions.deepseek-chat]
 verify_jwt = false
 
-[[functions]]
 [functions.tiktok-auth]
 verify_jwt = true
 
-[[functions]]
 [functions.tiktok-verify]
 verify_jwt = false
 
-[[functions]]
 [functions.gemini-image]
 verify_jwt = false
