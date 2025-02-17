@@ -96,6 +96,27 @@ export type Database = {
         }
         Relationships: []
       }
+      generated_images: {
+        Row: {
+          created_at: string | null
+          id: string
+          image_url: string
+          prompt: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          image_url: string
+          prompt: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          image_url?: string
+          prompt?: string
+        }
+        Relationships: []
+      }
       instagram_cache: {
         Row: {
           created_at: string | null
