@@ -44,6 +44,21 @@ export const useReportsData = () => {
               average_comments: 605.13,
               average_shares: 386
             },
+            demographics: {
+              age_groups: {
+                "13-17": "0.35",
+                "18-24": "9.22",
+                "25-34": "28.99",
+                "35-44": "20.34",
+                "45-54": "7.19",
+                "55+": "4.26"
+              },
+              gender: {
+                "Female": "54.27",
+                "Male": "45.73"
+              },
+              top_locations: ["Spain", "Mexico", "Colombia", "Argentina"]
+            },
             posting_insights: {
               peak_engagement_times: ["12:00 AM ET Wednesdays", "10:00 AM", "7:00 PM"],
               posting_tips: [
@@ -73,7 +88,7 @@ export const useReportsData = () => {
           report_date: "2024-02-17",
           report_data: {
             followers: {
-              total: 850000
+              total: 1500000
             },
             following: {
               total: 125
@@ -82,10 +97,25 @@ export const useReportsData = () => {
               total: 892
             },
             engagement: {
-              rate: "2.85",
-              average_likes: 24200,
-              average_comments: 312,
-              average_shares: 945
+              rate: "11.60",
+              average_likes: 174100,
+              average_comments: 892,
+              average_shares: 1245
+            },
+            demographics: {
+              age_groups: {
+                "13-17": "12.35",
+                "18-24": "32.45",
+                "25-34": "28.99",
+                "35-44": "15.34",
+                "45-54": "6.19",
+                "55+": "4.68"
+              },
+              gender: {
+                "Female": "58.27",
+                "Male": "41.73"
+              },
+              top_locations: ["Spain", "Mexico", "Argentina", "Colombia"]
             },
             posting_insights: {
               peak_engagement_times: ["3:00 PM", "8:00 PM", "10:00 PM"],
