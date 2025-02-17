@@ -24,6 +24,11 @@ serve(async (req) => {
       throw new Error('GEMINI_API_KEY is not set in environment variables');
     }
 
+    // Initialize Supabase client
+    const supabaseUrl = Deno.env.get('SUPABASE_URL') || '';
+    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || '';
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
     console.log('Calling Imagen API with prompt:', prompt);
 
     // Call Google's Imagen API with the correct model and endpoint
