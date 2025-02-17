@@ -7,7 +7,7 @@ import { UpdateReminder } from "@/components/analytics/UpdateReminder";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { ChatContainer } from "@/components/chat/ChatContainer";
-import { MessageCircle, Users } from "lucide-react";
+import { MessageCircle } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 
 const Analytics = () => {
@@ -22,6 +22,14 @@ const Analytics = () => {
 
   const platforms = getUniquePlatforms();
   const currentPlatform = selectedReport?.platform || platforms[0];
+
+  // Helper function to safely convert values to string
+  const formatPercentage = (value: unknown): string => {
+    if (typeof value === 'string' || typeof value === 'number') {
+      return `${value}%`;
+    }
+    return '0%';
+  };
 
   return (
     <div className="container py-8 animate-fade-in relative min-h-screen">
@@ -99,7 +107,7 @@ const Analytics = () => {
                     {Object.entries(selectedReport.report_data.demographics.age_groups).map(([age, percentage]) => (
                       <li key={age} className="text-foreground flex justify-between">
                         <span>{age}</span>
-                        <span>{percentage}%</span>
+                        <span>{formatPercentage(percentage)}</span>
                       </li>
                     ))}
                   </ul>
@@ -110,7 +118,7 @@ const Analytics = () => {
                     {Object.entries(selectedReport.report_data.demographics.gender).map(([gender, percentage]) => (
                       <li key={gender} className="text-foreground flex justify-between">
                         <span>{gender}</span>
-                        <span>{percentage}%</span>
+                        <span>{formatPercentage(percentage)}</span>
                       </li>
                     ))}
                   </ul>
