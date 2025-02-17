@@ -154,7 +154,7 @@ const Analytics = () => {
           </Button>
         </DialogTrigger>
         <DialogContent className="max-w-[600px] h-[500px] p-0">
-          <ChatContainer />
+          <ChatContainer selectedReport={selectedReport} />
         </DialogContent>
       </Dialog>
     </div>

@@ -3,13 +3,14 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Json } from "@/integrations/supabase/types";
+import { CelebrityReport } from "@/types/reports";
 
 interface Message {
   role: 'user' | 'assistant';
   content: string;
 }
 
-export const useChat = () => {
+export const useChat = (selectedReport?: CelebrityReport | null) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [prompt, setPrompt] = useState("");
   const [loading, setLoading] = useState(false);
@@ -120,7 +121,13 @@ export const useChat = () => {
       const { data, error } = await supabase.functions.invoke('gemini-chat', {
         body: { 
           prompt: prompt.trim(),
-          context: messages.length > 0 ? messages[messages.length - 1].content : undefined
+          context: messages.length > 0 ? messages[messages.length - 1].content : undefined,
+          celebrityData: selectedReport ? {
+            name: selectedReport.celebrity_name,
+            username: selectedReport.username,
+            platform: selectedReport.platform,
+            analytics: selectedReport.report_data
+          } : undefined
         },
       });
 
