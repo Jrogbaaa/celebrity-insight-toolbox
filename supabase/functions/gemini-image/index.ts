@@ -39,13 +39,16 @@ serve(async (req) => {
         'x-goog-api-key': geminiApiKey
       },
       body: JSON.stringify({
-        prompt: {
-          text: prompt
-        },
-        parameters: {
-          sampleCount: 1,  // Number of images to generate
-          height: 1024,    // Image height
-          width: 1024      // Image width
+        contents: [{
+          role: 'user',
+          parts: [{
+            text: prompt
+          }]
+        }],
+        generationConfig: {
+          stopSequences: [""], // Empty array to prevent early stopping
+          temperature: 0.4,
+          maxOutputTokens: 2048,
         }
       }),
     });
@@ -59,16 +62,21 @@ serve(async (req) => {
     const result = await response.json();
     console.log('Imagen API response:', result);
 
-    if (!result.media || !result.media[0]?.uri) {
-      throw new Error('Invalid response from Imagen API');
+    if (!result.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data) {
+      throw new Error('Invalid response from Imagen API - no image data found');
     }
 
-    // Get the generated image data
-    const imageBase64 = result.media[0].uri;
+    // Get the generated image data (base64)
+    const imageBase64 = result.candidates[0].content.parts[0].inlineData.data;
     
     // Convert base64 to blob
-    const base64Response = await fetch(imageBase64);
-    const blob = await base64Response.blob();
+    const byteCharacters = atob(imageBase64);
+    const byteNumbers = new Array(byteCharacters.length);
+    for (let i = 0; i < byteCharacters.length; i++) {
+      byteNumbers[i] = byteCharacters.charCodeAt(i);
+    }
+    const byteArray = new Uint8Array(byteNumbers);
+    const blob = new Blob([byteArray], { type: 'image/png' });
     
     const fileName = `${crypto.randomUUID()}.png`;
 
