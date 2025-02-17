@@ -8,7 +8,6 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
@@ -20,17 +19,24 @@ serve(async (req) => {
       throw new Error('Prompt is required');
     }
 
+    const geminiApiKey = Deno.env.get('GEMINI_API_KEY');
+    if (!geminiApiKey) {
+      throw new Error('GEMINI_API_KEY is not set in environment variables');
+    }
+
     // Initialize Supabase client
     const supabaseUrl = Deno.env.get('SUPABASE_URL') || '';
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || '';
     const supabase = createClient(supabaseUrl, supabaseKey);
+
+    console.log('Calling Gemini API with prompt:', prompt);
 
     // Call Gemini API to generate image
     const response = await fetch('https://generativelanguage.googleapis.com/v1/models/gemini-pro-vision:generateContent', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${Deno.env.get('GEMINI_API_KEY')}`,
+        'x-goog-api-key': geminiApiKey
       },
       body: JSON.stringify({
         contents: [
@@ -54,7 +60,7 @@ serve(async (req) => {
     if (!response.ok) {
       const errorData = await response.json();
       console.error('Gemini API error:', errorData);
-      throw new Error(`Gemini API error: ${response.statusText}`);
+      throw new Error(`Gemini API error: ${JSON.stringify(errorData)}`);
     }
 
     const result = await response.json();
