@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -11,28 +10,22 @@ import Recommendations from "./pages/Recommendations";
 import Generation from "./pages/Generation";
 import TermsOfService from "./pages/TermsOfService";
 import TikTokCallback from "./pages/TikTokCallback";
-
-const Layout = ({ children }: { children: React.ReactNode }) => {
-  return (
-    <div className="min-h-screen bg-background pb-14">
+const Layout = ({
+  children
+}: {
+  children: React.ReactNode;
+}) => {
+  return <div className="min-h-screen bg-background pb-14">
       <div className="container py-4 flex items-center gap-2">
-        <img 
-          src="/lovable-uploads/42261865-c6df-4ee7-9486-82d93f5bb45d.png" 
-          alt="You First AI Talent" 
-          className="h-8"
-        />
-        <h1 className="text-xl font-bold text-primary">You First AI Talent</h1>
+        <img src="/lovable-uploads/42261865-c6df-4ee7-9486-82d93f5bb45d.png" alt="You First AI Talent" className="h-8" />
+        <h1 className="text-xl font-bold text-primary"> AI Talent</h1>
       </div>
       {children}
       <Navigation />
-    </div>
-  );
+    </div>;
 };
-
 const queryClient = new QueryClient();
-
-const App = () => (
-  <React.StrictMode>
+const App = () => <React.StrictMode>
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <Toaster />
@@ -49,7 +42,5 @@ const App = () => (
         </BrowserRouter>
       </TooltipProvider>
     </QueryClientProvider>
-  </React.StrictMode>
-);
-
+  </React.StrictMode>;
 export default App;
