@@ -1,7 +1,6 @@
 
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
 
 interface CelebrityReport {
   id: string;
@@ -23,34 +22,29 @@ export const useReportsData = () => {
       setLoading(true);
       console.log('Fetching reports...');
 
-      const { data, error } = await supabase
-        .from('celebrity_reports')
-        .select('*')
-        .order('created_at', { ascending: false });
+      // Instead of fetching from Supabase, we'll use the static data
+      // You'll need to replace this array with the actual static data from the PDFs
+      const staticReports = [
+        // Add your static report data here
+      ];
 
-      if (error) {
-        console.error('Error fetching reports:', error);
-        throw new Error(error.message);
-      }
-
-      if (!data || data.length === 0) {
+      if (staticReports.length === 0) {
         console.log('No reports found');
         setReports([]);
         setSelectedReport(null);
         toast({
           title: "No Reports",
-          description: "No celebrity reports found. Try uploading one!",
+          description: "No celebrity reports found.",
           variant: "default",
         });
         return;
       }
 
-      console.log('Fetched data:', data);
-      setReports(data);
+      console.log('Fetched data:', staticReports);
+      setReports(staticReports);
       
-      // Only update selected report if none is selected or if current selection is not in new data
-      if (!selectedReport || !data.find(r => r.id === selectedReport.id)) {
-        setSelectedReport(data[0]);
+      if (!selectedReport || !staticReports.find(r => r.id === selectedReport.id)) {
+        setSelectedReport(staticReports[0]);
       }
 
     } catch (error) {

@@ -1,3 +1,4 @@
+
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useNavigate, useLocation } from "react-router-dom";
 
@@ -13,10 +14,8 @@ export const Navigation = () => {
           className="w-full"
           onValueChange={(value) => navigate(value)}
         >
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-1">
             <TabsTrigger value="/analytics">Analytics</TabsTrigger>
-            <TabsTrigger value="/recommendations">AI Insights</TabsTrigger>
-            <TabsTrigger value="/generation">AI Content Expert</TabsTrigger>
           </TabsList>
         </Tabs>
       </div>
