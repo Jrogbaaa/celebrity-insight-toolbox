@@ -28,6 +28,9 @@ serve(async (req) => {
 
     console.log('Calling Imagen API with prompt:', prompt);
 
+    // Convert prompt to base64
+    const base64Prompt = btoa(prompt);
+
     const response = await fetch('https://generativelanguage.googleapis.com/v1/models/gemini-1.0-pro-vision-latest:generateContent', {
       method: 'POST',
       headers: {
@@ -39,7 +42,7 @@ serve(async (req) => {
           parts: [{
             inlineData: {
               mimeType: "text/plain",
-              data: prompt
+              data: base64Prompt
             }
           }]
         }]
