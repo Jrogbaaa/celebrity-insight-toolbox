@@ -39,3 +39,7 @@ verify_jwt = true
 [[functions]]
 [functions.tiktok-verify]
 verify_jwt = false
+
+[[functions]]
+[functions.gemini-image]
+verify_jwt = false
