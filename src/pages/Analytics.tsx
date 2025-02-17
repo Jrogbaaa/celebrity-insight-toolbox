@@ -56,7 +56,33 @@ const Analytics = () => {
         />
       )}
 
-      <UpdateReminder selectedReport={selectedReport} />
+      {/* AI Action Items Section */}
+      <div className="mt-8">
+        <Card className="bg-muted/50">
+          <CardHeader>
+            <CardTitle>AI Action Items</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {selectedReport && selectedReport.report_data.posting_insights ? (
+              <div className="space-y-4">
+                <h3 className="font-semibold">Engagement Optimization</h3>
+                <ul className="list-disc list-inside space-y-2">
+                  {selectedReport.report_data.posting_insights.posting_tips.map((tip: string, index: number) => (
+                    <li key={index} className="text-muted-foreground">{tip}</li>
+                  ))}
+                </ul>
+                
+                <h3 className="font-semibold mt-4">Best Posting Times</h3>
+                <p className="text-muted-foreground">
+                  Optimal engagement at: {selectedReport.report_data.posting_insights.peak_engagement_times.join(', ')}
+                </p>
+              </div>
+            ) : (
+              <p className="text-muted-foreground">Select a celebrity to view AI insights.</p>
+            )}
+          </CardContent>
+        </Card>
+      </div>
 
       {/* Sponsor Opportunities Section */}
       {selectedReport?.report_data.sponsor_opportunities && (
@@ -86,33 +112,7 @@ const Analytics = () => {
         </div>
       )}
 
-      {/* AI Insights Section */}
-      <div className="mt-8">
-        <Card className="bg-muted/50">
-          <CardHeader>
-            <CardTitle>AI Insights</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {selectedReport && selectedReport.report_data.posting_insights ? (
-              <div className="space-y-4">
-                <h3 className="font-semibold">Engagement Optimization</h3>
-                <ul className="list-disc list-inside space-y-2">
-                  {selectedReport.report_data.posting_insights.posting_tips.map((tip: string, index: number) => (
-                    <li key={index} className="text-muted-foreground">{tip}</li>
-                  ))}
-                </ul>
-                
-                <h3 className="font-semibold mt-4">Best Posting Times</h3>
-                <p className="text-muted-foreground">
-                  Optimal engagement at: {selectedReport.report_data.posting_insights.peak_engagement_times.join(', ')}
-                </p>
-              </div>
-            ) : (
-              <p className="text-muted-foreground">Select a celebrity to view AI insights.</p>
-            )}
-          </CardContent>
-        </Card>
-      </div>
+      <UpdateReminder selectedReport={selectedReport} />
 
       {/* AI Social Expert Chat Button */}
       <Dialog>
