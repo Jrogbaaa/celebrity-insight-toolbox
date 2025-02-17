@@ -45,11 +45,20 @@ export const useReportsData = () => {
         return;
       }
 
-      console.log('Fetched data:', data);
-      setReports(data);
+      // Group reports by celebrity name
+      const groupedReports = data.reduce((acc: CelebrityReport[], report) => {
+        const existingReport = acc.find(r => r.celebrity_name === report.celebrity_name);
+        if (!existingReport) {
+          acc.push(report);
+        }
+        return acc;
+      }, []);
+
+      console.log('Fetched and grouped data:', groupedReports);
+      setReports(groupedReports);
       
-      if (!selectedReport && data.length > 0) {
-        setSelectedReport(data[0]);
+      if (!selectedReport && groupedReports.length > 0) {
+        setSelectedReport(groupedReports[0]);
       }
 
     } catch (error) {
