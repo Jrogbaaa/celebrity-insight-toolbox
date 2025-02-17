@@ -1,5 +1,5 @@
 
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1';
 
 const corsHeaders = {
@@ -8,6 +8,7 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
+  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
@@ -32,42 +33,51 @@ serve(async (req) => {
     console.log('Calling Imagen API with prompt:', prompt);
 
     // Call Google's Imagen API with the correct model and endpoint
-    const response = await fetch('https://generativelanguage.googleapis.com/v1/models/imagen-3.0-generate-002:generateImages', {
+    const response = await fetch('https://generativelanguage.googleapis.com/v1/models/gemini-pro-vision:generateContent', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'x-goog-api-key': geminiApiKey
       },
       body: JSON.stringify({
-        prompt: {
-          text: prompt
-        },
-        numberOfImages: 1
-      }),
+        contents: [{
+          parts: [{
+            text: prompt
+          }]
+        }]
+      })
     });
 
     if (!response.ok) {
       const errorData = await response.json();
-      console.error('Imagen API error:', errorData);
-      throw new Error(`Imagen API error: ${JSON.stringify(errorData)}`);
+      console.error('Gemini API error:', errorData);
+      throw new Error(`Gemini API error: ${JSON.stringify(errorData)}`);
     }
 
     const result = await response.json();
-    console.log('Imagen API response:', result);
+    console.log('Gemini API response:', result);
 
-    if (!result.images?.[0]?.bytes) {
-      throw new Error('No image data received from Imagen API');
-    }
-
-    // Create a blob from the base64 image data
-    const imageBytes = Uint8Array.from(atob(result.images[0].bytes), c => c.charCodeAt(0));
-    const blob = new Blob([imageBytes], { type: 'image/png' });
-    
-    // Generate a unique filename
+    // Create a unique filename for storing the generated image
     const fileName = `${crypto.randomUUID()}.png`;
 
-    // Upload to Supabase Storage
-    const { data: uploadData, error: uploadError } = await supabase.storage
+    // Create a storage bucket if it doesn't exist
+    const { data: bucketData, error: bucketError } = await supabase
+      .storage
+      .createBucket('generated-images', {
+        public: true,
+        fileSizeLimit: 50000000 // 50MB
+      });
+
+    if (bucketError && !bucketError.message.includes('already exists')) {
+      throw bucketError;
+    }
+
+    // Convert the image data to a blob and upload to Supabase Storage
+    const imageData = result.candidates[0].content.parts[0].text;
+    const blob = new Blob([imageData], { type: 'image/png' });
+
+    const { data: uploadData, error: uploadError } = await supabase
+      .storage
       .from('generated-images')
       .upload(fileName, blob, {
         contentType: 'image/png',
