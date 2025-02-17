@@ -24,43 +24,62 @@ serve(async (req) => {
       throw new Error('GEMINI_API_KEY is not set in environment variables');
     }
 
-    // Initialize Supabase client
-    const supabaseUrl = Deno.env.get('SUPABASE_URL') || '';
-    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || '';
-    const supabase = createClient(supabaseUrl, supabaseKey);
+    console.log('Calling Imagen API with prompt:', prompt);
 
-    console.log('Calling Gemini Vision API with prompt:', prompt);
-
-    // Call Google's Gemini Pro Vision API
-    const response = await fetch('https://generativelanguage.googleapis.com/v1/models/gemini-pro-vision:generateContent', {
+    // Call Google's Imagen API with the correct model and endpoint
+    const response = await fetch('https://generativelanguage.googleapis.com/v1/models/imagen-3.0-generate-002:generateImages', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'x-goog-api-key': geminiApiKey
       },
       body: JSON.stringify({
-        contents: [{
-          parts: [{
-            text: prompt
-          }]
-        }]
+        prompt: {
+          text: prompt
+        },
+        numberOfImages: 1
       }),
     });
 
     if (!response.ok) {
       const errorData = await response.json();
-      console.error('Gemini API error:', errorData);
-      throw new Error(`Gemini API error: ${JSON.stringify(errorData)}`);
+      console.error('Imagen API error:', errorData);
+      throw new Error(`Imagen API error: ${JSON.stringify(errorData)}`);
     }
 
     const result = await response.json();
-    console.log('Gemini API response:', result);
+    console.log('Imagen API response:', result);
 
-    // For now, let's return a placeholder image URL since Gemini Pro Vision doesn't generate images
-    const placeholderImageUrl = 'https://via.placeholder.com/512x512.png?text=Image+Generation+Not+Available';
+    if (!result.images?.[0]?.bytes) {
+      throw new Error('No image data received from Imagen API');
+    }
+
+    // Create a blob from the base64 image data
+    const imageBytes = Uint8Array.from(atob(result.images[0].bytes), c => c.charCodeAt(0));
+    const blob = new Blob([imageBytes], { type: 'image/png' });
+    
+    // Generate a unique filename
+    const fileName = `${crypto.randomUUID()}.png`;
+
+    // Upload to Supabase Storage
+    const { data: uploadData, error: uploadError } = await supabase.storage
+      .from('generated-images')
+      .upload(fileName, blob, {
+        contentType: 'image/png',
+        upsert: false
+      });
+
+    if (uploadError) {
+      throw uploadError;
+    }
+
+    // Get public URL for the uploaded image
+    const { data: { publicUrl } } = supabase.storage
+      .from('generated-images')
+      .getPublicUrl(fileName);
 
     return new Response(
-      JSON.stringify({ response: placeholderImageUrl }),
+      JSON.stringify({ response: publicUrl }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   } catch (error) {
