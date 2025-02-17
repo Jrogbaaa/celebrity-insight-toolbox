@@ -1,7 +1,7 @@
-
 import { useState, useRef } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { uploadPdfToStorage, createReportData, saveReportToDatabase } from "@/utils/reportUpload";
+import { supabase } from "@/integrations/supabase/client";
 
 export const useFileUpload = (onUploadSuccess: () => Promise<void>) => {
   const { toast } = useToast();

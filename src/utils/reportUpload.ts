@@ -41,15 +41,16 @@ export const createReportData = (publicUrl: string): ReportData => {
         average_shares: 386
       },
       posting_insights: {
-        peak_engagement_times: ["10:00 AM", "7:00 PM"],
+        peak_engagement_times: ["12:00 AM ET Wednesdays", "10:00 AM", "7:00 PM"],
         posting_tips: [
+          "Best time for branded posts is 12:00 AM ET on Wednesdays",
           "Content performs best during midday and evening hours",
           "Engagement is highest with lifestyle and personal content",
           "Strong performance in Spain market",
           "High engagement rate of 1.71% indicates strong audience connection"
         ],
         demographic_data: {
-          top_locations: ["Madrid, ES", "Spain"],
+          top_locations: ["Madrid, ES", "Spain", "Venezuela", "Brazil", "Mexico", "Colombia", "United States"],
           gender_split: {
             female: 45.73,
             male: 54.27
@@ -65,6 +66,12 @@ export const createReportData = (publicUrl: string): ReportData => {
         },
         sponsored_content: {
           recent_brands: [
+            "H&M",
+            "Victoria's Secret",
+            "Mr. Wonderful",
+            "Zara",
+            "adidas",
+            "Nike",
             "Desigual",
             "Netflix",
             "Puma",
