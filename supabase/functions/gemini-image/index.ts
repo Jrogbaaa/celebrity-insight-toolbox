@@ -28,7 +28,7 @@ serve(async (req) => {
 
     console.log('Calling Imagen API with prompt:', prompt);
 
-    const response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-pro-vision:generateContent', {
+    const response = await fetch('https://generativelanguage.googleapis.com/v1/models/gemini-1.0-pro-vision-latest:generateContent', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -37,53 +37,35 @@ serve(async (req) => {
       body: JSON.stringify({
         contents: [{
           parts: [{
-            text: prompt
+            inlineData: {
+              mimeType: "text/plain",
+              data: prompt
+            }
           }]
-        }],
-        generationConfig: {
-          temperature: 0.4,
-          topK: 32,
-          topP: 1,
-          maxOutputTokens: 2048,
-        },
+        }]
       }),
     });
 
     console.log('Response status:', response.status);
     console.log('Response headers:', Object.fromEntries(response.headers.entries()));
 
-    // Log the raw response
-    const rawResponse = await response.text();
-    console.log('Raw API Response:', rawResponse);
-
-    // Check if response is valid JSON before parsing
-    if (!rawResponse) {
-      throw new Error('Empty response from API');
-    }
-
-    // Try to parse the response
-    let responseData;
-    try {
-      responseData = JSON.parse(rawResponse);
-      console.log('Parsed response data:', responseData);
-    } catch (error) {
-      console.error('JSON Parse Error:', error);
-      throw new Error(`Invalid JSON response from API: ${rawResponse}`);
-    }
-
     if (!response.ok) {
-      console.error('API Error:', responseData);
-      throw new Error(`API error: ${JSON.stringify(responseData)}`);
+      const errorText = await response.text();
+      console.error('API Error Response:', errorText);
+      throw new Error(`API returned status ${response.status}: ${errorText}`);
     }
 
-    // Extract the image data from the response
-    const generatedContent = responseData.candidates?.[0]?.content;
-    if (!generatedContent) {
-      throw new Error('No content generated from API');
+    const responseData = await response.json();
+    console.log('API Response Data:', JSON.stringify(responseData, null, 2));
+
+    if (!responseData.candidates?.[0]?.content?.parts?.[0]?.text) {
+      throw new Error('Unexpected response format from API');
     }
 
-    const imageBase64 = generatedContent.parts?.[0]?.text;
-    if (!imageBase64) {
+    // Get the base64 image data
+    const base64Image = responseData.candidates[0].content.parts[0].text;
+    
+    if (!base64Image) {
       throw new Error('No image data in response');
     }
 
@@ -112,8 +94,8 @@ serve(async (req) => {
       throw new Error('Failed to create/check storage bucket');
     }
 
-    // Process image data
-    const imageBytes = Uint8Array.from(atob(imageBase64), c => c.charCodeAt(0));
+    // Convert base64 to bytes
+    const imageBytes = Uint8Array.from(atob(base64Image), c => c.charCodeAt(0));
     const imageBlob = new Blob([imageBytes], { type: 'image/png' });
     const fileName = `${crypto.randomUUID()}.png`;
 
