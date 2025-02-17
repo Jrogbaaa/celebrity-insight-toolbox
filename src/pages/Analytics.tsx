@@ -1,3 +1,4 @@
+
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { CelebrityReportSelector } from "@/components/analytics/CelebrityReportSelector";
 import { CelebrityReportUploader } from "@/components/analytics/CelebrityReportUploader";
@@ -38,12 +39,12 @@ const Analytics = () => {
           Analytics Hub
         </h1>
         <div className="flex items-center gap-4">
-          <CelebrityReportUploader onUploadSuccess={fetchReports} />
           <CelebrityReportSelector
             reports={reports}
             selectedReport={selectedReport}
             onSelectReport={setSelectedReport}
           />
+          <CelebrityReportUploader onUploadSuccess={fetchReports} />
         </div>
       </div>
 

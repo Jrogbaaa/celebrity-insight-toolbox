@@ -1,3 +1,4 @@
+
 import { cn } from "@/lib/utils";
 
 interface ChatMessageProps {
@@ -6,6 +7,9 @@ interface ChatMessageProps {
 }
 
 export const ChatMessage = ({ role, content }: ChatMessageProps) => {
+  // Remove markdown asterisks from content
+  const cleanContent = content.replace(/\*\*/g, '');
+  
   return (
     <div
       className={`flex ${
@@ -21,7 +25,7 @@ export const ChatMessage = ({ role, content }: ChatMessageProps) => {
         )}
       >
         <div className="whitespace-pre-wrap text-sm leading-relaxed">
-          {content}
+          {cleanContent}
         </div>
       </div>
     </div>
