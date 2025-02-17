@@ -1,4 +1,3 @@
-
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { MetricsGrid } from "@/components/MetricsGrid";
 import { CelebrityReportSelector } from "@/components/analytics/CelebrityReportSelector";
@@ -140,7 +139,7 @@ const Analytics = () => {
     <div className="container py-8 animate-fade-in">
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-          Celebrity Analytics Hub
+          Analytics Hub
         </h1>
         <div className="flex items-center gap-4">
           <CelebrityReportSelector
@@ -235,4 +234,3 @@ const Analytics = () => {
 };
 
 export default Analytics;
-
