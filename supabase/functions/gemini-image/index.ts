@@ -8,35 +8,26 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    let requestBody;
-    try {
-      requestBody = await req.json();
-      console.log('Received request body:', requestBody);
-    } catch (error) {
-      console.error('Error parsing request JSON:', error);
-      throw new Error('Invalid JSON in request body');
-    }
+    const requestBody = await req.json();
+    console.log('Received request body:', requestBody);
 
     const { prompt } = requestBody;
-    
     if (!prompt) {
       throw new Error('Prompt is required');
     }
 
     const geminiApiKey = Deno.env.get('GEMINI_API_KEY');
     if (!geminiApiKey) {
-      throw new Error('GEMINI_API_KEY is not set in environment variables');
+      throw new Error('GEMINI_API_KEY is not set');
     }
 
     console.log('Calling Imagen API with prompt:', prompt);
 
-    // Call Google's Imagen API
     const response = await fetch('https://generativelanguage.googleapis.com/v1/models/imagen-3.0-generate-002:generateImages', {
       method: 'POST',
       headers: {
@@ -51,37 +42,39 @@ serve(async (req) => {
       }),
     });
 
+    // Log the raw response
+    const rawResponse = await response.text();
+    console.log('Raw API Response:', rawResponse);
+
+    // Try to parse the response
     let responseData;
     try {
-      responseData = await response.json();
-      console.log('Raw Imagen API response:', JSON.stringify(responseData));
+      responseData = JSON.parse(rawResponse);
     } catch (error) {
-      console.error('Error parsing Imagen API response:', error);
-      throw new Error('Failed to parse Imagen API response');
+      console.error('JSON Parse Error:', error);
+      throw new Error(`Invalid JSON response from API: ${rawResponse}`);
     }
 
     if (!response.ok) {
-      console.error('Imagen API error response:', responseData);
-      throw new Error(`Imagen API error: ${JSON.stringify(responseData)}`);
+      console.error('API Error:', responseData);
+      throw new Error(`API error: ${JSON.stringify(responseData)}`);
     }
 
     if (!responseData.images?.[0]?.bytes) {
       console.error('Invalid response format:', responseData);
-      throw new Error('No image data received from Imagen API');
+      throw new Error('No image data in response');
     }
 
-    // Initialize Supabase client
     const supabaseUrl = Deno.env.get('SUPABASE_URL');
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
-    
     if (!supabaseUrl || !supabaseKey) {
       throw new Error('Missing Supabase configuration');
     }
 
     const supabase = createClient(supabaseUrl, supabaseKey);
 
+    // Create storage bucket if it doesn't exist
     try {
-      // Create a storage bucket if it doesn't exist
       const { error: bucketError } = await supabase
         .storage
         .createBucket('generated-images', {
@@ -90,45 +83,31 @@ serve(async (req) => {
         });
 
       if (bucketError && !bucketError.message.includes('already exists')) {
-        console.error('Bucket creation error:', bucketError);
         throw bucketError;
       }
     } catch (error) {
-      console.error('Error creating/checking bucket:', error);
+      console.error('Bucket Error:', error);
       throw new Error('Failed to create/check storage bucket');
     }
 
     // Process image data
-    let imageBlob;
-    try {
-      const imageBytes = Uint8Array.from(atob(responseData.images[0].bytes), c => c.charCodeAt(0));
-      imageBlob = new Blob([imageBytes], { type: 'image/png' });
-    } catch (error) {
-      console.error('Error processing image data:', error);
-      throw new Error('Failed to process image data');
-    }
-
+    const imageBytes = Uint8Array.from(atob(responseData.images[0].bytes), c => c.charCodeAt(0));
+    const imageBlob = new Blob([imageBytes], { type: 'image/png' });
     const fileName = `${crypto.randomUUID()}.png`;
 
     // Upload to Supabase Storage
-    try {
-      const { error: uploadError } = await supabase.storage
-        .from('generated-images')
-        .upload(fileName, imageBlob, {
-          contentType: 'image/png',
-          upsert: false
-        });
+    const { error: uploadError } = await supabase.storage
+      .from('generated-images')
+      .upload(fileName, imageBlob, {
+        contentType: 'image/png',
+        upsert: false
+      });
 
-      if (uploadError) {
-        console.error('Upload error:', uploadError);
-        throw uploadError;
-      }
-    } catch (error) {
-      console.error('Error uploading file:', error);
-      throw new Error('Failed to upload generated image');
+    if (uploadError) {
+      console.error('Upload Error:', uploadError);
+      throw uploadError;
     }
 
-    // Get public URL
     const { data: { publicUrl } } = supabase.storage
       .from('generated-images')
       .getPublicUrl(fileName);
@@ -138,7 +117,7 @@ serve(async (req) => {
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   } catch (error) {
-    console.error('Function error:', error);
+    console.error('Function Error:', error);
     return new Response(
       JSON.stringify({ 
         error: error.message,
