@@ -1,3 +1,4 @@
+
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { MetricsGrid } from "@/components/MetricsGrid";
 import { CelebrityReportSelector } from "@/components/analytics/CelebrityReportSelector";
@@ -13,9 +14,9 @@ const Analytics = () => {
   // Get unique platforms for the selected celebrity
   const getUniquePlatforms = () => {
     if (!selectedReport) return [];
-    return reports
+    return [...new Set(reports
       .filter(report => report.celebrity_name === selectedReport.celebrity_name)
-      .map(report => report.platform);
+      .map(report => report.platform))];
   };
 
   // Get report for specific platform
@@ -112,17 +113,6 @@ const Analytics = () => {
     };
   };
 
-  // Set default metrics only if there's no report data
-  const defaultMetrics = {
-    followers: 3066019,
-    engagementRate: 1.28,
-    commentsPerPost: 605.13,
-    sharesPerPost: 386,
-    mediaUploads: 4310,
-    following: 575,
-    averageLikes: 38663.80,
-  };
-
   const platforms = getUniquePlatforms();
   const currentPlatform = selectedReport?.platform || platforms[0];
 
@@ -159,7 +149,7 @@ const Analytics = () => {
         </Alert>
       )}
 
-      {selectedReport && platforms.length > 1 && (
+      {selectedReport && platforms.length > 0 && (
         <Tabs defaultValue={currentPlatform} className="mb-8">
           <TabsList>
             {platforms.map(platform => (
@@ -179,12 +169,12 @@ const Analytics = () => {
           </TabsList>
           {platforms.map(platform => {
             const report = getReportForPlatform(platform);
-            const metrics = report ? getMetricsForReport(report) : defaultMetrics;
+            const metrics = report ? getMetricsForReport(report) : null;
             
             return (
               <TabsContent key={platform} value={platform}>
                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                  <MetricsGrid data={metrics || defaultMetrics} />
+                  {metrics && <MetricsGrid data={metrics} />}
                 </div>
                 
                 <div className="grid gap-4 mt-8">
@@ -196,20 +186,6 @@ const Analytics = () => {
             );
           })}
         </Tabs>
-      )}
-
-      {selectedReport && platforms.length === 1 && (
-        <>
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            <MetricsGrid data={getMetricsForReport(selectedReport) || defaultMetrics} />
-          </div>
-          
-          <div className="grid gap-4 mt-8">
-            {selectedReport?.report_data?.posting_insights && (
-              <PostingInsights insights={selectedReport.report_data.posting_insights} />
-            )}
-          </div>
-        </>
       )}
 
       <div className="mt-8 bg-card rounded-lg p-6 shadow-lg border border-border/50">
