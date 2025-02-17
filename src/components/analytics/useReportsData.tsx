@@ -16,38 +16,51 @@ export const useReportsData = () => {
   const { toast } = useToast();
   const [reports, setReports] = useState<CelebrityReport[]>([]);
   const [selectedReport, setSelectedReport] = useState<CelebrityReport | null>(null);
+  const [loading, setLoading] = useState(true);
 
   const fetchReports = async () => {
-    console.log('Fetching reports...');
-    const { data, error } = await supabase
-      .from('celebrity_reports')
-      .select('*')
-      .order('created_at', { ascending: false });
+    try {
+      setLoading(true);
+      console.log('Fetching reports...');
 
-    console.log('Fetched data:', data);
-    console.log('Error if any:', error);
+      const { data, error } = await supabase
+        .from('celebrity_reports')
+        .select('*')
+        .order('created_at', { ascending: false });
 
-    if (error) {
+      if (error) {
+        console.error('Error fetching reports:', error);
+        throw new Error(error.message);
+      }
+
+      if (!data || data.length === 0) {
+        console.log('No reports found');
+        setReports([]);
+        setSelectedReport(null);
+        toast({
+          title: "No Reports",
+          description: "No celebrity reports found. Try uploading one!",
+          variant: "default",
+        });
+        return;
+      }
+
+      console.log('Fetched data:', data);
+      setReports(data);
+      
+      if (!selectedReport && data.length > 0) {
+        setSelectedReport(data[0]);
+      }
+
+    } catch (error) {
+      console.error('Error in fetchReports:', error);
       toast({
         title: "Error",
-        description: "Failed to fetch celebrity reports: " + error.message,
+        description: error instanceof Error ? error.message : "Failed to fetch reports",
         variant: "destructive",
       });
-      return;
-    }
-
-    if (!data || data.length === 0) {
-      toast({
-        title: "No Data",
-        description: "No celebrity reports found",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setReports(data);
-    if (data.length > 0 && !selectedReport) {
-      setSelectedReport(data[0]);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -60,5 +73,6 @@ export const useReportsData = () => {
     selectedReport,
     setSelectedReport,
     fetchReports,
+    loading,
   };
 };

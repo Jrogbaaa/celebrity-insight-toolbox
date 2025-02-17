@@ -27,9 +27,9 @@ export const CelebrityReportUploader = ({ onUploadSuccess }: { onUploadSuccess: 
     try {
       // Upload PDF to storage
       const timestamp = new Date().getTime();
-      const filePath = `public/${timestamp}_${file.name.replace(/[^\x00-\x7F]/g, '')}`;
+      const filePath = `pdf_reports/${timestamp}_${file.name.replace(/[^\x00-\x7F]/g, '')}`;
       
-      const { error: uploadError } = await supabase.storage
+      const { data: uploadData, error: uploadError } = await supabase.storage
         .from('pdf_reports')
         .upload(filePath, file);
 
@@ -40,26 +40,39 @@ export const CelebrityReportUploader = ({ onUploadSuccess }: { onUploadSuccess: 
         .from('pdf_reports')
         .getPublicUrl(filePath);
 
-      // Create report entry with file reference
+      // For now, we'll use sample data until we implement PDF parsing
       const reportData = {
-        celebrity_name: "Cristina Pedroche", // This would come from PDF parsing in a real implementation
-        username: "cristipedroche",
+        celebrity_name: "Sample Celebrity",
+        username: "sampleuser",
         platform: "Instagram",
         report_data: {
           pdf_url: publicUrl,
           followers: {
-            total: 3066019
+            total: 1000000
           },
           following: {
-            total: 575
+            total: 500
           },
           media_uploads: {
-            total: 4310
+            total: 1000
           },
           engagement: {
-            rate: "1.28",
-            average_likes: 38663.80,
-            average_comments: 605.13
+            rate: "2.5",
+            average_likes: 25000,
+            average_comments: 1000
+          },
+          posting_insights: {
+            peak_engagement_times: ["9:00 AM", "6:00 PM"],
+            general_best_times: {
+              monday: ["10:00 AM", "3:00 PM"],
+              tuesday: ["11:00 AM", "4:00 PM"],
+              thursday: ["9:00 AM", "5:00 PM"]
+            },
+            posting_tips: [
+              "Post consistently at peak engagement times",
+              "Use a mix of content types",
+              "Engage with followers' comments"
+            ]
           }
         },
         report_date: new Date().toISOString().split('T')[0]
@@ -67,9 +80,7 @@ export const CelebrityReportUploader = ({ onUploadSuccess }: { onUploadSuccess: 
 
       const { error: dbError } = await supabase
         .from('celebrity_reports')
-        .insert([reportData])
-        .select()
-        .single();
+        .insert([reportData]);
 
       if (dbError) throw dbError;
 
@@ -87,7 +98,7 @@ export const CelebrityReportUploader = ({ onUploadSuccess }: { onUploadSuccess: 
       console.error('Error uploading report:', error);
       toast({
         title: "Error",
-        description: error instanceof Error ? error.message : "Failed to upload report. Please try again.",
+        description: error instanceof Error ? error.message : "Failed to upload report",
         variant: "destructive",
       });
     } finally {
