@@ -1,6 +1,6 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Clock } from "lucide-react";
+import { Clock, Calendar, TrendingUp } from "lucide-react";
 
 interface PostingInsightsProps {
   insights: {
@@ -15,7 +15,6 @@ interface PostingInsightsProps {
 }
 
 export const PostingInsights = ({ insights }: PostingInsightsProps) => {
-  // Early return if no insights provided
   if (!insights) {
     return null;
   }
@@ -25,7 +24,7 @@ export const PostingInsights = ({ insights }: PostingInsightsProps) => {
   return (
     <Card className="col-span-4">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
+        <CardTitle className="text-xl text-primary flex items-center gap-2">
           <Clock className="h-5 w-5" />
           Posting Time Insights
         </CardTitle>
@@ -34,28 +33,31 @@ export const PostingInsights = ({ insights }: PostingInsightsProps) => {
         <div className="space-y-6">
           {general_best_times && (
             <div>
-              <h3 className="font-semibold mb-2">Best Times to Post</h3>
+              <h3 className="text-lg font-semibold text-primary mb-3 flex items-center gap-2">
+                <Calendar className="h-5 w-5" />
+                Best Times to Post
+              </h3>
               <div className="space-y-2">
                 {general_best_times.monday && (
                   <div className="flex gap-2">
-                    <span className="font-medium">Monday:</span>
-                    <span className="text-muted-foreground">
+                    <span className="font-medium text-base">Monday:</span>
+                    <span className="text-foreground text-base">
                       {general_best_times.monday.join(", ")}
                     </span>
                   </div>
                 )}
                 {general_best_times.tuesday && (
                   <div className="flex gap-2">
-                    <span className="font-medium">Tuesday:</span>
-                    <span className="text-muted-foreground">
+                    <span className="font-medium text-base">Tuesday:</span>
+                    <span className="text-foreground text-base">
                       {general_best_times.tuesday.join(", ")}
                     </span>
                   </div>
                 )}
                 {general_best_times.thursday && (
                   <div className="flex gap-2">
-                    <span className="font-medium">Thursday:</span>
-                    <span className="text-muted-foreground">
+                    <span className="font-medium text-base">Thursday:</span>
+                    <span className="text-foreground text-base">
                       {general_best_times.thursday.join(", ")}
                     </span>
                   </div>
@@ -66,8 +68,11 @@ export const PostingInsights = ({ insights }: PostingInsightsProps) => {
 
           {peak_engagement_times && peak_engagement_times.length > 0 && (
             <div>
-              <h3 className="font-semibold mb-2">Peak Engagement Times</h3>
-              <p className="text-muted-foreground">
+              <h3 className="text-lg font-semibold text-primary mb-3 flex items-center gap-2">
+                <TrendingUp className="h-5 w-5" />
+                Peak Engagement Times
+              </h3>
+              <p className="text-foreground text-base">
                 Highest engagement occurs at {peak_engagement_times.join(" and ")}
               </p>
             </div>
@@ -75,10 +80,10 @@ export const PostingInsights = ({ insights }: PostingInsightsProps) => {
 
           {posting_tips && posting_tips.length > 0 && (
             <div>
-              <h3 className="font-semibold mb-2">Tips for Better Engagement</h3>
-              <ul className="list-disc list-inside space-y-1">
+              <h3 className="text-lg font-semibold text-primary mb-3">Tips for Better Engagement</h3>
+              <ul className="list-disc list-inside space-y-2">
                 {posting_tips.map((tip, index) => (
-                  <li key={index} className="text-muted-foreground">
+                  <li key={index} className="text-foreground text-base">
                     {tip}
                   </li>
                 ))}

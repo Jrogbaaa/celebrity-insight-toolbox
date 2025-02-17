@@ -31,6 +31,7 @@ export const MetricsGrid = ({ data }: MetricsGridProps) => {
       change: "-3,660",
       isPositive: false,
       icon: Users,
+      color: "from-purple-500 to-purple-600",
     },
     {
       title: "Media Uploads",
@@ -38,6 +39,7 @@ export const MetricsGrid = ({ data }: MetricsGridProps) => {
       change: "+30",
       isPositive: true,
       icon: Upload,
+      color: "from-purple-400 to-purple-500",
     },
     {
       title: "Following",
@@ -45,6 +47,7 @@ export const MetricsGrid = ({ data }: MetricsGridProps) => {
       change: "-30",
       isPositive: false,
       icon: Users,
+      color: "from-purple-500 to-purple-600",
     },
     {
       title: "Engagement Rate",
@@ -52,6 +55,7 @@ export const MetricsGrid = ({ data }: MetricsGridProps) => {
       change: "+0.3%",
       isPositive: true,
       icon: Heart,
+      color: "from-purple-400 to-purple-500",
     },
     {
       title: "Average Likes",
@@ -59,6 +63,7 @@ export const MetricsGrid = ({ data }: MetricsGridProps) => {
       change: "+2.5%",
       isPositive: true,
       icon: Heart,
+      color: "from-purple-500 to-purple-600",
     },
     {
       title: "Comments/Post",
@@ -66,6 +71,7 @@ export const MetricsGrid = ({ data }: MetricsGridProps) => {
       change: "+1.2%",
       isPositive: true,
       icon: MessageCircle,
+      color: "from-purple-400 to-purple-500",
     },
   ];
 
@@ -74,16 +80,18 @@ export const MetricsGrid = ({ data }: MetricsGridProps) => {
       {metricsConfig
         .filter(metric => metric.value !== null)
         .map((metric) => (
-          <Card key={metric.title}>
+          <Card key={metric.title} className="overflow-hidden relative">
+            <div className={`absolute inset-0 bg-gradient 
+              opacity-5 bg-gradient-to-br ${metric.color}`} />
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
+              <CardTitle className="text-base font-medium text-primary">
                 {metric.title}
               </CardTitle>
-              <metric.icon className="h-4 w-4 text-muted-foreground" />
+              <metric.icon className="h-4 w-4 text-primary" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{metric.value}</div>
-              <p className={`flex items-center text-xs ${
+              <div className="text-2xl font-bold text-primary mb-1">{metric.value}</div>
+              <p className={`flex items-center text-sm ${
                 metric.isPositive ? "text-success" : "text-destructive"
               }`}>
                 {metric.isPositive ? (
