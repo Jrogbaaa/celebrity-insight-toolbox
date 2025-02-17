@@ -6,7 +6,7 @@ import { PostingInsights } from "@/components/analytics/PostingInsights";
 import { useReportsData } from "@/components/analytics/useReportsData";
 import { CelebrityReportUploader } from "@/components/analytics/CelebrityReportUploader";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Instagram, Youtube, BrandTiktok } from "lucide-react";
+import { Instagram, Youtube, Music2 } from "lucide-react";
 
 const Analytics = () => {
   const { reports, selectedReport, setSelectedReport, fetchReports } = useReportsData();
@@ -36,7 +36,7 @@ const Analytics = () => {
       case 'youtube':
         return <Youtube className="h-4 w-4" />;
       case 'tiktok':
-        return <BrandTiktok className="h-4 w-4" />; // Updated to use TikTok icon
+        return <Music2 className="h-4 w-4" />; // Using Music2 icon for TikTok since it's music-focused platform
       default:
         return null;
     }
