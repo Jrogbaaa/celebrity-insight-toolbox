@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -155,6 +154,81 @@ export const useReportsData = () => {
                 "Leverage existing Instagram audience",
                 "Focus on behind-the-scenes content",
                 "Engage with trending challenges and sounds"
+              ]
+            }
+          }
+        },
+        {
+          id: "5",
+          celebrity_name: "Jorge Cremades",
+          username: "jorgecremades",
+          platform: "Instagram",
+          report_date: "2024-02-17",
+          report_data: {
+            followers: {
+              total: 2900000
+            },
+            following: {
+              total: 892
+            },
+            media_uploads: {
+              total: 2455
+            },
+            engagement: {
+              rate: "1.73",
+              average_likes: 49400,
+              average_comments: 587
+            },
+            posting_insights: {
+              peak_engagement_times: ["11:00 AM", "3:00 PM", "8:00 PM"],
+              posting_tips: [
+                "Content performs best during afternoon hours",
+                "Comedy and lifestyle content drives highest engagement",
+                "Strong engagement from Spanish-speaking markets",
+                "Consider collaborations with sports brands",
+                "Engagement peaks with video content"
+              ]
+            },
+            sponsor_opportunities: [
+              "Strong affinity with sports and athletic brands",
+              "High engagement with Nike and Adidas content",
+              "Potential for partnerships with Marvel and NASA",
+              "Growing audience in lifestyle and fashion segments"
+            ],
+            brand_mentions: [
+              "El Corte Inglés", "Jimmy Choo", "Lidl", "Red Bull", "Ted Baker"
+            ]
+          }
+        },
+        {
+          id: "6",
+          celebrity_name: "Jorge Cremades",
+          username: "jorgecremades",
+          platform: "TikTok",
+          report_date: "2024-02-17",
+          report_data: {
+            followers: {
+              total: 1900000
+            },
+            following: {
+              total: 245
+            },
+            media_uploads: {
+              total: 587
+            },
+            engagement: {
+              rate: "3.18",
+              average_likes: 60300,
+              average_comments: 892
+            },
+            posting_insights: {
+              peak_engagement_times: ["2:00 PM", "6:00 PM", "9:00 PM"],
+              posting_tips: [
+                "Short-form comedy content performs exceptionally well",
+                "Trending sounds increase reach significantly",
+                "Strong engagement with Spanish language content",
+                "Consider cross-platform content strategy",
+                "Engagement peaks with reaction-style videos"
               ]
             }
           }

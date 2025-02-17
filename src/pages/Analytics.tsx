@@ -58,6 +58,34 @@ const Analytics = () => {
 
       <UpdateReminder selectedReport={selectedReport} />
 
+      {/* Sponsor Opportunities Section */}
+      {selectedReport?.report_data.sponsor_opportunities && (
+        <div className="mt-8">
+          <Card className="bg-muted/50">
+            <CardHeader>
+              <CardTitle>Sponsor Opportunities</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <ul className="list-disc list-inside space-y-2">
+                  {selectedReport.report_data.sponsor_opportunities.map((opportunity: string, index: number) => (
+                    <li key={index} className="text-muted-foreground">{opportunity}</li>
+                  ))}
+                </ul>
+                {selectedReport.report_data.brand_mentions && (
+                  <div className="mt-4">
+                    <h3 className="font-semibold">Recent Brand Mentions</h3>
+                    <p className="text-muted-foreground mt-2">
+                      {selectedReport.report_data.brand_mentions.join(', ')}
+                    </p>
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
       {/* AI Insights Section */}
       <div className="mt-8">
         <Card className="bg-muted/50">
