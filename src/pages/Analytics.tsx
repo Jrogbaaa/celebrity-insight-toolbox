@@ -1,4 +1,3 @@
-
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { CelebrityReportSelector } from "@/components/analytics/CelebrityReportSelector";
 import { useReportsData } from "@/components/analytics/useReportsData";
@@ -7,7 +6,7 @@ import { UpdateReminder } from "@/components/analytics/UpdateReminder";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { ChatContainer } from "@/components/chat/ChatContainer";
-import { MessageCircle } from "lucide-react";
+import { MessageCircle, Sparkles, Gift, Clock, Users } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 
 const Analytics = () => {
@@ -23,7 +22,6 @@ const Analytics = () => {
   const platforms = getUniquePlatforms();
   const currentPlatform = selectedReport?.platform || platforms[0];
 
-  // Helper function to safely convert values to string
   const formatPercentage = (value: unknown): string => {
     if (typeof value === 'string' || typeof value === 'number') {
       return `${value}%`;
@@ -64,48 +62,59 @@ const Analytics = () => {
         />
       )}
 
-      {/* AI Action Items Section */}
       <div className="mt-8">
         <Card className="bg-card">
           <CardHeader>
-            <CardTitle className="text-xl text-primary">AI Action Items</CardTitle>
+            <CardTitle className="text-xl text-primary flex items-center gap-2">
+              <Sparkles className="h-5 w-5" />
+              AI Action Items
+            </CardTitle>
           </CardHeader>
           <CardContent>
             {selectedReport && selectedReport.report_data.posting_insights ? (
-              <div className="space-y-4">
-                <h3 className="font-semibold text-primary">Engagement Optimization</h3>
-                <ul className="list-disc list-inside space-y-2">
-                  {selectedReport.report_data.posting_insights.posting_tips.map((tip: string, index: number) => (
-                    <li key={index} className="text-foreground">{tip}</li>
-                  ))}
-                </ul>
+              <div className="space-y-6">
+                <div>
+                  <h3 className="text-lg font-semibold text-primary mb-3">Engagement Optimization</h3>
+                  <ul className="list-disc list-inside space-y-2">
+                    {selectedReport.report_data.posting_insights.posting_tips.map((tip: string, index: number) => (
+                      <li key={index} className="text-foreground text-base">{tip}</li>
+                    ))}
+                  </ul>
+                </div>
                 
-                <h3 className="font-semibold text-primary mt-4">Best Posting Times</h3>
-                <p className="text-foreground">
-                  Optimal engagement at: {selectedReport.report_data.posting_insights.peak_engagement_times.join(', ')}
-                </p>
+                <div>
+                  <h3 className="text-lg font-semibold text-primary mb-3 flex items-center gap-2">
+                    <Clock className="h-5 w-5" />
+                    Best Posting Times
+                  </h3>
+                  <p className="text-foreground text-base">
+                    Optimal engagement at: {selectedReport.report_data.posting_insights.peak_engagement_times.join(', ')}
+                  </p>
+                </div>
               </div>
             ) : (
-              <p className="text-foreground">Select a celebrity to view AI insights.</p>
+              <p className="text-foreground text-base">Select a celebrity to view AI insights.</p>
             )}
           </CardContent>
         </Card>
       </div>
 
-      {/* Audience Demographics Section */}
       {selectedReport?.report_data.demographics && (
         <div className="mt-8">
           <Card className="bg-card">
             <CardHeader>
-              <CardTitle className="text-xl text-primary">Audience Demographics</CardTitle>
+              <CardTitle className="text-xl text-primary flex items-center gap-2">
+                <Users className="h-5 w-5" />
+                Audience Demographics
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid gap-6 md:grid-cols-2">
                 <div>
-                  <h3 className="font-semibold text-primary mb-2">Age Distribution</h3>
+                  <h3 className="text-lg font-semibold text-primary mb-3">Age Distribution</h3>
                   <ul className="space-y-2">
                     {Object.entries(selectedReport.report_data.demographics.age_groups).map(([age, percentage]) => (
-                      <li key={age} className="text-foreground flex justify-between">
+                      <li key={age} className="text-foreground text-base flex justify-between">
                         <span>{age}</span>
                         <span>{formatPercentage(percentage)}</span>
                       </li>
@@ -113,10 +122,10 @@ const Analytics = () => {
                   </ul>
                 </div>
                 <div>
-                  <h3 className="font-semibold text-primary mb-2">Gender Distribution</h3>
+                  <h3 className="text-lg font-semibold text-primary mb-3">Gender Distribution</h3>
                   <ul className="space-y-2">
                     {Object.entries(selectedReport.report_data.demographics.gender).map(([gender, percentage]) => (
-                      <li key={gender} className="text-foreground flex justify-between">
+                      <li key={gender} className="text-foreground text-base flex justify-between">
                         <span>{gender}</span>
                         <span>{formatPercentage(percentage)}</span>
                       </li>
@@ -129,24 +138,28 @@ const Analytics = () => {
         </div>
       )}
 
-      {/* Sponsor Opportunities Section */}
       {selectedReport?.report_data.sponsor_opportunities && (
         <div className="mt-8">
           <Card className="bg-card">
             <CardHeader>
-              <CardTitle className="text-xl text-primary">Sponsor Opportunities</CardTitle>
+              <CardTitle className="text-xl text-primary flex items-center gap-2">
+                <Gift className="h-5 w-5" />
+                Sponsor Opportunities
+              </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                <ul className="list-disc list-inside space-y-2">
-                  {selectedReport.report_data.sponsor_opportunities.map((opportunity: string, index: number) => (
-                    <li key={index} className="text-foreground">{opportunity}</li>
-                  ))}
-                </ul>
+              <div className="space-y-6">
+                <div>
+                  <ul className="list-disc list-inside space-y-2">
+                    {selectedReport.report_data.sponsor_opportunities.map((opportunity: string, index: number) => (
+                      <li key={index} className="text-foreground text-base">{opportunity}</li>
+                    ))}
+                  </ul>
+                </div>
                 {selectedReport.report_data.brand_mentions && (
-                  <div className="mt-4">
-                    <h3 className="font-semibold text-primary">Recent Brand Mentions</h3>
-                    <p className="text-foreground mt-2">
+                  <div>
+                    <h3 className="text-lg font-semibold text-primary mb-3">Recent Brand Mentions</h3>
+                    <p className="text-foreground text-base mt-2">
                       {selectedReport.report_data.brand_mentions.join(', ')}
                     </p>
                   </div>
@@ -159,7 +172,6 @@ const Analytics = () => {
 
       <UpdateReminder selectedReport={selectedReport} />
 
-      {/* AI Social Expert Chat Button */}
       <Dialog>
         <DialogTrigger asChild>
           <Button
