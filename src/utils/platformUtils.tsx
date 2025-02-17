@@ -1,7 +1,9 @@
 
 import { Instagram, Youtube, Music2, Facebook } from "lucide-react";
+import React from 'react';
+import type { LucideIcon } from 'lucide-react';
 
-export const getPlatformIcon = (platform: string) => {
+export const getPlatformIcon = (platform: string): React.ReactNode => {
   switch (platform.toLowerCase()) {
     case 'instagram':
       return <Instagram className="h-4 w-4" />;
@@ -16,7 +18,17 @@ export const getPlatformIcon = (platform: string) => {
   }
 };
 
-export const getMetricsForReport = (report: any) => {
+interface PlatformMetrics {
+  followers: number;
+  engagementRate: number;
+  commentsPerPost: number;
+  sharesPerPost: number;
+  mediaUploads: number;
+  following: number;
+  averageLikes: number;
+}
+
+export const getMetricsForReport = (report: any): PlatformMetrics | null => {
   if (!report?.report_data) return null;
 
   const reportData = report.report_data;
