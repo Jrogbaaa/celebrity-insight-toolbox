@@ -115,6 +115,7 @@ export const useReportsData = () => {
             posting_insights: {
               peak_engagement_times: ["2:00 PM", "6:00 PM", "9:00 PM"],
               posting_tips: [
+                "Best time for sponsored posts is 7:00 AM",
                 "Strong engagement from Brazil and Spain markets",
                 "Content performs best during evening hours",
                 "High engagement with lifestyle and acting-related content",

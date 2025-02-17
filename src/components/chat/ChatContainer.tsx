@@ -1,3 +1,4 @@
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChatMessages } from "@/components/chat/ChatMessages";
 import { ChatInput } from "@/components/chat/ChatInput";
@@ -9,7 +10,7 @@ export const ChatContainer = () => {
   return (
     <Card className="h-[calc(100vh-6rem)] shadow-lg">
       <CardHeader className="border-b bg-muted/50 py-2">
-        <CardTitle className="text-lg font-semibold text-primary">Chat with AI</CardTitle>
+        <CardTitle className="text-lg font-semibold text-primary">Chat with Social Expert</CardTitle>
       </CardHeader>
       <CardContent className="flex flex-col h-[calc(100%-3.5rem)] p-0">
         <ChatMessages messages={messages} loading={loading} />
