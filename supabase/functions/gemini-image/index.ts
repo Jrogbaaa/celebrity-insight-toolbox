@@ -28,28 +28,44 @@ serve(async (req) => {
 
     console.log('Calling Imagen API with prompt:', prompt);
 
-    const response = await fetch('https://generativelanguage.googleapis.com/v1/models/imagen-3.0-generate-002:generateImages', {
+    const response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-pro-vision:generateContent', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'x-goog-api-key': geminiApiKey
       },
       body: JSON.stringify({
-        prompt: {
-          text: prompt
+        contents: [{
+          parts: [{
+            text: prompt
+          }]
+        }],
+        generationConfig: {
+          temperature: 0.4,
+          topK: 32,
+          topP: 1,
+          maxOutputTokens: 2048,
         },
-        numberOfImages: 1
       }),
     });
+
+    console.log('Response status:', response.status);
+    console.log('Response headers:', Object.fromEntries(response.headers.entries()));
 
     // Log the raw response
     const rawResponse = await response.text();
     console.log('Raw API Response:', rawResponse);
 
+    // Check if response is valid JSON before parsing
+    if (!rawResponse) {
+      throw new Error('Empty response from API');
+    }
+
     // Try to parse the response
     let responseData;
     try {
       responseData = JSON.parse(rawResponse);
+      console.log('Parsed response data:', responseData);
     } catch (error) {
       console.error('JSON Parse Error:', error);
       throw new Error(`Invalid JSON response from API: ${rawResponse}`);
@@ -60,8 +76,14 @@ serve(async (req) => {
       throw new Error(`API error: ${JSON.stringify(responseData)}`);
     }
 
-    if (!responseData.images?.[0]?.bytes) {
-      console.error('Invalid response format:', responseData);
+    // Extract the image data from the response
+    const generatedContent = responseData.candidates?.[0]?.content;
+    if (!generatedContent) {
+      throw new Error('No content generated from API');
+    }
+
+    const imageBase64 = generatedContent.parts?.[0]?.text;
+    if (!imageBase64) {
       throw new Error('No image data in response');
     }
 
@@ -91,7 +113,7 @@ serve(async (req) => {
     }
 
     // Process image data
-    const imageBytes = Uint8Array.from(atob(responseData.images[0].bytes), c => c.charCodeAt(0));
+    const imageBytes = Uint8Array.from(atob(imageBase64), c => c.charCodeAt(0));
     const imageBlob = new Blob([imageBytes], { type: 'image/png' });
     const fileName = `${crypto.randomUUID()}.png`;
 
@@ -121,7 +143,8 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({ 
         error: error.message,
-        details: error.stack
+        details: error.stack,
+        type: 'FunctionError'
       }),
       { 
         status: 500,
