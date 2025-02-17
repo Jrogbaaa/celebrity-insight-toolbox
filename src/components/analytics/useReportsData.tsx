@@ -53,7 +53,16 @@ export const useReportsData = () => {
                 "Strong performance in Spain market",
                 "High engagement rate of 1.71% indicates strong audience connection"
               ]
-            }
+            },
+            sponsor_opportunities: [
+              "High affinity with fashion and lifestyle brands",
+              "Strong engagement with beauty and wellness content",
+              "Potential for luxury brand collaborations",
+              "Growing audience in fitness and health segments"
+            ],
+            brand_mentions: [
+              "Zara", "L'Oréal", "Nike", "Maybelline", "Sephora"
+            ]
           }
         },
         {
@@ -121,7 +130,16 @@ export const useReportsData = () => {
                 "Opportunity to increase engagement with Netflix-related content",
                 "Consider targeting the significant 20-34 age demographic"
               ]
-            }
+            },
+            sponsor_opportunities: [
+              "Strong potential for Netflix and streaming platform collaborations",
+              "High engagement with fashion and lifestyle brands",
+              "Opportunity for partnerships with Spanish luxury brands",
+              "Growing audience in entertainment and media segments"
+            ],
+            brand_mentions: [
+              "Netflix", "Gucci", "Adidas", "Ray-Ban", "Cartier"
+            ]
           }
         },
         {
@@ -139,12 +157,6 @@ export const useReportsData = () => {
             },
             media_uploads: {
               total: 336
-            },
-            engagement: {
-              rate: "0.0",
-              average_likes: 0,
-              average_comments: 0,
-              average_shares: 0
             },
             posting_insights: {
               peak_engagement_times: ["3:00 PM", "7:00 PM", "10:00 PM"],
