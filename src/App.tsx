@@ -1,5 +1,4 @@
 
-import React from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -15,6 +14,14 @@ import TikTokCallback from "./pages/TikTokCallback";
 const Layout = ({ children }: { children: React.ReactNode }) => {
   return (
     <div className="min-h-screen bg-background pb-14">
+      <div className="container py-4 flex items-center gap-2">
+        <img 
+          src="/lovable-uploads/42261865-c6df-4ee7-9486-82d93f5bb45d.png" 
+          alt="You First AI Talent" 
+          className="h-8"
+        />
+        <h1 className="text-xl font-bold text-primary">You First AI Talent</h1>
+      </div>
       {children}
       <Navigation />
     </div>
