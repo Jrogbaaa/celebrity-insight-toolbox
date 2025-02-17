@@ -28,10 +28,7 @@ serve(async (req) => {
 
     console.log('Calling Imagen API with prompt:', prompt);
 
-    // Convert prompt to base64
-    const base64Prompt = btoa(prompt);
-
-    const response = await fetch('https://generativelanguage.googleapis.com/v1/models/gemini-1.0-pro-vision-latest:generateContent', {
+    const response = await fetch('https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -40,12 +37,15 @@ serve(async (req) => {
       body: JSON.stringify({
         contents: [{
           parts: [{
-            inlineData: {
-              mimeType: "text/plain",
-              data: base64Prompt
-            }
+            text: prompt
           }]
-        }]
+        }],
+        generationConfig: {
+          temperature: 0.4,
+          topK: 32,
+          topP: 1,
+          maxOutputTokens: 2048,
+        },
       }),
     });
 
