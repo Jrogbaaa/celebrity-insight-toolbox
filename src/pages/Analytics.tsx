@@ -5,25 +5,58 @@ import { CelebrityReportSelector } from "@/components/analytics/CelebrityReportS
 import { PostingInsights } from "@/components/analytics/PostingInsights";
 import { useReportsData } from "@/components/analytics/useReportsData";
 import { CelebrityReportUploader } from "@/components/analytics/CelebrityReportUploader";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Instagram, Youtube, TikTok } from "lucide-react";
 
 const Analytics = () => {
   const { reports, selectedReport, setSelectedReport, fetchReports } = useReportsData();
 
-  // Update example data based on selected report
-  const getExampleData = () => {
-    if (!selectedReport?.report_data) return null;
+  // Get unique platforms for the selected celebrity
+  const getUniquePlatforms = () => {
+    if (!selectedReport) return [];
+    return reports
+      .filter(report => report.celebrity_name === selectedReport.celebrity_name)
+      .map(report => report.platform);
+  };
 
-    const report = selectedReport.report_data;
-    console.log('Processing report data:', report);
+  // Get report for specific platform
+  const getReportForPlatform = (platform: string) => {
+    return reports.find(
+      report => 
+        report.celebrity_name === selectedReport?.celebrity_name && 
+        report.platform === platform
+    );
+  };
+
+  // Get platform icon
+  const getPlatformIcon = (platform: string) => {
+    switch (platform.toLowerCase()) {
+      case 'instagram':
+        return <Instagram className="h-4 w-4" />;
+      case 'youtube':
+        return <Youtube className="h-4 w-4" />;
+      case 'tiktok':
+        return <TikTok className="h-4 w-4" />;
+      default:
+        return null;
+    }
+  };
+
+  // Get metrics for the current report
+  const getMetricsForReport = (report: typeof selectedReport) => {
+    if (!report?.report_data) return null;
+
+    const reportData = report.report_data;
+    console.log('Processing report data:', reportData);
 
     return {
-      followers: report.followers?.total || 3066019,
-      engagementRate: parseFloat(report.engagement?.rate || "1.28"),
-      commentsPerPost: report.engagement?.average_comments || 605.13,
-      sharesPerPost: Math.round((report.engagement?.average_likes || 38663.80) / 100),
-      mediaUploads: report.media_uploads?.total || 4310,
-      following: report.following?.total || 575,
-      averageLikes: report.engagement?.average_likes || 38663.80,
+      followers: reportData.followers?.total || 3066019,
+      engagementRate: parseFloat(reportData.engagement?.rate || "1.28"),
+      commentsPerPost: reportData.engagement?.average_comments || 605.13,
+      sharesPerPost: Math.round((reportData.engagement?.average_likes || 38663.80) / 100),
+      mediaUploads: reportData.media_uploads?.total || 4310,
+      following: reportData.following?.total || 575,
+      averageLikes: reportData.engagement?.average_likes || 38663.80,
     };
   };
 
@@ -38,7 +71,8 @@ const Analytics = () => {
     averageLikes: 38663.80,
   };
 
-  const metrics = getExampleData() || defaultMetrics;
+  const platforms = getUniquePlatforms();
+  const currentPlatform = selectedReport?.platform || platforms[0];
 
   // Calculate next recommended update date
   const getNextUpdateDate = () => {
@@ -73,15 +107,58 @@ const Analytics = () => {
         </Alert>
       )}
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        <MetricsGrid data={metrics} />
-      </div>
-      
-      <div className="grid gap-4 mt-8">
-        {selectedReport?.report_data?.posting_insights && (
-          <PostingInsights insights={selectedReport.report_data.posting_insights} />
-        )}
-      </div>
+      {selectedReport && platforms.length > 1 && (
+        <Tabs defaultValue={currentPlatform} className="mb-8">
+          <TabsList>
+            {platforms.map(platform => (
+              <TabsTrigger
+                key={platform}
+                value={platform}
+                onClick={() => {
+                  const report = getReportForPlatform(platform);
+                  if (report) setSelectedReport(report);
+                }}
+                className="flex items-center gap-2"
+              >
+                {getPlatformIcon(platform)}
+                {platform}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+          {platforms.map(platform => {
+            const report = getReportForPlatform(platform);
+            const metrics = report ? getMetricsForReport(report) : defaultMetrics;
+            
+            return (
+              <TabsContent key={platform} value={platform}>
+                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                  <MetricsGrid data={metrics || defaultMetrics} />
+                </div>
+                
+                <div className="grid gap-4 mt-8">
+                  {report?.report_data?.posting_insights && (
+                    <PostingInsights insights={report.report_data.posting_insights} />
+                  )}
+                </div>
+              </TabsContent>
+            );
+          })}
+        </Tabs>
+      )}
+
+      {selectedReport && platforms.length === 1 && (
+        <>
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            <MetricsGrid data={getMetricsForReport(selectedReport) || defaultMetrics} />
+          </div>
+          
+          <div className="grid gap-4 mt-8">
+            {selectedReport?.report_data?.posting_insights && (
+              <PostingInsights insights={selectedReport.report_data.posting_insights} />
+            )}
+          </div>
+        </>
+      )}
 
       <div className="mt-8 bg-card rounded-lg p-6 shadow-lg border border-border/50">
         {selectedReport ? (
