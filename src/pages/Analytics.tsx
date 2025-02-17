@@ -1,10 +1,10 @@
-
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { CelebrityReportSelector } from "@/components/analytics/CelebrityReportSelector";
 import { CelebrityReportUploader } from "@/components/analytics/CelebrityReportUploader";
 import { useReportsData } from "@/components/analytics/useReportsData";
 import { PlatformTabs } from "@/components/analytics/PlatformTabs";
 import { UpdateReminder } from "@/components/analytics/UpdateReminder";
+import { DemographicsDisplay } from "@/components/analytics/DemographicsDisplay";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { ChatContainer } from "@/components/chat/ChatContainer";
@@ -104,40 +104,7 @@ const Analytics = () => {
 
       {selectedReport?.report_data.demographics && (
         <div className="mt-8">
-          <Card className="bg-card">
-            <CardHeader>
-              <CardTitle className="text-xl text-primary flex items-center gap-2">
-                <Users className="h-5 w-5" />
-                Audience Demographics
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid gap-6 md:grid-cols-2">
-                <div>
-                  <h3 className="text-lg font-semibold text-primary mb-3">Age Distribution</h3>
-                  <ul className="space-y-2">
-                    {Object.entries(selectedReport.report_data.demographics.age_groups).map(([age, percentage]) => (
-                      <li key={age} className="text-foreground text-base flex justify-between">
-                        <span>{age}</span>
-                        <span>{formatPercentage(percentage)}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-                <div>
-                  <h3 className="text-lg font-semibold text-primary mb-3">Gender Distribution</h3>
-                  <ul className="space-y-2">
-                    {Object.entries(selectedReport.report_data.demographics.gender).map(([gender, percentage]) => (
-                      <li key={gender} className="text-foreground text-base flex justify-between">
-                        <span>{gender}</span>
-                        <span>{formatPercentage(percentage)}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <DemographicsDisplay demographics={selectedReport.report_data.demographics} />
         </div>
       )}
 
