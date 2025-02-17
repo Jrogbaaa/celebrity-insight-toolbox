@@ -6,7 +6,7 @@ import { PostingInsights } from "@/components/analytics/PostingInsights";
 import { useReportsData } from "@/components/analytics/useReportsData";
 import { CelebrityReportUploader } from "@/components/analytics/CelebrityReportUploader";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Instagram, Youtube, TikTok } from "lucide-react";
+import { Instagram, Youtube, Play } from "lucide-react";
 
 const Analytics = () => {
   const { reports, selectedReport, setSelectedReport, fetchReports } = useReportsData();
@@ -36,7 +36,7 @@ const Analytics = () => {
       case 'youtube':
         return <Youtube className="h-4 w-4" />;
       case 'tiktok':
-        return <TikTok className="h-4 w-4" />;
+        return <Play className="h-4 w-4" />; // Using Play icon for TikTok
       default:
         return null;
     }
