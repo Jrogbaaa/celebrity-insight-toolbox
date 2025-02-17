@@ -53,22 +53,7 @@ export const useReportsData = () => {
                 "Engagement is highest with lifestyle and personal content",
                 "Strong performance in Spain market",
                 "High engagement rate of 1.71% indicates strong audience connection"
-              ],
-              demographic_data: {
-                top_locations: ["Madrid, ES", "Spain", "Venezuela", "Brazil", "Mexico", "Colombia", "United States"],
-                gender_split: {
-                  female: 45.73,
-                  male: 54.27
-                },
-                age_ranges: {
-                  "17-19": 0.35,
-                  "20-24": 9.22,
-                  "25-29": 21.9,
-                  "30-34": 28.99,
-                  "35-39": 20.34,
-                  "40-49": 7.19
-                }
-              }
+              ]
             }
           }
         },
@@ -101,6 +86,74 @@ export const useReportsData = () => {
                 "Dance and lifestyle content gets highest engagement",
                 "Trending audio usage increases reach",
                 "Strong Spanish market presence"
+              ]
+            }
+          }
+        },
+        {
+          id: "3",
+          celebrity_name: "Jaime Lorente Lopez",
+          username: "jaimelorentelo",
+          platform: "Instagram",
+          report_date: "2024-02-17",
+          report_data: {
+            followers: {
+              total: 11500000
+            },
+            following: {
+              total: 336
+            },
+            media_uploads: {
+              total: 1100
+            },
+            engagement: {
+              rate: "0.41",
+              average_likes: 47200,
+              average_comments: 215,
+              average_shares: 156
+            },
+            posting_insights: {
+              peak_engagement_times: ["2:00 PM", "6:00 PM", "9:00 PM"],
+              posting_tips: [
+                "Strong engagement from Brazil and Spain markets",
+                "Content performs best during evening hours",
+                "High engagement with lifestyle and acting-related content",
+                "Opportunity to increase engagement with Netflix-related content",
+                "Consider targeting the significant 20-34 age demographic"
+              ]
+            }
+          }
+        },
+        {
+          id: "4",
+          celebrity_name: "Jaime Lorente Lopez",
+          username: "jaimelorentelo",
+          platform: "TikTok",
+          report_date: "2024-02-17",
+          report_data: {
+            followers: {
+              total: 1100000
+            },
+            following: {
+              total: 89
+            },
+            media_uploads: {
+              total: 336
+            },
+            engagement: {
+              rate: "0.0",
+              average_likes: 0,
+              average_comments: 0,
+              average_shares: 0
+            },
+            posting_insights: {
+              peak_engagement_times: ["3:00 PM", "7:00 PM", "10:00 PM"],
+              posting_tips: [
+                "Opportunity to increase TikTok presence",
+                "Consider creating short-form video content",
+                "Leverage existing Instagram audience",
+                "Focus on behind-the-scenes content",
+                "Engage with trending challenges and sounds"
               ]
             }
           }

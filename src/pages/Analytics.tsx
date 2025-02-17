@@ -97,7 +97,7 @@ const Analytics = () => {
             AI Social Expert Chat
           </Button>
         </DialogTrigger>
-        <DialogContent className="max-w-[800px] h-[600px] p-0">
+        <DialogContent className="max-w-[600px] h-[500px] p-0">
           <ChatContainer />
         </DialogContent>
       </Dialog>
