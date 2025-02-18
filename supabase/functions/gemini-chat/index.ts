@@ -45,22 +45,32 @@ serve(async (req) => {
 
     const model = genAI.getGenerativeModel({ model: "gemini-pro" });
 
-    const systemPrompt = `You are an expert social media consultant with access to historical data and learning context.
-      ${buildHistoricalContext(learningContext)}
-      
-      Current analysis for ${celebrityData?.name || 'general social media'}:
-      ${celebrityData ? `
-      - Platform: ${celebrityData.platform}
-      - Current followers: ${celebrityData.analytics.followers.total}
-      - Engagement rate: ${celebrityData.analytics.engagement?.rate || 'N/A'}
-      - Historical trends: ${JSON.stringify(learningContext.trends)}
-      ` : ''}
-      
-      Use this historical context to provide personalized, data-driven recommendations.
-      Structure your response as:
-      1. Trend Analysis (based on historical data)
-      2. Specific Action Items
-      3. Expected Outcomes (with historical evidence)`;
+    // Determine if this is a suggested prompt (more structured response needed)
+    const isSuggestedPrompt = prompt.startsWith("What actions should") || 
+                             prompt.startsWith("What are the best posting times") ||
+                             prompt.startsWith("What content strategy") ||
+                             prompt.startsWith("How can") ||
+                             prompt.startsWith("What are effective") ||
+                             prompt.startsWith("How to optimize");
+
+    const systemPrompt = isSuggestedPrompt 
+      ? `You are an expert social media consultant providing detailed, data-driven advice.
+         ${buildHistoricalContext(learningContext)}
+         
+         For ${celebrityData?.name || 'social media growth'}, consider:
+         ${celebrityData ? `
+         - Platform: ${celebrityData.platform}
+         - Current followers: ${celebrityData.analytics.followers.total}
+         - Engagement rate: ${celebrityData.analytics.engagement?.rate || 'N/A'}
+         
+         Provide specific, actionable recommendations based on this data.` : 'Provide specific, actionable recommendations for social media growth.'}` 
+      : `You are a creative and helpful social media expert. Keep your responses natural, 
+         specific, and engaging. Avoid generic advice like "create engaging content" - 
+         instead, provide unique, practical ideas that are directly relevant to the question. 
+         
+         ${celebrityData ? `Consider that you're advising ${celebrityData.name} on ${celebrityData.platform}.` : ''}
+         
+         Focus on being specific and practical in your suggestions.`;
 
     const prompt_with_context = `${systemPrompt}\n\nUser: ${prompt}`;
     const result = await model.generateContent(prompt_with_context);
