@@ -25,9 +25,10 @@ export const ChatContainer = ({ selectedReport }: ChatContainerProps) => {
     "How to optimize posting schedules?",
   ];
 
-  const handlePromptClick = (promptText: string) => {
-    setPrompt(promptText);
-    handleSubmit();
+  const handlePromptClick = async (promptText: string) => {
+    await setPrompt(promptText);
+    // Directly pass the promptText to handleSubmit to avoid validation error
+    handleSubmit(promptText);
   };
 
   return (
@@ -59,7 +60,7 @@ export const ChatContainer = ({ selectedReport }: ChatContainerProps) => {
             prompt={prompt}
             loading={loading}
             onPromptChange={setPrompt}
-            onSubmit={handleSubmit}
+            onSubmit={() => handleSubmit()}
           />
         </div>
       </CardContent>

@@ -99,8 +99,10 @@ export const useChat = (selectedReport?: CelebrityReport | null) => {
     }
   };
 
-  const handleSubmit = async () => {
-    if (!prompt.trim()) {
+  const handleSubmit = async (forcedPrompt?: string) => {
+    const promptToUse = forcedPrompt || prompt;
+    
+    if (!promptToUse.trim()) {
       toast({
         title: "Error",
         description: "Please enter a message first",
@@ -109,7 +111,7 @@ export const useChat = (selectedReport?: CelebrityReport | null) => {
       return;
     }
 
-    const userMessage: Message = { role: 'user', content: prompt.trim() };
+    const userMessage: Message = { role: 'user', content: promptToUse.trim() };
     const newMessages = [...messages, userMessage];
     setMessages(newMessages);
     setPrompt("");
@@ -120,7 +122,7 @@ export const useChat = (selectedReport?: CelebrityReport | null) => {
     try {
       const { data, error } = await supabase.functions.invoke('gemini-chat', {
         body: { 
-          prompt: prompt.trim(),
+          prompt: promptToUse.trim(),
           context: messages.length > 0 ? messages[messages.length - 1].content : undefined,
           celebrityData: selectedReport ? {
             name: selectedReport.celebrity_name,
