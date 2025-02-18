@@ -21,56 +21,71 @@ serve(async (req) => {
   try {
     const { prompt, context, celebrityData, userId } = await req.json();
 
-    // Fetch historical context
-    const { data: chatHistory } = await supabase
-      .from('chat_conversations')
-      .select('messages')
-      .eq('user_id', userId)
-      .order('created_at', { ascending: false })
-      .limit(5);
-
-    // Fetch all reports for this celebrity to analyze patterns
-    const { data: celebrityReports } = await supabase
-      .from('celebrity_reports')
-      .select('*')
-      .eq('celebrity_name', celebrityData?.name)
-      .order('report_date', { ascending: false });
-
-    // Build learning context from historical data
-    const learningContext = {
-      chatHistory: chatHistory?.map(chat => chat.messages).flat() || [],
-      reportHistory: celebrityReports || [],
-      trends: analyzeTrends(celebrityReports || []),
-    };
-
     const model = genAI.getGenerativeModel({ model: "gemini-pro" });
 
-    // Determine if this is a suggested prompt (more structured response needed)
-    const isSuggestedPrompt = prompt.startsWith("What actions should") || 
-                             prompt.startsWith("What are the best posting times") ||
-                             prompt.startsWith("What content strategy") ||
-                             prompt.startsWith("How can") ||
-                             prompt.startsWith("What are effective") ||
-                             prompt.startsWith("How to optimize");
+    // Extract specific data points from celebrity data
+    const postingInsights = celebrityData?.analytics?.posting_insights || {};
+    const demographics = celebrityData?.analytics?.demographics || {};
+    
+    const bestTimes = postingInsights.peak_engagement_times || [];
+    const generalBestTimes = postingInsights.general_best_times || {};
+    const ageGroups = demographics.age_groups || {};
+    const genderDist = demographics.gender || {};
 
-    const systemPrompt = isSuggestedPrompt 
-      ? `You are an expert social media consultant providing detailed, data-driven advice.
-         ${buildHistoricalContext(learningContext)}
-         
-         For ${celebrityData?.name || 'social media growth'}, consider:
-         ${celebrityData ? `
-         - Platform: ${celebrityData.platform}
-         - Current followers: ${celebrityData.analytics.followers.total}
-         - Engagement rate: ${celebrityData.analytics.engagement?.rate || 'N/A'}
-         
-         Provide specific, actionable recommendations based on this data.` : 'Provide specific, actionable recommendations for social media growth.'}` 
-      : `You are a creative and helpful social media expert. Keep your responses natural, 
-         specific, and engaging. Avoid generic advice like "create engaging content" - 
-         instead, provide unique, practical ideas that are directly relevant to the question. 
-         
-         ${celebrityData ? `Consider that you're advising ${celebrityData.name} on ${celebrityData.platform}.` : ''}
-         
-         Focus on being specific and practical in your suggestions.`;
+    // Format posting times data
+    const postingTimesInfo = bestTimes.length > 0 
+      ? `Based on your data, your optimal engagement times are: ${bestTimes.join(', ')}.`
+      : '';
+
+    const demographicsInfo = Object.keys(ageGroups).length > 0
+      ? `Your audience is primarily ${Object.entries(ageGroups)
+          .sort(([, a], [, b]) => parseFloat(b) - parseFloat(a))
+          .slice(0, 2)
+          .map(([age, percentage]) => `${age} (${percentage}%)`)
+          .join(' and ')} years old, with ${
+            Object.entries(genderDist)
+              .sort(([, a], [, b]) => parseFloat(b) - parseFloat(a))
+              .map(([gender, percentage]) => `${gender} (${percentage}%)`)
+              .join(' and ')
+          }.`
+      : '';
+
+    // Determine if this is a timing-related question
+    const isTimingQuestion = prompt.toLowerCase().includes('time') || 
+                            prompt.toLowerCase().includes('when') ||
+                            prompt.toLowerCase().includes('schedule');
+
+    // Determine if this is a content-related question
+    const isContentQuestion = prompt.toLowerCase().includes('post') ||
+                            prompt.toLowerCase().includes('content') ||
+                            prompt.toLowerCase().includes('create');
+
+    // Build the system prompt based on question type
+    const systemPrompt = `You are a social media expert providing personalized advice for ${celebrityData?.name || 'social media growth'}.
+
+    ${celebrityData ? `Platform: ${celebrityData.platform}
+    Current followers: ${celebrityData.analytics.followers.total}
+    Engagement rate: ${celebrityData.analytics.engagement?.rate || 'N/A'}
+    ${demographicsInfo}
+    ${postingTimesInfo}` : ''}
+
+    ${isTimingQuestion 
+      ? `When discussing timing, be very specific about the optimal posting times based on the data provided.
+         Include day-specific recommendations if available.`
+      : isContentQuestion
+      ? `When suggesting content, be creative and specific while considering:
+         1. The audience demographics provided
+         2. The optimal posting times for maximum engagement
+         3. The platform-specific best practices
+         Provide specific content ideas, not just general guidelines.`
+      : `Provide specific, practical advice that's directly relevant to the question.
+         Avoid generic suggestions and focus on actionable recommendations.`}
+
+    Remember to:
+    1. Be conversational and natural in your response
+    2. Include specific examples and ideas
+    3. Reference the audience data when relevant
+    4. Mention optimal posting times when discussing content strategy`;
 
     const prompt_with_context = `${systemPrompt}\n\nUser: ${prompt}`;
     const result = await model.generateContent(prompt_with_context);
@@ -105,90 +120,3 @@ serve(async (req) => {
     );
   }
 });
-
-function analyzeTrends(reports: any[]) {
-  if (!reports.length) return {};
-  
-  // Analyze historical trends
-  const trends = {
-    followerGrowth: calculateGrowthRate(reports, 'followers'),
-    engagementTrends: calculateEngagementTrends(reports),
-    contentPatterns: identifySuccessfulContent(reports),
-  };
-  
-  return trends;
-}
-
-function calculateGrowthRate(reports: any[], metric: string) {
-  // Sort reports by date
-  const sortedReports = [...reports].sort((a, b) => 
-    new Date(a.report_date).getTime() - new Date(b.report_date).getTime()
-  );
-  
-  if (sortedReports.length < 2) return 'Insufficient data';
-  
-  const oldestValue = sortedReports[0].report_data.followers.total;
-  const newestValue = sortedReports[sortedReports.length - 1].report_data.followers.total;
-  const monthsDiff = monthsBetween(
-    new Date(sortedReports[0].report_date),
-    new Date(sortedReports[sortedReports.length - 1].report_date)
-  );
-  
-  if (monthsDiff === 0) return 'Insufficient time range';
-  
-  const growthRate = ((newestValue - oldestValue) / oldestValue) * 100 / monthsDiff;
-  return `${growthRate.toFixed(2)}% per month`;
-}
-
-function calculateEngagementTrends(reports: any[]) {
-  const engagementRates = reports.map(report => ({
-    date: report.report_date,
-    rate: report.report_data.engagement?.rate || 0
-  }));
-  
-  return engagementRates;
-}
-
-function identifySuccessfulContent(reports: any[]) {
-  // Analyze which content types and posting times have been most successful
-  const patterns = {
-    bestPerformingContent: [],
-    optimalPostingTimes: [],
-  };
-  
-  reports.forEach(report => {
-    if (report.report_data.posting_insights) {
-      patterns.bestPerformingContent.push(...report.report_data.posting_insights.posting_tips);
-      patterns.optimalPostingTimes.push(...report.report_data.posting_insights.peak_engagement_times);
-    }
-  });
-  
-  return patterns;
-}
-
-function monthsBetween(date1: Date, date2: Date) {
-  const yearsDiff = date2.getFullYear() - date1.getFullYear();
-  const monthsDiff = date2.getMonth() - date1.getMonth();
-  return yearsDiff * 12 + monthsDiff;
-}
-
-function buildHistoricalContext(context: any) {
-  const { chatHistory, trends } = context;
-  
-  let historicalInsights = 'Historical Context:\n';
-  
-  if (trends.followerGrowth) {
-    historicalInsights += `- Growth Rate: ${trends.followerGrowth}\n`;
-  }
-  
-  if (trends.contentPatterns?.bestPerformingContent?.length > 0) {
-    historicalInsights += '- Previously Successful Content Strategies:\n';
-    trends.contentPatterns.bestPerformingContent
-      .slice(0, 3)
-      .forEach((pattern: string) => {
-        historicalInsights += `  * ${pattern}\n`;
-      });
-  }
-  
-  return historicalInsights;
-}
