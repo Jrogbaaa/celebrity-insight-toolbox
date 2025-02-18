@@ -8,7 +8,7 @@ const corsHeaders = {
 
 const PROJECT_ID = "gen-lang-client-0504403402";
 const LOCATION = "us-central1";
-const MODEL_ID = "imagen-3.0-generate-002";
+const MODEL_ID = "imagegeneration@005";
 
 async function getGoogleAccessToken() {
   const serviceAccountKey = JSON.parse(Deno.env.get('GOOGLE_SERVICE_ACCOUNT') || '{}');
@@ -30,7 +30,7 @@ async function getGoogleAccessToken() {
   const encoder = new TextEncoder();
   const key = await crypto.subtle.importKey(
     'pkcs8',
-    Uint8Array.from(atob(serviceAccountKey.private_key), c => c.charCodeAt(0)),
+    Uint8Array.from(atob(serviceAccountKey.private_key.replace(/\\n/g, '\n')), c => c.charCodeAt(0)),
     { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' },
     false,
     ['sign']
@@ -62,14 +62,16 @@ serve(async (req) => {
 
   try {
     const { prompt } = await req.json();
+    console.log('Received prompt:', prompt);
 
     if (!prompt) {
       throw new Error('Prompt is required');
     }
 
     const endpoint = `https://${LOCATION}-aiplatform.googleapis.com/v1/projects/${PROJECT_ID}/locations/${LOCATION}/publishers/google/models/${MODEL_ID}:predict`;
-
+    
     const accessToken = await getGoogleAccessToken();
+    console.log('Access token obtained successfully');
 
     const response = await fetch(endpoint, {
       method: 'POST',
@@ -90,22 +92,34 @@ serve(async (req) => {
     });
 
     if (!response.ok) {
-      const error = await response.text();
-      console.error('Vertex AI Error:', error);
-      throw new Error(`Vertex AI request failed: ${error}`);
+      const errorText = await response.text();
+      console.error('Vertex AI Error:', errorText);
+      throw new Error(`Vertex AI request failed: ${errorText}`);
     }
 
     const result = await response.json();
+    console.log('Vertex AI response received successfully');
     
     return new Response(
       JSON.stringify(result),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+      { 
+        headers: { 
+          ...corsHeaders, 
+          'Content-Type': 'application/json' 
+        } 
+      },
     );
   } catch (error) {
     console.error('Error:', error);
     return new Response(
       JSON.stringify({ error: error.message }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+      { 
+        status: 500, 
+        headers: { 
+          ...corsHeaders, 
+          'Content-Type': 'application/json' 
+        } 
+      },
     );
   }
 });

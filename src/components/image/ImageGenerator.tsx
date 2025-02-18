@@ -30,16 +30,24 @@ export const ImageGenerator = () => {
         body: { prompt }
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase function error:', error);
+        throw error;
+      }
 
-      if (data?.predictions?.[0]?.bytesBase64Encoded) {
-        const imageData = data.predictions[0].bytesBase64Encoded;
-        const imageUrl = `data:${data.predictions[0].mimeType};base64,${imageData}`;
+      console.log('Response from vertex-image:', data);
+
+      if (data?.predictions?.[0]?.bytesBase64) {
+        const imageData = data.predictions[0].bytesBase64;
+        const mimeType = 'image/png'; // Vertex AI typically returns PNG images
+        const imageUrl = `data:${mimeType};base64,${imageData}`;
         setImageUrl(imageUrl);
         toast({
           title: "Success",
           description: "Image generated successfully!",
         });
+      } else {
+        throw new Error('No image data received from the API');
       }
     } catch (error) {
       console.error('Error generating image:', error);
