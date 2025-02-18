@@ -1,6 +1,6 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, Heart, MessageCircle, Share2, Upload } from "lucide-react";
+import { Users, Heart, MessageCircle, Share2 } from "lucide-react";
 
 interface MetricsGridProps {
   data: {
@@ -8,7 +8,6 @@ interface MetricsGridProps {
     engagementRate: number;
     commentsPerPost: number;
     sharesPerPost: number;
-    mediaUploads?: number;
     following?: number;
     averageLikes?: number;
   };
@@ -30,12 +29,6 @@ export const MetricsGrid = ({ data }: MetricsGridProps) => {
       value: data.followers > 0 ? formatNumber(data.followers) : null,
       icon: Users,
       color: "from-purple-500 to-purple-600",
-    },
-    {
-      title: "Media Uploads",
-      value: data.mediaUploads && data.mediaUploads > 0 ? data.mediaUploads.toString() : null,
-      icon: Upload,
-      color: "from-purple-400 to-purple-500",
     },
     {
       title: "Following",
