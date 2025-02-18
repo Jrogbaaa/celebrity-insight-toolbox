@@ -37,3 +37,6 @@ verify_jwt = false
 
 [functions.gemini-image]
 verify_jwt = false
+
+[functions.vertex-image]
+verify_jwt = false
