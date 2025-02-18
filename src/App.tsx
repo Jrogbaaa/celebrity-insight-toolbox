@@ -21,7 +21,7 @@ const Layout = ({
       <div className="container py-4">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
-            <img src="/lovable-uploads/42261865-c6df-4ee7-9486-82d93f5bb45d.png" alt="You First AI Talent" className="h-8" />
+            <img src="/lovable-uploads/bb80a10c-0199-4cae-999b-b2b72f830fd8.png" alt="Look After You" className="h-8" />
             <h1 className="text-xl font-bold text-primary">AI Talent</h1>
           </div>
           <div className="flex gap-4">
