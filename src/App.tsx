@@ -4,7 +4,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Analytics from "./pages/Analytics";
 import Generation from "./pages/Generation";
 import TermsOfService from "./pages/TermsOfService";
@@ -26,14 +26,15 @@ const Layout = ({
 
 const queryClient = new QueryClient();
 
-const App = () => <React.StrictMode>
+const App = () => (
+  <React.StrictMode>
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <Toaster />
         <Sonner />
         <BrowserRouter>
           <Routes>
-            <Route path="/" element={<Layout><Navigate to="/generation" replace /></Layout>} />
+            <Route path="/" element={<Layout><Generation /></Layout>} />
             <Route path="/analytics" element={<Layout><Analytics /></Layout>} />
             <Route path="/generation" element={<Layout><Generation /></Layout>} />
             <Route path="/terms" element={<TermsOfService />} />
@@ -42,6 +43,7 @@ const App = () => <React.StrictMode>
         </BrowserRouter>
       </TooltipProvider>
     </QueryClientProvider>
-  </React.StrictMode>;
+  </React.StrictMode>
+);
 
 export default App;
