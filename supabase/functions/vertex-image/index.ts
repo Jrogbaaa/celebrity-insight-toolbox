@@ -11,14 +11,21 @@ const LOCATION = "us-central1";
 const MODEL_ID = "imagegeneration@005";
 
 function pemToArrayBuffer(pem: string): Uint8Array {
-  // Remove PEM header, footer, and any whitespace
-  const base64 = pem
-    .replace('-----BEGIN PRIVATE KEY-----', '')
-    .replace('-----END PRIVATE KEY-----', '')
-    .replace(/\s/g, '');
+  // First, normalize the private key by handling escaped newlines
+  const normalizedPem = pem
+    .replace(/\\n/g, '\n')
+    .replace(/["']/g, ''); // Remove any quotes
+
+  // Then extract the base64 content between the headers
+  const matches = normalizedPem.match(/-----BEGIN PRIVATE KEY-----\n(.+)\n-----END PRIVATE KEY-----/s);
+  if (!matches || !matches[1]) {
+    throw new Error('Invalid PEM format');
+  }
+
+  const base64Content = matches[1].replace(/\s/g, '');
   
   // Decode base64 to binary
-  const binary = atob(base64);
+  const binary = atob(base64Content);
   
   // Convert binary string to Uint8Array
   const bytes = new Uint8Array(binary.length);
@@ -31,9 +38,18 @@ function pemToArrayBuffer(pem: string): Uint8Array {
 
 async function getGoogleAccessToken() {
   try {
-    const serviceAccountKey = JSON.parse(Deno.env.get('GOOGLE_SERVICE_ACCOUNT') || '{}');
-    console.log('Service account email:', serviceAccountKey.client_email); // Log email for verification
+    const serviceAccountJson = Deno.env.get('GOOGLE_SERVICE_ACCOUNT');
+    if (!serviceAccountJson) {
+      throw new Error('GOOGLE_SERVICE_ACCOUNT environment variable is not set');
+    }
+
+    const serviceAccountKey = JSON.parse(serviceAccountJson);
+    console.log('Service account email:', serviceAccountKey.client_email);
     
+    if (!serviceAccountKey.private_key) {
+      throw new Error('Private key is missing from service account');
+    }
+
     const tokenEndpoint = 'https://oauth2.googleapis.com/token';
     const scope = 'https://www.googleapis.com/auth/cloud-platform';
     
@@ -50,7 +66,7 @@ async function getGoogleAccessToken() {
 
     // Convert PEM to proper binary format
     const privateKeyBuffer = pemToArrayBuffer(serviceAccountKey.private_key);
-    console.log('Private key buffer length:', privateKeyBuffer.length); // Log for verification
+    console.log('Private key buffer length:', privateKeyBuffer.length);
 
     const key = await crypto.subtle.importKey(
       'pkcs8',
