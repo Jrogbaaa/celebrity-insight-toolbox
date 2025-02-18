@@ -26,14 +26,16 @@ export const ImageGenerator = () => {
 
     setLoading(true);
     try {
-      const { data, error } = await supabase.functions.invoke('gemini-image', {
+      const { data, error } = await supabase.functions.invoke('vertex-image', {
         body: { prompt }
       });
 
       if (error) throw error;
 
-      if (data?.response) {
-        setImageUrl(data.response);
+      if (data?.predictions?.[0]?.bytesBase64Encoded) {
+        const imageData = data.predictions[0].bytesBase64Encoded;
+        const imageUrl = `data:${data.predictions[0].mimeType};base64,${imageData}`;
+        setImageUrl(imageUrl);
         toast({
           title: "Success",
           description: "Image generated successfully!",
