@@ -22,9 +22,9 @@ const Layout = ({
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center">
             <img 
-              src="/lovable-uploads/2c96dfc9-a674-45b4-a14c-2bf616a3b361.png" 
+              src="/lovable-uploads/e7bef072-8d1a-4444-a41f-6dca6ff42c63.png" 
               alt="Look After You" 
-              className="h-8 object-contain" 
+              className="h-12 object-contain" 
             />
           </div>
           <div className="flex gap-4">
