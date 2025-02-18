@@ -98,10 +98,21 @@ serve(async (req) => {
     }
 
     const result = await response.json();
-    console.log('Vertex AI response received successfully');
-    
+    console.log('Vertex AI response:', result);
+
+    // Check if the response contains the expected structure
+    if (!result?.predictions?.[0]) {
+      throw new Error('Invalid response format from Vertex AI');
+    }
+
+    // The response from Vertex AI already contains base64 encoded image
+    // We just need to pass it through without additional encoding
     return new Response(
-      JSON.stringify(result),
+      JSON.stringify({
+        predictions: [{
+          bytesBase64: result.predictions[0].bytesBase64
+        }]
+      }),
       { 
         headers: { 
           ...corsHeaders, 
@@ -110,9 +121,12 @@ serve(async (req) => {
       },
     );
   } catch (error) {
-    console.error('Error:', error);
+    console.error('Error in vertex-image function:', error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ 
+        error: error.message,
+        details: error.toString()
+      }),
       { 
         status: 500, 
         headers: { 
