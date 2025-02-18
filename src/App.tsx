@@ -20,12 +20,15 @@ const Layout = ({
   return <div className="min-h-screen bg-background">
       <div className="container py-4">
         <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-4">
-            <img 
-              src="/lovable-uploads/b6e1b30d-e5da-4a7c-a805-2e76a622356b.png" 
-              alt="Look After You" 
-              className="h-10" 
-            />
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2">
+              <img 
+                src="/lovable-uploads/b6e1b30d-e5da-4a7c-a805-2e76a622356b.png" 
+                alt="Look After You" 
+                className="h-10 object-contain" 
+              />
+              <h1 className="text-xl font-semibold text-primary">Talent AI</h1>
+            </div>
           </div>
           <div className="flex gap-4">
             <Button variant="ghost" asChild>
