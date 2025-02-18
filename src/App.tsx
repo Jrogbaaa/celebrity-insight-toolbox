@@ -24,7 +24,7 @@ const Layout = ({
             <img 
               src="/lovable-uploads/e7bef072-8d1a-4444-a41f-6dca6ff42c63.png" 
               alt="Look After You" 
-              className="h-16 w-auto object-contain" 
+              className="h-10 w-auto object-contain" 
             />
           </div>
           <div className="flex gap-4">
