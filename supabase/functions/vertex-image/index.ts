@@ -11,29 +11,42 @@ const LOCATION = "us-central1";
 const MODEL_ID = "imagegeneration@005";
 
 function pemToArrayBuffer(pem: string): Uint8Array {
-  // First, normalize the private key by handling escaped newlines
-  const normalizedPem = pem
-    .replace(/\\n/g, '\n')
-    .replace(/["']/g, ''); // Remove any quotes
+  try {
+    console.log('Raw private key:', pem); // Log the raw private key (without sensitive data)
+    
+    // First, normalize the private key by handling escaped newlines
+    const normalizedPem = pem
+      .replace(/\\n/g, '\n')
+      .replace(/["']/g, ''); // Remove any quotes
 
-  // Then extract the base64 content between the headers
-  const matches = normalizedPem.match(/-----BEGIN PRIVATE KEY-----\n(.+)\n-----END PRIVATE KEY-----/s);
-  if (!matches || !matches[1]) {
-    throw new Error('Invalid PEM format');
-  }
+    console.log('Normalized PEM structure:', normalizedPem.substring(0, 40) + '...'); // Log the start of normalized PEM
+    
+    // Then extract the base64 content between the headers
+    const matches = normalizedPem.match(/-----BEGIN PRIVATE KEY-----\n(.+)\n-----END PRIVATE KEY-----/s);
+    if (!matches || !matches[1]) {
+      console.error('PEM format validation failed');
+      throw new Error('Invalid PEM format');
+    }
 
-  const base64Content = matches[1].replace(/\s/g, '');
-  
-  // Decode base64 to binary
-  const binary = atob(base64Content);
-  
-  // Convert binary string to Uint8Array
-  const bytes = new Uint8Array(binary.length);
-  for (let i = 0; i < binary.length; i++) {
-    bytes[i] = binary.charCodeAt(i);
+    const base64Content = matches[1].replace(/\s/g, '');
+    console.log('Base64 content length:', base64Content.length);
+    
+    // Decode base64 to binary
+    const binary = atob(base64Content);
+    console.log('Binary content length:', binary.length);
+    
+    // Convert binary string to Uint8Array
+    const bytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) {
+      bytes[i] = binary.charCodeAt(i);
+    }
+    
+    console.log('Final buffer length:', bytes.length);
+    return bytes;
+  } catch (error) {
+    console.error('Error in pemToArrayBuffer:', error);
+    throw error;
   }
-  
-  return bytes;
 }
 
 async function getGoogleAccessToken() {
@@ -43,12 +56,17 @@ async function getGoogleAccessToken() {
       throw new Error('GOOGLE_SERVICE_ACCOUNT environment variable is not set');
     }
 
+    console.log('Service account JSON length:', serviceAccountJson.length);
+
     const serviceAccountKey = JSON.parse(serviceAccountJson);
+    console.log('Parsed service account fields:', Object.keys(serviceAccountKey));
     console.log('Service account email:', serviceAccountKey.client_email);
     
     if (!serviceAccountKey.private_key) {
       throw new Error('Private key is missing from service account');
     }
+
+    console.log('Private key exists and starts with:', serviceAccountKey.private_key.substring(0, 27));
 
     const tokenEndpoint = 'https://oauth2.googleapis.com/token';
     const scope = 'https://www.googleapis.com/auth/cloud-platform';
