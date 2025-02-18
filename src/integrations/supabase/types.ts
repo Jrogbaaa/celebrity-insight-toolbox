@@ -74,23 +74,32 @@ export type Database = {
       }
       chat_conversations: {
         Row: {
+          celebrity_name: string | null
+          context_data: Json | null
           created_at: string | null
           id: string
           messages: Json
+          platform: string | null
           updated_at: string | null
           user_id: string
         }
         Insert: {
+          celebrity_name?: string | null
+          context_data?: Json | null
           created_at?: string | null
           id?: string
           messages?: Json
+          platform?: string | null
           updated_at?: string | null
           user_id: string
         }
         Update: {
+          celebrity_name?: string | null
+          context_data?: Json | null
           created_at?: string | null
           id?: string
           messages?: Json
+          platform?: string | null
           updated_at?: string | null
           user_id?: string
         }
