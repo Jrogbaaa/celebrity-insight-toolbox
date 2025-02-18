@@ -25,6 +25,8 @@ export const ImageGenerator = () => {
     }
 
     setLoading(true);
+    setImageUrl(null); // Clear any previous image
+
     try {
       const { data, error } = await supabase.functions.invoke('vertex-image', {
         body: { prompt }
@@ -39,7 +41,7 @@ export const ImageGenerator = () => {
 
       if (data?.predictions?.[0]?.bytesBase64) {
         const imageData = data.predictions[0].bytesBase64;
-        const mimeType = 'image/png'; // Vertex AI typically returns PNG images
+        const mimeType = 'image/png';
         const imageUrl = `data:${mimeType};base64,${imageData}`;
         setImageUrl(imageUrl);
         toast({
@@ -47,7 +49,7 @@ export const ImageGenerator = () => {
           description: "Image generated successfully!",
         });
       } else {
-        throw new Error('No image data received from the API');
+        throw new Error('No image data received');
       }
     } catch (error) {
       console.error('Error generating image:', error);
@@ -93,7 +95,7 @@ export const ImageGenerator = () => {
             placeholder="Describe the image you want to generate... (e.g., 'A professional Instagram photo of a coffee shop with warm lighting and modern decor')"
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
-            className="h-32 resize-none"
+            className="h-24 resize-none"
           />
         </div>
         <Button 
@@ -116,8 +118,8 @@ export const ImageGenerator = () => {
       </form>
 
       {imageUrl && (
-        <div className="mt-4 space-y-4">
-          <div className="relative group">
+        <div className="mt-4">
+          <div className="relative rounded-lg overflow-hidden group">
             <img 
               src={imageUrl} 
               alt="Generated content"
