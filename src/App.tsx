@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -11,7 +10,6 @@ import TermsOfService from "./pages/TermsOfService";
 import TikTokCallback from "./pages/TikTokCallback";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-
 const Layout = ({
   children
 }: {
@@ -21,11 +19,7 @@ const Layout = ({
       <div className="container py-4">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center">
-            <img 
-              src="/lovable-uploads/e7bef072-8d1a-4444-a41f-6dca6ff42c63.png" 
-              alt="Look After You" 
-              className="h-10 w-auto object-contain" 
-            />
+            <img src="/lovable-uploads/e7bef072-8d1a-4444-a41f-6dca6ff42c63.png" alt="Look After You" className="h-28 w-auto object-contain" />
           </div>
           <div className="flex gap-4">
             <Button variant="ghost" asChild>
@@ -40,11 +34,8 @@ const Layout = ({
       </div>
     </div>;
 };
-
 const queryClient = new QueryClient();
-
-const App = () => (
-  <React.StrictMode>
+const App = () => <React.StrictMode>
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <Toaster />
@@ -60,7 +51,5 @@ const App = () => (
         </BrowserRouter>
       </TooltipProvider>
     </QueryClientProvider>
-  </React.StrictMode>
-);
-
+  </React.StrictMode>;
 export default App;
