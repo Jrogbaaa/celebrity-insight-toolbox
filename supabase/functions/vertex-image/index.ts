@@ -55,6 +55,14 @@ async function getGoogleAccessToken() {
   return data.access_token;
 }
 
+function isValidBase64(str: string) {
+  try {
+    return btoa(atob(str)) === str;
+  } catch (err) {
+    return false;
+  }
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -98,19 +106,25 @@ serve(async (req) => {
     }
 
     const result = await response.json();
-    console.log('Vertex AI response:', result);
+    console.log('Vertex AI response structure:', Object.keys(result));
 
-    // Check if the response contains the expected structure
-    if (!result?.predictions?.[0]) {
-      throw new Error('Invalid response format from Vertex AI');
+    if (!result?.predictions?.[0]?.bytesBase64) {
+      console.error('Invalid response structure:', result);
+      throw new Error('Invalid response format from Vertex AI - missing bytesBase64');
     }
 
-    // The response from Vertex AI already contains base64 encoded image
-    // We just need to pass it through without additional encoding
+    const base64Image = result.predictions[0].bytesBase64;
+    
+    // Validate base64 string
+    if (!isValidBase64(base64Image)) {
+      console.error('Invalid base64 string received');
+      throw new Error('Invalid base64 string received from Vertex AI');
+    }
+
     return new Response(
       JSON.stringify({
         predictions: [{
-          bytesBase64: result.predictions[0].bytesBase64
+          bytesBase64: base64Image
         }]
       }),
       { 
