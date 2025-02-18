@@ -11,48 +11,69 @@ const LOCATION = "us-central1";
 const MODEL_ID = "imagegeneration@005";
 
 async function getGoogleAccessToken() {
-  const serviceAccountKey = JSON.parse(Deno.env.get('GOOGLE_SERVICE_ACCOUNT') || '{}');
-  
-  const tokenEndpoint = 'https://oauth2.googleapis.com/token';
-  const scope = 'https://www.googleapis.com/auth/cloud-platform';
-  
-  const jwtHeader = { alg: 'RS256', typ: 'JWT' };
-  const now = Math.floor(Date.now() / 1000);
-  
-  const jwtClaim = {
-    iss: serviceAccountKey.client_email,
-    scope: scope,
-    aud: tokenEndpoint,
-    exp: now + 3600,
-    iat: now,
-  };
+  try {
+    const serviceAccountKey = JSON.parse(Deno.env.get('GOOGLE_SERVICE_ACCOUNT') || '{}');
+    
+    const tokenEndpoint = 'https://oauth2.googleapis.com/token';
+    const scope = 'https://www.googleapis.com/auth/cloud-platform';
+    
+    const jwtHeader = { alg: 'RS256', typ: 'JWT' };
+    const now = Math.floor(Date.now() / 1000);
+    
+    const jwtClaim = {
+      iss: serviceAccountKey.client_email,
+      scope: scope,
+      aud: tokenEndpoint,
+      exp: now + 3600,
+      iat: now,
+    };
 
-  const encoder = new TextEncoder();
-  const key = await crypto.subtle.importKey(
-    'pkcs8',
-    Uint8Array.from(atob(serviceAccountKey.private_key.replace(/\\n/g, '\n')), c => c.charCodeAt(0)),
-    { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' },
-    false,
-    ['sign']
-  );
+    // Clean and prepare the private key
+    const privateKey = serviceAccountKey.private_key
+      .replace(/\\n/g, '\n')
+      .replace(/"|'/g, ''); // Remove any quotes
 
-  const headerAndPayload = `${btoa(JSON.stringify(jwtHeader))}.${btoa(JSON.stringify(jwtClaim))}`;
-  const signature = await crypto.subtle.sign(
-    { name: 'RSASSA-PKCS1-v1_5' },
-    key,
-    encoder.encode(headerAndPayload)
-  );
+    const encoder = new TextEncoder();
+    
+    // Convert the PEM key to binary
+    const binaryKey = new Uint8Array(
+      privateKey
+        .split('\n')
+        .filter(line => line && !line.includes('BEGIN') && !line.includes('END'))
+        .join('')
+        .split('')
+        .map(char => char.charCodeAt(0))
+    );
 
-  const jwt = `${headerAndPayload}.${btoa(String.fromCharCode(...new Uint8Array(signature)))}`;
+    const key = await crypto.subtle.importKey(
+      'pkcs8',
+      binaryKey,
+      { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' },
+      false,
+      ['sign']
+    );
 
-  const response = await fetch(tokenEndpoint, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: `grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer&assertion=${jwt}`,
-  });
+    const headerAndPayload = `${btoa(JSON.stringify(jwtHeader))}.${btoa(JSON.stringify(jwtClaim))}`;
+    const signature = await crypto.subtle.sign(
+      { name: 'RSASSA-PKCS1-v1_5' },
+      key,
+      encoder.encode(headerAndPayload)
+    );
 
-  const data = await response.json();
-  return data.access_token;
+    const jwt = `${headerAndPayload}.${btoa(String.fromCharCode(...new Uint8Array(signature)))}`;
+
+    const response = await fetch(tokenEndpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: `grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer&assertion=${jwt}`,
+    });
+
+    const data = await response.json();
+    return data.access_token;
+  } catch (error) {
+    console.error('Error getting Google access token:', error);
+    throw new Error(`Failed to get Google access token: ${error.message}`);
+  }
 }
 
 function isValidBase64(str: string) {
