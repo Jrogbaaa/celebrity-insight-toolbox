@@ -31,33 +31,37 @@ export const ChatContainer = ({ selectedReport }: ChatContainerProps) => {
   };
 
   return (
-    <Card className="h-[calc(100vh-6rem)] shadow-lg">
+    <Card className="h-[calc(100vh-6rem)] shadow-lg flex flex-col">
       <CardHeader className="border-b bg-muted/50 py-2">
         <CardTitle className="text-lg font-semibold text-primary">
           {selectedReport ? `Chat about ${selectedReport.celebrity_name}` : 'Social Media Expert'}
         </CardTitle>
-        <div className="flex flex-wrap gap-2 mt-2">
-          {suggestedPrompts.map((promptText, index) => (
-            <Button
-              key={index}
-              variant="outline"
-              size="sm"
-              className="text-xs"
-              onClick={() => handlePromptClick(promptText)}
-            >
-              {promptText}
-            </Button>
-          ))}
-        </div>
       </CardHeader>
-      <CardContent className="flex flex-col h-[calc(100%-7rem)] p-0">
-        <ChatMessages messages={messages} loading={loading} />
-        <ChatInput 
-          prompt={prompt}
-          loading={loading}
-          onPromptChange={setPrompt}
-          onSubmit={handleSubmit}
-        />
+      <CardContent className="flex-1 p-0 flex flex-col h-full overflow-hidden">
+        <div className="flex-1 overflow-y-auto">
+          <ChatMessages messages={messages} loading={loading} />
+        </div>
+        <div className="p-2 space-y-2 border-t bg-muted/30">
+          <div className="flex flex-wrap gap-1">
+            {suggestedPrompts.map((promptText, index) => (
+              <Button
+                key={index}
+                variant="outline"
+                size="sm"
+                className="text-[10px] h-6 px-2"
+                onClick={() => handlePromptClick(promptText)}
+              >
+                {promptText}
+              </Button>
+            ))}
+          </div>
+          <ChatInput 
+            prompt={prompt}
+            loading={loading}
+            onPromptChange={setPrompt}
+            onSubmit={handleSubmit}
+          />
+        </div>
       </CardContent>
     </Card>
   );
