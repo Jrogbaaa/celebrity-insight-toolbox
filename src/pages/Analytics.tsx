@@ -1,4 +1,3 @@
-
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { CelebrityReportSelector } from "@/components/analytics/CelebrityReportSelector";
 import { CelebrityReportUploader } from "@/components/analytics/CelebrityReportUploader";
@@ -6,6 +5,7 @@ import { useReportsData } from "@/components/analytics/useReportsData";
 import { PlatformTabs } from "@/components/analytics/PlatformTabs";
 import { UpdateReminder } from "@/components/analytics/UpdateReminder";
 import { DemographicsDisplay } from "@/components/analytics/DemographicsDisplay";
+import { PostAnalyzer } from "@/components/analytics/PostAnalyzer";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { ChatContainer } from "@/components/chat/ChatContainer";
@@ -66,7 +66,7 @@ const Analytics = () => {
         />
       )}
 
-      <div className="mt-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
         <Card className="bg-card">
           <CardHeader>
             <CardTitle className="text-xl text-primary flex items-center gap-2">
@@ -101,6 +101,8 @@ const Analytics = () => {
             )}
           </CardContent>
         </Card>
+
+        <PostAnalyzer />
       </div>
 
       {selectedReport?.report_data.demographics && (
