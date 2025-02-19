@@ -1,4 +1,5 @@
 
+import React from "react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { CelebrityReportSelector } from "@/components/analytics/CelebrityReportSelector";
 import { CelebrityReportUploader } from "@/components/analytics/CelebrityReportUploader";
@@ -10,7 +11,7 @@ import { PostAnalyzer } from "@/components/analytics/PostAnalyzer";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { ChatContainer } from "@/components/chat/ChatContainer";
-import { MessageCircle, Sparkles, Gift, Clock, Users } from "lucide-react";
+import { MessageCircle, Sparkles, Gift, Clock } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 
 const Analytics = () => {
@@ -108,7 +109,7 @@ const Analytics = () => {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            {selectedReport && (
+            {selectedReport ? (
               <div className="space-y-6">
                 <div>
                   <h3 className="text-lg font-semibold text-primary mb-3">Personalized Action Plan</h3>
