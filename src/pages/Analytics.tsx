@@ -1,3 +1,4 @@
+
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { CelebrityReportSelector } from "@/components/analytics/CelebrityReportSelector";
 import { CelebrityReportUploader } from "@/components/analytics/CelebrityReportUploader";
@@ -25,11 +26,40 @@ const Analytics = () => {
   const platforms = getUniquePlatforms();
   const currentPlatform = selectedReport?.platform || platforms[0];
 
-  const formatPercentage = (value: unknown): string => {
-    if (typeof value === 'string' || typeof value === 'number') {
-      return `${value}%`;
-    }
-    return '0%';
+  const getPersonalizedActionItems = () => {
+    if (!selectedReport) return [];
+
+    const actionItems = {
+      "Cristina Pedroche": {
+        items: [
+          "Schedule Netflix content releases to align with 12:00 AM ET Wednesday peak engagement time",
+          "Create workout routines featuring Puma activewear to boost athletic content engagement",
+          "Plan Desigual fashion content during midday hours (10:00 AM) for maximum reach",
+          "Cross-promote Vital Proteins content with wellness tips during 7:00 PM engagement spike",
+          "Develop Zalando try-on hauls to capitalize on e-commerce audience interest"
+        ]
+      },
+      "Jaime Lorente Lopez": {
+        items: [
+          "Share behind-the-scenes Armani Beauty content during 6:00 PM peak engagement window",
+          "Create luxury lifestyle content featuring Maserati during weekend prime times",
+          "Schedule Hugo Boss fashion editorials for 2:00 PM slot targeting working professionals",
+          "Develop Oakley sports-lifestyle content that appeals to the 25-34 male demographic",
+          "Plan Universal Pictures content to align with streaming releases and red carpet events"
+        ]
+      },
+      "Jorge Cremades": {
+        items: [
+          "Focus comedy sketches around El Corte Inglés shopping experiences",
+          "Create lifestyle content featuring Jimmy Choo during peak engagement times",
+          "Develop Red Bull-sponsored active lifestyle content",
+          "Schedule Lidl content during afternoon shopping hours",
+          "Plan Ted Baker fashion content targeting male audience segments"
+        ]
+      }
+    };
+
+    return actionItems[selectedReport.celebrity_name as keyof typeof actionItems]?.items || [];
   };
 
   return (
@@ -78,26 +108,28 @@ const Analytics = () => {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            {selectedReport && selectedReport.report_data.posting_insights ? (
+            {selectedReport && (
               <div className="space-y-6">
                 <div>
-                  <h3 className="text-lg font-semibold text-primary mb-3">Engagement Optimization</h3>
+                  <h3 className="text-lg font-semibold text-primary mb-3">Personalized Action Plan</h3>
                   <ul className="list-disc list-inside space-y-2">
-                    {selectedReport.report_data.posting_insights.posting_tips.map((tip: string, index: number) => (
-                      <li key={index} className="text-foreground text-base">{tip}</li>
+                    {getPersonalizedActionItems().map((item: string, index: number) => (
+                      <li key={index} className="text-foreground text-base">{item}</li>
                     ))}
                   </ul>
                 </div>
                 
-                <div>
-                  <h3 className="text-lg font-semibold text-primary mb-3 flex items-center gap-2">
-                    <Clock className="h-5 w-5" />
-                    Best Posting Times
-                  </h3>
-                  <p className="text-foreground text-base">
-                    Optimal engagement at: {selectedReport.report_data.posting_insights.peak_engagement_times.join(', ')}
-                  </p>
-                </div>
+                {selectedReport.report_data.posting_insights?.peak_engagement_times && (
+                  <div>
+                    <h3 className="text-lg font-semibold text-primary mb-3 flex items-center gap-2">
+                      <Clock className="h-5 w-5" />
+                      Best Posting Times
+                    </h3>
+                    <p className="text-foreground text-base">
+                      Optimal engagement at: {selectedReport.report_data.posting_insights.peak_engagement_times.join(', ')}
+                    </p>
+                  </div>
+                )}
               </div>
             ) : (
               <p className="text-foreground text-base">Select a celebrity to view AI insights.</p>
