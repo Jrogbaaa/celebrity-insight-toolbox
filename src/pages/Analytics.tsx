@@ -44,7 +44,10 @@ const Analytics = () => {
             selectedReport={selectedReport}
             onSelectReport={setSelectedReport}
           />
-          <CelebrityReportUploader onUploadSuccess={fetchReports} />
+          <div className="flex flex-col sm:flex-row gap-4">
+            <CelebrityReportUploader onUploadSuccess={fetchReports} />
+            <PostAnalyzer />
+          </div>
         </div>
       </div>
 
@@ -66,7 +69,7 @@ const Analytics = () => {
         />
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
+      <div className="mt-8">
         <Card className="bg-card">
           <CardHeader>
             <CardTitle className="text-xl text-primary flex items-center gap-2">
@@ -101,8 +104,6 @@ const Analytics = () => {
             )}
           </CardContent>
         </Card>
-
-        <PostAnalyzer />
       </div>
 
       {selectedReport?.report_data.demographics && (
