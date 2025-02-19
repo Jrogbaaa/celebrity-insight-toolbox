@@ -1,3 +1,4 @@
+
 import { CelebrityReport } from "@/types/reports";
 
 export const mockReports: CelebrityReport[] = [
@@ -43,19 +44,21 @@ export const mockReports: CelebrityReport[] = [
         posting_tips: [
           "Best time for branded posts is 12:00 AM ET on Wednesdays",
           "Content performs best during midday and evening hours",
-          "Engagement is highest with lifestyle and personal content",
-          "Strong performance in Spain market",
-          "High engagement rate of 1.71% indicates strong audience connection"
+          "Existing partnerships with Desigual and Puma show strong athletic wear engagement",
+          "Netflix collaborations indicate potential for entertainment partnerships",
+          "High engagement with Zalando suggests strong e-commerce potential"
         ]
       },
       sponsor_opportunities: [
-        "High affinity with fashion and lifestyle brands",
-        "Strong engagement with beauty and wellness content",
-        "Potential for luxury brand collaborations",
-        "Growing audience in fitness and health segments"
+        "Expand luxury fashion partnerships beyond current Bulgari relationship",
+        "Leverage existing Puma partnership to connect with other athletic brands like Dr. Martens",
+        "Strong potential for expanding beauty collaborations given Pronovias engagement",
+        "Consider partnerships with premium fashion brands like Dsquared2 based on audience overlap",
+        "Opportunity to expand streaming partnerships beyond Netflix with other platforms",
+        "High engagement with Zara suggests potential for other fast fashion collaborations"
       ],
       brand_mentions: [
-        "Zara", "L'Oréal", "Nike", "Maybelline", "Sephora"
+        "Desigual", "Netflix", "Puma", "Tezenis", "Universal Pictures", "Vital Proteins", "Zalando"
       ]
     }
   },
@@ -150,22 +153,23 @@ export const mockReports: CelebrityReport[] = [
       posting_insights: {
         peak_engagement_times: ["2:00 PM", "6:00 PM", "9:00 PM"],
         posting_tips: [
-          "Best time for sponsored posts is 7:00 AM",
-          "Strong engagement from Brazil and Spain markets",
-          "Content performs best during evening hours",
-          "High engagement with lifestyle and acting-related content",
-          "Opportunity to increase engagement with Netflix-related content",
-          "Consider targeting the significant 20-34 age demographic"
+          "Leverage existing Armani partnerships for luxury content",
+          "Strong engagement from Netflix content suggests more streaming opportunities",
+          "Maserati partnership shows potential for luxury automotive content",
+          "Boss collaborations indicate strong fashion influence",
+          "Consider cross-platform content with YouTube given mention patterns"
         ]
       },
       sponsor_opportunities: [
-        "Strong potential for Netflix and streaming platform collaborations",
-        "High engagement with fashion and lifestyle brands",
-        "Opportunity for partnerships with Spanish luxury brands",
-        "Growing audience in entertainment and media segments"
+        "Expand luxury fashion presence through Armani Beauty line",
+        "Potential for high-end automotive partnerships beyond Maserati",
+        "Opportunity for premium eyewear collaborations with Oakley",
+        "Leverage Netflix presence for other streaming platform partnerships",
+        "Consider partnerships with GQ given existing fashion brand portfolio",
+        "Explore collaborations with Dsquared2 based on audience demographics"
       ],
       brand_mentions: [
-        "Netflix", "Gucci", "Adidas", "Ray-Ban", "Cartier"
+        "Armani", "Armani Beauty", "Boss", "Hugo Boss", "Maserati", "Netflix", "Oakley", "Universal Pictures"
       ]
     }
   },
