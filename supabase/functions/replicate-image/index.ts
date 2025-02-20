@@ -19,8 +19,11 @@ serve(async (req) => {
       throw new Error('REPLICATE_API_KEY is not set')
     }
 
+    // Remove any 'export' or other command prefixes if present
+    const cleanApiKey = REPLICATE_API_KEY.replace(/^export\s+REPLICATE_API_TOKEN=/, '').trim();
+
     const replicate = new Replicate({
-      auth: REPLICATE_API_KEY,
+      auth: cleanApiKey,
     });
 
     const body = await req.json()
