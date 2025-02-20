@@ -50,22 +50,47 @@ serve(async (req) => {
       )
     }
 
-    console.log("Generating image with prompt:", body.prompt)
-    const output = await replicate.run(
-      "black-forest-labs/flux-schnell",
-      {
-        input: {
-          prompt: body.prompt,
-          go_fast: true,
-          megapixels: "1",
-          num_outputs: 1,
-          aspect_ratio: "1:1",
-          output_format: "webp",
-          output_quality: 80,
-          num_inference_steps: 4
+    console.log("Generating image with prompt:", body.prompt, "model type:", body.modelType)
+    
+    let output;
+    if (body.modelType === "jaime") {
+      output = await replicate.run(
+        "jrogbaaa/jaimecreator:25698e8acc5ade340967890a27752f4432f0baaf10c8d58ded9e21d77ec66a09",
+        {
+          input: {
+            prompt: body.prompt,
+            model: "dev",
+            go_fast: false,
+            lora_scale: 1,
+            megapixels: "1",
+            num_outputs: 1,
+            aspect_ratio: "1:1",
+            output_format: "webp",
+            guidance_scale: 3,
+            output_quality: 80,
+            prompt_strength: 0.8,
+            extra_lora_scale: 1,
+            num_inference_steps: 28
+          }
         }
-      }
-    )
+      );
+    } else {
+      output = await replicate.run(
+        "black-forest-labs/flux-schnell",
+        {
+          input: {
+            prompt: body.prompt,
+            go_fast: true,
+            megapixels: "1",
+            num_outputs: 1,
+            aspect_ratio: "1:1",
+            output_format: "webp",
+            output_quality: 80,
+            num_inference_steps: 4
+          }
+        }
+      );
+    }
 
     console.log("Generation response:", output)
     return new Response(JSON.stringify({ output }), {

@@ -6,11 +6,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { Loader2, Image as ImageIcon, Download } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export const ImageGenerator = () => {
   const [prompt, setPrompt] = useState("");
   const [loading, setLoading] = useState(false);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const [selectedModel, setSelectedModel] = useState("standard"); // "standard" or "jaime"
   const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -28,9 +30,12 @@ export const ImageGenerator = () => {
     setImageUrl(null);
 
     try {
-      console.log('Sending request to replicate-image with prompt:', prompt);
+      console.log('Sending request to replicate-image with prompt:', prompt, 'model:', selectedModel);
       const { data, error } = await supabase.functions.invoke('replicate-image', {
-        body: { prompt }
+        body: { 
+          prompt,
+          modelType: selectedModel
+        }
       });
 
       console.log('Response from replicate-image:', { data, error });
@@ -95,9 +100,25 @@ export const ImageGenerator = () => {
   return (
     <Card className="p-4">
       <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
+        <div className="space-y-4">
+          <Select
+            value={selectedModel}
+            onValueChange={setSelectedModel}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Select a model" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="standard">Standard Image Generator</SelectItem>
+              <SelectItem value="jaime">Jaime Lorente Generator</SelectItem>
+            </SelectContent>
+          </Select>
+          
           <Textarea
-            placeholder="Describe the image you want to generate... (e.g., 'A professional Instagram photo of a coffee shop with warm lighting and modern decor')"
+            placeholder={selectedModel === "jaime" 
+              ? "Describe how you want Jaime to appear... (e.g., 'A portrait of Jaime in a modern suit')"
+              : "Describe the image you want to generate... (e.g., 'A professional Instagram photo of a coffee shop with warm lighting and modern decor')"
+            }
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
             className="h-24 resize-none"
