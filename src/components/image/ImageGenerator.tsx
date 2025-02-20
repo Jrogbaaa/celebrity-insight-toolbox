@@ -28,28 +28,39 @@ export const ImageGenerator = () => {
     setImageUrl(null);
 
     try {
+      console.log('Sending request to replicate-image with prompt:', prompt);
       const { data, error } = await supabase.functions.invoke('replicate-image', {
         body: { prompt }
       });
 
-      if (error) throw error;
+      console.log('Response from replicate-image:', { data, error });
 
-      console.log('Response from replicate-image:', data);
+      if (error) {
+        console.error('Supabase function error:', error);
+        throw error;
+      }
 
-      if (data?.output?.[0]) {
-        setImageUrl(data.output[0]);
-        toast({
-          title: "Success",
-          description: "Image generated successfully!",
-        });
-      } else {
+      if (!data?.output) {
+        console.error('No output data received:', data);
         throw new Error('No image data received');
       }
+
+      const imageData = Array.isArray(data.output) ? data.output[0] : data.output;
+      if (!imageData) {
+        console.error('No image URL in output:', data.output);
+        throw new Error('No image URL received');
+      }
+
+      setImageUrl(imageData);
+      toast({
+        title: "Success",
+        description: "Image generated successfully!",
+      });
     } catch (error) {
       console.error('Error generating image:', error);
       toast({
         title: "Error",
-        description: "Failed to generate image. Please try again.",
+        description: error instanceof Error ? error.message : "Failed to generate image. Please try again.",
         variant: "destructive",
       });
     } finally {

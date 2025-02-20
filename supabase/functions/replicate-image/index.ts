@@ -8,6 +8,7 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
+  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
   }
@@ -23,44 +24,56 @@ serve(async (req) => {
     });
 
     const body = await req.json()
-    const { prompt } = body;
 
-    if (!prompt) {
+    // If it's a status check request
+    if (body.predictionId) {
+      console.log("Checking status for prediction:", body.predictionId)
+      const prediction = await replicate.predictions.get(body.predictionId)
+      console.log("Status check response:", prediction)
+      return new Response(JSON.stringify(prediction), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
+
+    // If it's a generation request
+    if (!body.prompt) {
       return new Response(
-        JSON.stringify({ error: "Missing prompt parameter" }),
-        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 400 }
+        JSON.stringify({ 
+          error: "Missing required field: prompt is required" 
+        }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 400,
+        }
       )
     }
 
+    console.log("Generating image with prompt:", body.prompt)
     const output = await replicate.run(
       "black-forest-labs/flux-schnell",
       {
         input: {
-          prompt,
-          go_fast: false,
-          lora_scale: 1,
+          prompt: body.prompt,
+          go_fast: true,
           megapixels: "1",
           num_outputs: 1,
           aspect_ratio: "1:1",
           output_format: "webp",
-          guidance_scale: 3,
           output_quality: 80,
-          prompt_strength: 0.8,
-          extra_lora_scale: 1,
-          num_inference_steps: 28
+          num_inference_steps: 4
         }
       }
-    );
-
-    return new Response(
-      JSON.stringify({ output }),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     )
 
+    console.log("Generation response:", output)
+    return new Response(JSON.stringify({ output }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      status: 200,
+    })
   } catch (error) {
-    return new Response(
-      JSON.stringify({ error: error.message }),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 500 }
-    )
+    console.error("Error in replicate function:", error)
+    return new Response(JSON.stringify({ error: error.message }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      status: 500,
+    })
   }
 })
