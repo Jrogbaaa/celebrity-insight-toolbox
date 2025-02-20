@@ -25,25 +25,19 @@ export const ImageGenerator = () => {
     }
 
     setLoading(true);
-    setImageUrl(null); // Clear any previous image
+    setImageUrl(null);
 
     try {
-      const { data, error } = await supabase.functions.invoke('vertex-image', {
+      const { data, error } = await supabase.functions.invoke('replicate-image', {
         body: { prompt }
       });
 
-      if (error) {
-        console.error('Supabase function error:', error);
-        throw error;
-      }
+      if (error) throw error;
 
-      console.log('Response from vertex-image:', data);
+      console.log('Response from replicate-image:', data);
 
-      if (data?.predictions?.[0]?.bytesBase64) {
-        const imageData = data.predictions[0].bytesBase64;
-        const mimeType = 'image/png';
-        const imageUrl = `data:${mimeType};base64,${imageData}`;
-        setImageUrl(imageUrl);
+      if (data?.output?.[0]) {
+        setImageUrl(data.output[0]);
         toast({
           title: "Success",
           description: "Image generated successfully!",
@@ -72,7 +66,7 @@ export const ImageGenerator = () => {
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `generated-image-${Date.now()}.png`;
+      a.download = `generated-image-${Date.now()}.webp`;
       document.body.appendChild(a);
       a.click();
       window.URL.revokeObjectURL(url);
