@@ -9,6 +9,7 @@ import { UpdateReminder } from "@/components/analytics/UpdateReminder";
 import { DemographicsDisplay } from "@/components/analytics/DemographicsDisplay";
 import { AIActionItems } from "@/components/analytics/AIActionItems";
 import { SponsorOpportunities } from "@/components/analytics/SponsorOpportunities";
+import { PostingInsights } from "@/components/analytics/PostingInsights";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { ChatContainer } from "@/components/chat/ChatContainer";
