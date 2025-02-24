@@ -1,3 +1,4 @@
+
 import { useState, useRef, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -113,10 +114,11 @@ export const ImageGenerator = () => {
             </Select>
             
             <Textarea
-              placeholder={selectedModel === "jaime" 
-                ? "Describe how you want Jaime to appear... (e.g., 'A portrait of Jaime in a modern suit')"
-                : "Describe the image you want to generate... (e.g., 'A professional Instagram photo of a coffee shop with warm lighting and modern decor')"
-              }
+              placeholder={`First select a model, then describe the image you want to generate... ${
+                selectedModel === "jaime" 
+                  ? "(e.g., 'A portrait of Jaime in a modern suit')"
+                  : "(e.g., 'A professional Instagram photo of a coffee shop with warm lighting and modern decor')"
+              }`}
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
               className="h-24 resize-none w-full"
