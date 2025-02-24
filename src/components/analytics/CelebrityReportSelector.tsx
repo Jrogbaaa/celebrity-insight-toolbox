@@ -25,7 +25,7 @@ interface CelebrityReportSelectorProps {
 }
 
 const celebrityImages: Record<string, string> = {
-  'Jaime': '/lovable-uploads/90cf8a1b-7d74-4343-b904-af2703049da6.png',
+  'Jaime Lorente Lopez': '/lovable-uploads/90cf8a1b-7d74-4343-b904-af2703049da6.png',
   'Cristina Pedroche': '/lovable-uploads/399f8136-3693-48a7-bcfb-01d4bf894f6e.png',
   'Jorge Cremades': '/lovable-uploads/5295d8ff-7074-45d3-8e53-5bf795706af4.png'
 };
@@ -40,6 +40,9 @@ export const CelebrityReportSelector = ({
   const getFirstReportForCelebrity = (celebrityName: string) => {
     return reports.find(report => report.celebrity_name === celebrityName);
   };
+
+  // Debug log to check all unique celebrities
+  console.log('All unique celebrities:', uniqueCelebrities);
 
   return (
     <DropdownMenu>
@@ -67,8 +70,10 @@ export const CelebrityReportSelector = ({
           const firstReport = getFirstReportForCelebrity(celebrityName);
           if (!firstReport) return null;
 
-          // Debug log to check celebrity names
-          console.log('Celebrity name:', celebrityName, 'Image path:', celebrityImages[celebrityName]);
+          // Debug log for each celebrity name and its image path
+          console.log('Rendering celebrity:', celebrityName);
+          console.log('Image path:', celebrityImages[celebrityName]);
+          console.log('Image exists?:', !!celebrityImages[celebrityName]);
 
           return (
             <DropdownMenuItem
