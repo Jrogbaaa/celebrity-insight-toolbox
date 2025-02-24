@@ -11,24 +11,45 @@ interface SponsorOpportunitiesProps {
 export const SponsorOpportunities: React.FC<SponsorOpportunitiesProps> = ({ selectedReport }) => {
   const highlightKeyPhrases = (text: string) => {
     const patterns = [
-      // Highlight key metrics
-      { pattern: /(\d+%(?:\s*increase)?)/g, replacement: '<strong>$1</strong>' },
-      // Highlight specific performance indicators
-      { pattern: /(high|strong) (engagement|performance|conversion|resonance)/gi, replacement: '<strong>$1 $2</strong>' },
-      // Highlight key opportunity phrases
-      { pattern: /(perfect match|ideal opportunity|proven success)/gi, replacement: '<strong>$1</strong>' },
-      // Highlight specific demographics or markets
-      { pattern: /(target audience|key demographic|market segment)/gi, replacement: '<strong>$1</strong>' },
-      // Highlight significant results
-      { pattern: /(significant|substantial) (growth|increase|improvement)/gi, replacement: '<strong>$1 $2</strong>' },
-      // Highlight specific success metrics
-      { pattern: /(conversion rates|engagement metrics|ROI)/gi, replacement: '<strong>$1</strong>' }
+      // Metrics and numbers
+      { pattern: /(\d+(?:\.\d+)?%(?:\s*increase)?)/g, replacement: '<strong>$1</strong>' },
+      // Performance indicators
+      { pattern: /(high|strong|excellent|outstanding) (engagement|performance|conversion|resonance)/gi, replacement: '<strong>$1 $2</strong>' },
+      // Opportunity phrases
+      { pattern: /(perfect match|ideal opportunity|proven success|strategic partnership)/gi, replacement: '<strong>$1</strong>' },
+      // Market and audience
+      { pattern: /(target audience|key demographic|market segment|niche market)/gi, replacement: '<strong>$1</strong>' },
+      // Growth and improvement
+      { pattern: /(significant|substantial|notable) (growth|increase|improvement|impact)/gi, replacement: '<strong>$1 $2</strong>' },
+      // Success metrics
+      { pattern: /(conversion rates|engagement metrics|ROI|brand awareness)/gi, replacement: '<strong>$1</strong>' },
+      // Brand alignment
+      { pattern: /(brand alignment|authentic connection|natural fit)/gi, replacement: '<strong>$1</strong>' },
+      // Value propositions
+      { pattern: /(valuable|effective|successful) (partnership|collaboration|promotion)/gi, replacement: '<strong>$1 $2</strong>' }
     ];
 
     let highlightedText = text;
     patterns.forEach(({ pattern, replacement }) => {
       highlightedText = highlightedText.replace(pattern, replacement);
     });
+
+    // If no highlights were added, highlight the first important phrase
+    if (!highlightedText.includes('<strong>')) {
+      const fallbackPatterns = [
+        /(opportunity|potential|advantage|benefit)/gi,
+        /(brand|product|service|campaign)/gi,
+        /(recommend|suggest|indicate|demonstrate)/gi,
+        /(successfully|effectively|significantly)/gi
+      ];
+
+      for (const pattern of fallbackPatterns) {
+        if (pattern.test(text)) {
+          highlightedText = text.replace(pattern, '<strong>$1</strong>');
+          break;
+        }
+      }
+    }
 
     return highlightedText;
   };
