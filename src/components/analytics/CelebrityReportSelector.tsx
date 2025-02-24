@@ -26,7 +26,7 @@ interface CelebrityReportSelectorProps {
 
 const celebrityImages: Record<string, string> = {
   'Jaime': '/lovable-uploads/90cf8a1b-7d74-4343-b904-af2703049da6.png',
-  'Cristina': '/lovable-uploads/b4964eb4-66c5-4cf9-8f67-efacbe88fd7c.png',
+  'Cristina Pedroche': '/lovable-uploads/399f8136-3693-48a7-bcfb-01d4bf894f6e.png',
   'Jorge Cremades': '/lovable-uploads/5295d8ff-7074-45d3-8e53-5bf795706af4.png'
 };
 
@@ -66,6 +66,10 @@ export const CelebrityReportSelector = ({
         {uniqueCelebrities.map((celebrityName) => {
           const firstReport = getFirstReportForCelebrity(celebrityName);
           if (!firstReport) return null;
+
+          // Debug log to check celebrity names
+          console.log('Celebrity name:', celebrityName, 'Image path:', celebrityImages[celebrityName]);
+
           return (
             <DropdownMenuItem
               key={celebrityName}
