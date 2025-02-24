@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Clock, Calendar, TrendingUp } from "lucide-react";
@@ -25,51 +24,26 @@ export const PostingInsights = ({ insights }: PostingInsightsProps) => {
   const highlightKeyPhrases = (text: string) => {
     const patterns = [
       {
-        pattern: /(morning posts receive 20% higher engagement)/i,
+        pattern: /((morning posts receive 20% higher engagement)|(afternoons show strongest conversion rates)|(weekday posts outperform weekend content by 35%)|(engagement spikes during lunch hours)|(reels perform best between 7-9 PM)|(consistency in posting times increases overall engagement)|(videos posted before noon get double the views)|(evening audience is most likely to share content))/i,
         replacement: '<strong>$1</strong>'
       },
       {
-        pattern: /(afternoons show strongest conversion rates)/i,
-        replacement: '<strong>$1</strong>'
-      },
-      {
-        pattern: /(weekday posts outperform weekend content by 35%)/i,
-        replacement: '<strong>$1</strong>'
-      },
-      {
-        pattern: /(engagement spikes during lunch hours)/i,
-        replacement: '<strong>$1</strong>'
-      },
-      {
-        pattern: /(reels perform best between 7-9 PM)/i,
-        replacement: '<strong>$1</strong>'
-      },
-      {
-        pattern: /(consistency in posting times increases overall engagement)/i,
-        replacement: '<strong>$1</strong>'
-      },
-      {
-        pattern: /(videos posted before noon get double the views)/i,
-        replacement: '<strong>$1</strong>'
-      },
-      {
-        pattern: /(evening audience is most likely to share content)/i,
+        pattern: /((engagement rates peak at \d+%)|(followers are most active during \w+ hours)|(content receives \d+% more interactions)|(highest engagement window is \d+(?::\d+)? (?:AM|PM)))/i,
         replacement: '<strong>$1</strong>'
       }
     ];
 
-    let result = text;
     for (const { pattern, replacement } of patterns) {
       if (pattern.test(text)) {
         return text.replace(pattern, replacement);
       }
     }
 
-    // If no specific pattern matched, try to highlight the most meaningful part
+    // If no specific pattern matched, try to highlight metrics and timing information
     const fallbackPatterns = [
-      /(post .+? times? (?:show|receive|get|have) .+?(?:engagement|interaction|response))/i,
-      /(during .+? followers are most .+?(?:active|engaged))/i,
-      /(content .+? performs best .+?(?:time|period|window))/i
+      /((?:\d+%|\d+ times) (?:higher|better|stronger|more) (?:engagement|performance|interaction))/i,
+      /(performs? best (?:during|between|at) [^.]+)/i,
+      /(highest engagement occurs? (?:during|between|at) [^.]+)/i
     ];
 
     for (const pattern of fallbackPatterns) {

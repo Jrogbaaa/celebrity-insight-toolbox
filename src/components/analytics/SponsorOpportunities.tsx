@@ -12,51 +12,34 @@ export const SponsorOpportunities: React.FC<SponsorOpportunitiesProps> = ({ sele
   const highlightKeyPhrases = (text: string) => {
     const patterns = [
       {
-        pattern: /(connect with other athletic brands)/i,
+        pattern: /((?:strong|high|proven|demonstrated|excellent) (?:potential|engagement|success|resonance|performance|results) (?:with|in|for) [^,.]+)/i,
         replacement: '<strong>$1</strong>'
       },
       {
-        pattern: /(perfect target audience for luxury fashion brands)/i,
+        pattern: /((?:perfect|ideal) (?:target audience|opportunity|match) for [^,.]+)/i,
         replacement: '<strong>$1</strong>'
       },
       {
-        pattern: /(demonstrated success with beauty product promotions)/i,
+        pattern: /((?:successful|effective) (?:partnership|collaboration) with [^,.]+)/i,
         replacement: '<strong>$1</strong>'
       },
       {
-        pattern: /(proven track record in fitness equipment collaborations)/i,
-        replacement: '<strong>$1</strong>'
-      },
-      {
-        pattern: /(high conversion rates with wellness products)/i,
-        replacement: '<strong>$1</strong>'
-      },
-      {
-        pattern: /(strong resonance with sustainable fashion initiatives)/i,
-        replacement: '<strong>$1</strong>'
-      },
-      {
-        pattern: /(excellent engagement metrics for lifestyle products)/i,
-        replacement: '<strong>$1</strong>'
-      },
-      {
-        pattern: /(highly successful at promoting premium accessories)/i,
+        pattern: /((?:high|strong) (?:conversion rates|engagement metrics|performance) [^,.]+)/i,
         replacement: '<strong>$1</strong>'
       }
     ];
 
-    let result = text;
     for (const { pattern, replacement } of patterns) {
       if (pattern.test(text)) {
         return text.replace(pattern, replacement);
       }
     }
 
-    // If no specific pattern matched, try to highlight the most meaningful part
+    // Fallback patterns for more general opportunities
     const fallbackPatterns = [
-      /([^.]*(?:partnership|collaboration|promotion|campaign)[^.]*shows? (?:strong|high|excellent|impressive) (?:results|performance|engagement|ROI))/i,
-      /([^.]*(?:ideal|perfect|excellent) (?:opportunity|chance|potential) for [^.]*)/i,
-      /([^.]*(?:proven|demonstrated|established) (?:success|results|performance) [^.]*)/i
+      /([^.]*(?:opportunity|potential|chance) (?:to|for) [^.]*(?:expand|increase|improve|enhance) [^.]+)/i,
+      /([^.]*(?:showing|demonstrating|indicating) (?:strong|high|excellent) [^.]+)/i,
+      /([^.]*(?:leverage|utilize|capitalize on) (?:existing|current|strong) [^.]+)/i
     ];
 
     for (const pattern of fallbackPatterns) {
@@ -95,7 +78,7 @@ export const SponsorOpportunities: React.FC<SponsorOpportunitiesProps> = ({ sele
             <div>
               <h3 className="text-lg font-semibold text-primary mb-3">Recent Brand Mentions</h3>
               <p className="text-foreground text-base">
-                <strong>{selectedReport.report_data.brand_mentions.join(", ")}</strong>
+                {selectedReport.report_data.brand_mentions.join(", ")}
               </p>
             </div>
           )}
