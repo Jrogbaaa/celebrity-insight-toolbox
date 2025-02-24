@@ -15,11 +15,14 @@ export const ImageGenerator = () => {
   const [selectedModel, setSelectedModel] = useState("standard");
   const { toast } = useToast();
   const imageRef = useRef<HTMLDivElement>(null);
+  const [showImage, setShowImage] = useState(false);
 
-  // Scroll to generated image when it appears
   useEffect(() => {
-    if (imageUrl && imageRef.current) {
-      imageRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+    if (imageUrl) {
+      // Delay showing the image slightly to trigger the animation
+      setTimeout(() => setShowImage(true), 100);
+    } else {
+      setShowImage(false);
     }
   }, [imageUrl]);
 
@@ -106,7 +109,7 @@ export const ImageGenerator = () => {
   };
 
   return (
-    <Card className="p-4 max-w-full overflow-hidden">
+    <Card className="p-4 max-w-full h-[calc(100vh-200px)] overflow-y-auto">
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="space-y-4">
           <Select
@@ -154,7 +157,7 @@ export const ImageGenerator = () => {
       {(loading || imageUrl) && (
         <div 
           ref={imageRef}
-          className="mt-4 transition-all duration-500 ease-in-out"
+          className="mt-4 transition-all duration-1000 ease-in-out"
         >
           {loading && (
             <div className="flex items-center justify-center p-8 border-2 border-dashed rounded-lg animate-pulse">
@@ -163,7 +166,11 @@ export const ImageGenerator = () => {
           )}
           
           {imageUrl && (
-            <div className="relative rounded-lg overflow-hidden group animate-fade-in">
+            <div 
+              className={`relative rounded-lg overflow-hidden group transition-opacity duration-1000 ease-in-out ${
+                showImage ? 'opacity-100' : 'opacity-0'
+              }`}
+            >
               <img 
                 src={imageUrl} 
                 alt="Generated content"
