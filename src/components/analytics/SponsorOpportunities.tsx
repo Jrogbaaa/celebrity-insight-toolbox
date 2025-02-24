@@ -23,7 +23,10 @@ export const SponsorOpportunities: React.FC<SponsorOpportunitiesProps> = ({ sele
             <ul className="list-disc list-inside space-y-2">
               {selectedReport.report_data.sponsor_opportunities?.map((opportunity: string, index: number) => (
                 <li key={index} className="text-foreground text-base" dangerouslySetInnerHTML={{
-                  __html: opportunity.replace(/(brand deals|collaborations|sponsorships|partnerships|engagement rates|reach|ROI|conversion rates)/gi, '"$1"')
+                  __html: opportunity.replace(
+                    /(brand deals|collaborations|sponsorships|partnerships|engagement rates|reach|ROI|conversion rates|followers|likes|comments|engagement|audience|demographics|metrics|performance|growth|revenue|campaign|success rate)/gi,
+                    '<strong>$1</strong>'
+                  )
                 }} />
               ))}
             </ul>
@@ -31,8 +34,8 @@ export const SponsorOpportunities: React.FC<SponsorOpportunitiesProps> = ({ sele
           {selectedReport.report_data.brand_mentions && (
             <div>
               <h3 className="text-lg font-semibold text-primary mb-3">Recent Brand Mentions</h3>
-              <p className="text-foreground text-base mt-2">
-                {selectedReport.report_data.brand_mentions.join(", ")}
+              <p className="text-foreground text-base">
+                <strong>{selectedReport.report_data.brand_mentions.join(", ")}</strong>
               </p>
             </div>
           )}

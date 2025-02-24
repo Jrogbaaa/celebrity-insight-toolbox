@@ -69,7 +69,7 @@ export const MetricsGrid = ({ data }: MetricsGridProps) => {
 
   return (
     <MotionConfig reducedMotion="user">
-      <div className="grid grid-cols-2 grid-rows-3 sm:grid-cols-3 md:grid-cols-5 md:grid-rows-1 gap-3 px-2">
+      <div className="grid grid-cols-2 grid-rows-3 gap-3 px-2 md:grid-cols-2 md:grid-rows-3 lg:grid-cols-5 lg:grid-rows-1">
         <AnimatePresence>
           {metricsConfig
             .filter(metric => metric.value !== null)
@@ -80,7 +80,7 @@ export const MetricsGrid = ({ data }: MetricsGridProps) => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3, delay: metric.delay }}
                 whileHover={{ scale: 1.02 }}
-                className={`w-full ${index === 4 ? 'col-span-2 sm:col-span-1' : ''}`}
+                className={`w-full ${index === 4 ? 'col-span-2 md:col-span-2 lg:col-span-1' : ''}`}
               >
                 <Card className="overflow-hidden relative group hover:shadow-lg transition-all duration-300 md:min-w-[240px]">
                   <div className={`absolute inset-0 bg-gradient-to-br ${metric.color} opacity-5 

@@ -84,7 +84,7 @@ export const PostingInsights = ({ insights }: PostingInsightsProps) => {
               <ul className="list-disc list-inside space-y-2">
                 {posting_tips.map((tip, index) => (
                   <li key={index} className="text-foreground text-base" dangerouslySetInnerHTML={{
-                    __html: tip.replace(/(morning|evening|afternoon|peak hours|best times|engagement rates)/gi, '<strong>$1</strong>')
+                    __html: tip.replace(/(morning|evening|afternoon|peak hours|best times|engagement rates|content|hashtags|followers|likes|comments|reach)/gi, '<strong>$1</strong>')
                   }} />
                 ))}
               </ul>
