@@ -23,36 +23,20 @@ export const PostingInsights = ({ insights }: PostingInsightsProps) => {
 
   const highlightKeyPhrases = (text: string) => {
     const patterns = [
-      {
-        pattern: /((morning posts receive 20% higher engagement)|(afternoons show strongest conversion rates)|(weekday posts outperform weekend content by 35%)|(engagement spikes during lunch hours)|(reels perform best between 7-9 PM)|(consistency in posting times increases overall engagement)|(videos posted before noon get double the views)|(evening audience is most likely to share content))/i,
-        replacement: '<strong>$1</strong>'
-      },
-      {
-        pattern: /((engagement rates peak at \d+%)|(followers are most active during \w+ hours)|(content receives \d+% more interactions)|(highest engagement window is \d+(?::\d+)? (?:AM|PM)))/i,
-        replacement: '<strong>$1</strong>'
-      }
+      { pattern: /(\d+%)/g, replacement: '<strong>$1</strong>' },
+      { pattern: /(double|triple|quadruple)/gi, replacement: '<strong>$1</strong>' },
+      { pattern: /(\d{1,2}(?::\d{2})?\s*(?:AM|PM)(?:\s*-\s*\d{1,2}(?::\d{2})?\s*(?:AM|PM))?)/gi, replacement: '<strong>$1</strong>' },
+      { pattern: /(highest engagement|peak engagement|best performance)/gi, replacement: '<strong>$1</strong>' },
+      { pattern: /(morning|afternoon|evening|lunch hours)/gi, replacement: '<strong>$1</strong>' },
+      { pattern: /(engagement rate|conversion rate|interaction rate)/gi, replacement: '<strong>$1</strong>' }
     ];
 
-    for (const { pattern, replacement } of patterns) {
-      if (pattern.test(text)) {
-        return text.replace(pattern, replacement);
-      }
-    }
+    let highlightedText = text;
+    patterns.forEach(({ pattern, replacement }) => {
+      highlightedText = highlightedText.replace(pattern, replacement);
+    });
 
-    // If no specific pattern matched, try to highlight metrics and timing information
-    const fallbackPatterns = [
-      /((?:\d+%|\d+ times) (?:higher|better|stronger|more) (?:engagement|performance|interaction))/i,
-      /(performs? best (?:during|between|at) [^.]+)/i,
-      /(highest engagement occurs? (?:during|between|at) [^.]+)/i
-    ];
-
-    for (const pattern of fallbackPatterns) {
-      if (pattern.test(text)) {
-        return text.replace(pattern, '<strong>$1</strong>');
-      }
-    }
-
-    return text;
+    return highlightedText;
   };
 
   return (

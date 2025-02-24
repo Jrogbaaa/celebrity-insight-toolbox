@@ -11,44 +11,26 @@ interface SponsorOpportunitiesProps {
 export const SponsorOpportunities: React.FC<SponsorOpportunitiesProps> = ({ selectedReport }) => {
   const highlightKeyPhrases = (text: string) => {
     const patterns = [
-      {
-        pattern: /((?:strong|high|proven|demonstrated|excellent) (?:potential|engagement|success|resonance|performance|results) (?:with|in|for) [^,.]+)/i,
-        replacement: '<strong>$1</strong>'
-      },
-      {
-        pattern: /((?:perfect|ideal) (?:target audience|opportunity|match) for [^,.]+)/i,
-        replacement: '<strong>$1</strong>'
-      },
-      {
-        pattern: /((?:successful|effective) (?:partnership|collaboration) with [^,.]+)/i,
-        replacement: '<strong>$1</strong>'
-      },
-      {
-        pattern: /((?:high|strong) (?:conversion rates|engagement metrics|performance) [^,.]+)/i,
-        replacement: '<strong>$1</strong>'
-      }
+      // Highlight key metrics
+      { pattern: /(\d+%(?:\s*increase)?)/g, replacement: '<strong>$1</strong>' },
+      // Highlight specific performance indicators
+      { pattern: /(high|strong) (engagement|performance|conversion|resonance)/gi, replacement: '<strong>$1 $2</strong>' },
+      // Highlight key opportunity phrases
+      { pattern: /(perfect match|ideal opportunity|proven success)/gi, replacement: '<strong>$1</strong>' },
+      // Highlight specific demographics or markets
+      { pattern: /(target audience|key demographic|market segment)/gi, replacement: '<strong>$1</strong>' },
+      // Highlight significant results
+      { pattern: /(significant|substantial) (growth|increase|improvement)/gi, replacement: '<strong>$1 $2</strong>' },
+      // Highlight specific success metrics
+      { pattern: /(conversion rates|engagement metrics|ROI)/gi, replacement: '<strong>$1</strong>' }
     ];
 
-    for (const { pattern, replacement } of patterns) {
-      if (pattern.test(text)) {
-        return text.replace(pattern, replacement);
-      }
-    }
+    let highlightedText = text;
+    patterns.forEach(({ pattern, replacement }) => {
+      highlightedText = highlightedText.replace(pattern, replacement);
+    });
 
-    // Fallback patterns for more general opportunities
-    const fallbackPatterns = [
-      /([^.]*(?:opportunity|potential|chance) (?:to|for) [^.]*(?:expand|increase|improve|enhance) [^.]+)/i,
-      /([^.]*(?:showing|demonstrating|indicating) (?:strong|high|excellent) [^.]+)/i,
-      /([^.]*(?:leverage|utilize|capitalize on) (?:existing|current|strong) [^.]+)/i
-    ];
-
-    for (const pattern of fallbackPatterns) {
-      if (pattern.test(text)) {
-        return text.replace(pattern, '<strong>$1</strong>');
-      }
-    }
-
-    return text;
+    return highlightedText;
   };
 
   return (
