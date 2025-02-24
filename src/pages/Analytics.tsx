@@ -7,7 +7,6 @@ import { useReportsData } from "@/components/analytics/useReportsData";
 import { PlatformTabs } from "@/components/analytics/PlatformTabs";
 import { UpdateReminder } from "@/components/analytics/UpdateReminder";
 import { DemographicsDisplay } from "@/components/analytics/DemographicsDisplay";
-import { PostAnalyzer } from "@/components/analytics/PostAnalyzer";
 import { AIActionItems } from "@/components/analytics/AIActionItems";
 import { SponsorOpportunities } from "@/components/analytics/SponsorOpportunities";
 import { Button } from "@/components/ui/button";
@@ -35,16 +34,13 @@ const Analytics = () => {
         <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
           My Analytics Hub
         </h1>
-        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full sm:w-auto">
+        <div className="flex flex-row items-center gap-4 w-full sm:w-auto">
           <CelebrityReportSelector
             reports={reports}
             selectedReport={selectedReport}
             onSelectReport={setSelectedReport}
           />
-          <div className="flex flex-row gap-4">
-            <CelebrityReportUploader onUploadSuccess={fetchReports} />
-            <PostAnalyzer />
-          </div>
+          <CelebrityReportUploader onUploadSuccess={fetchReports} />
         </div>
       </div>
 

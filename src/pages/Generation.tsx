@@ -6,12 +6,12 @@ import { PostAnalyzer } from "@/components/analytics/PostAnalyzer";
 const Generation = () => {
   return (
     <div className="max-w-7xl mx-auto px-0 md:px-4 py-2">
+      <div className="px-4 md:px-0 mb-6">
+        <PostAnalyzer />
+      </div>
       <div className="grid grid-cols-1 md:grid-cols-[3fr_2fr] gap-6">
-        <div className="space-y-6">
-          <PostAnalyzer />
-          <div className="h-[calc(100vh-12rem)]">
-            <ChatContainer />
-          </div>
+        <div className="h-[calc(100vh-12rem)]">
+          <ChatContainer />
         </div>
         <div className="h-[calc(100vh-6rem)] max-h-[800px]">
           <ImageGenerator />

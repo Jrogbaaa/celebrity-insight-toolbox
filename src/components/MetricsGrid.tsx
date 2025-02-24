@@ -69,41 +69,43 @@ export const MetricsGrid = ({ data }: MetricsGridProps) => {
 
   return (
     <MotionConfig reducedMotion="user">
-      <AnimatePresence>
-        {metricsConfig
-          .filter(metric => metric.value !== null)
-          .map((metric, index) => (
-            <motion.div
-              key={metric.title}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3, delay: metric.delay }}
-              whileHover={{ scale: 1.02 }}
-            >
-              <Card className="overflow-hidden relative group hover:shadow-lg transition-all duration-300">
-                <div className={`absolute inset-0 bg-gradient-to-br ${metric.color} opacity-5 
-                  group-hover:opacity-10 transition-opacity duration-300`} />
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-base font-medium text-primary">
-                    {metric.title}
-                  </CardTitle>
-                  <metric.icon 
-                    className="h-5 w-5 transition-transform duration-300 group-hover:scale-110" 
-                    style={{ color: metric.iconColor }}
-                  />
-                </CardHeader>
-                <CardContent>
-                  <div 
-                    className="text-2xl font-bold transition-all duration-300 group-hover:scale-105" 
-                    style={{ color: metric.iconColor }}
-                  >
-                    {metric.value}
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-          ))}
-      </AnimatePresence>
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
+        <AnimatePresence>
+          {metricsConfig
+            .filter(metric => metric.value !== null)
+            .map((metric, index) => (
+              <motion.div
+                key={metric.title}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: metric.delay }}
+                whileHover={{ scale: 1.02 }}
+              >
+                <Card className="overflow-hidden relative group hover:shadow-lg transition-all duration-300">
+                  <div className={`absolute inset-0 bg-gradient-to-br ${metric.color} opacity-5 
+                    group-hover:opacity-10 transition-opacity duration-300`} />
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 pt-3 px-3">
+                    <CardTitle className="text-sm font-medium text-primary">
+                      {metric.title}
+                    </CardTitle>
+                    <metric.icon 
+                      className="h-4 w-4 transition-transform duration-300 group-hover:scale-110" 
+                      style={{ color: metric.iconColor }}
+                    />
+                  </CardHeader>
+                  <CardContent className="pb-3 pt-0 px-3">
+                    <div 
+                      className="text-xl font-bold transition-all duration-300 group-hover:scale-105" 
+                      style={{ color: metric.iconColor }}
+                    >
+                      {metric.value}
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))}
+        </AnimatePresence>
+      </div>
     </MotionConfig>
   );
 };
