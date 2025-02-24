@@ -6,7 +6,7 @@ import { PostAnalyzer } from "@/components/analytics/PostAnalyzer";
 const Generation = () => {
   return (
     <div className="max-w-7xl mx-auto px-0 md:px-4">
-      <div className="px-4 md:px-0 -mt-10 mb-0 flex justify-end items-center">
+      <div className="px-4 md:px-0 md:-mt-10 mb-0 flex justify-end items-center">
         <div>
           <PostAnalyzer />
         </div>
