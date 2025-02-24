@@ -24,42 +24,60 @@ export const PostingInsights = ({ insights }: PostingInsightsProps) => {
   const highlightKeyPhrases = (text: string) => {
     const patterns = [
       {
-        pattern: /(highest engagement during midday hours)/i,
+        pattern: /(morning posts receive 20% higher engagement)/i,
         replacement: '<strong>$1</strong>'
       },
       {
-        pattern: /(optimal posting time is early evening)/i,
+        pattern: /(afternoons show strongest conversion rates)/i,
         replacement: '<strong>$1</strong>'
       },
       {
-        pattern: /(weekday mornings show better performance)/i,
+        pattern: /(weekday posts outperform weekend content by 35%)/i,
         replacement: '<strong>$1</strong>'
       },
       {
-        pattern: /(stories perform best during commute times)/i,
+        pattern: /(engagement spikes during lunch hours)/i,
         replacement: '<strong>$1</strong>'
       },
       {
-        pattern: /(weekend content reaches wider audience)/i,
+        pattern: /(reels perform best between 7-9 PM)/i,
+        replacement: '<strong>$1</strong>'
+      },
+      {
+        pattern: /(consistency in posting times increases overall engagement)/i,
+        replacement: '<strong>$1</strong>'
+      },
+      {
+        pattern: /(videos posted before noon get double the views)/i,
+        replacement: '<strong>$1</strong>'
+      },
+      {
+        pattern: /(evening audience is most likely to share content)/i,
         replacement: '<strong>$1</strong>'
       }
     ];
 
     let result = text;
-    patterns.forEach(({ pattern, replacement }) => {
-      result = result.replace(pattern, replacement);
-    });
-
-    // For any tips that didn't match specific patterns,
-    // highlight the key timing or engagement insights
-    if (!result.includes('<strong>')) {
-      result = result.replace(
-        /(best engagement window|peak activity hours|optimal posting schedule|highest reach times|key posting periods)/gi,
-        '<strong>$1</strong>'
-      );
+    for (const { pattern, replacement } of patterns) {
+      if (pattern.test(text)) {
+        return text.replace(pattern, replacement);
+      }
     }
 
-    return result;
+    // If no specific pattern matched, try to highlight the most meaningful part
+    const fallbackPatterns = [
+      /(post .+? times? (?:show|receive|get|have) .+?(?:engagement|interaction|response))/i,
+      /(during .+? followers are most .+?(?:active|engaged))/i,
+      /(content .+? performs best .+?(?:time|period|window))/i
+    ];
+
+    for (const pattern of fallbackPatterns) {
+      if (pattern.test(text)) {
+        return text.replace(pattern, '<strong>$1</strong>');
+      }
+    }
+
+    return text;
   };
 
   return (

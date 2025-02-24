@@ -10,57 +10,62 @@ interface SponsorOpportunitiesProps {
 
 export const SponsorOpportunities: React.FC<SponsorOpportunitiesProps> = ({ selectedReport }) => {
   const highlightKeyPhrases = (text: string) => {
-    // Custom replacement patterns for specific phrases
     const patterns = [
       {
         pattern: /(connect with other athletic brands)/i,
         replacement: '<strong>$1</strong>'
       },
       {
-        pattern: /(high engagement rates among young professionals)/i,
+        pattern: /(perfect target audience for luxury fashion brands)/i,
         replacement: '<strong>$1</strong>'
       },
       {
-        pattern: /(potential for luxury brand collaborations)/i,
+        pattern: /(demonstrated success with beauty product promotions)/i,
         replacement: '<strong>$1</strong>'
       },
       {
-        pattern: /(strong alignment with sustainable brands)/i,
+        pattern: /(proven track record in fitness equipment collaborations)/i,
         replacement: '<strong>$1</strong>'
       },
       {
-        pattern: /(authentic storytelling opportunities)/i,
+        pattern: /(high conversion rates with wellness products)/i,
         replacement: '<strong>$1</strong>'
       },
       {
-        pattern: /(audience resonates well with lifestyle content)/i,
+        pattern: /(strong resonance with sustainable fashion initiatives)/i,
         replacement: '<strong>$1</strong>'
       },
       {
-        pattern: /(ideal for long-term brand partnerships)/i,
+        pattern: /(excellent engagement metrics for lifestyle products)/i,
         replacement: '<strong>$1</strong>'
       },
       {
-        pattern: /(significant influence in the fashion sector)/i,
+        pattern: /(highly successful at promoting premium accessories)/i,
         replacement: '<strong>$1</strong>'
       }
     ];
 
     let result = text;
-    patterns.forEach(({ pattern, replacement }) => {
-      result = result.replace(pattern, replacement);
-    });
-
-    // For any sentences that didn't match specific patterns,
-    // highlight key metrics and important phrases
-    if (!result.includes('<strong>')) {
-      result = result.replace(
-        /(impressive ROI|growing audience|strong conversion rates|high performance metrics|increasing engagement|consistent growth|successful campaigns)/gi,
-        '<strong>$1</strong>'
-      );
+    for (const { pattern, replacement } of patterns) {
+      if (pattern.test(text)) {
+        return text.replace(pattern, replacement);
+      }
     }
 
-    return result;
+    // If no specific pattern matched, try to highlight the most meaningful part
+    const fallbackPatterns = [
+      /([^.]*(?:partnership|collaboration|promotion|campaign)[^.]*shows? (?:strong|high|excellent|impressive) (?:results|performance|engagement|ROI))/i,
+      /([^.]*(?:ideal|perfect|excellent) (?:opportunity|chance|potential) for [^.]*)/i,
+      /([^.]*(?:proven|demonstrated|established) (?:success|results|performance) [^.]*)/i
+    ];
+
+    for (const pattern of fallbackPatterns) {
+      if (pattern.test(text)) {
+        return text.replace(pattern, '<strong>$1</strong>');
+      }
+    }
+
+    return text;
   };
 
   return (
