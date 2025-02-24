@@ -1,7 +1,6 @@
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { MetricsGrid } from "@/components/MetricsGrid";
-import { PostingInsights } from "@/components/analytics/PostingInsights";
 import { getPlatformIcon, getMetricsForReport } from "@/utils/platformUtils";
 
 interface PlatformTabsProps {
@@ -53,12 +52,6 @@ export const PlatformTabs = ({
           <TabsContent key={platform} value={platform}>
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {metrics && <MetricsGrid data={metrics} />}
-            </div>
-            
-            <div className="grid gap-4 mt-8">
-              {report?.report_data?.posting_insights && (
-                <PostingInsights insights={report.report_data.posting_insights} />
-              )}
             </div>
           </TabsContent>
         );
