@@ -10,6 +10,7 @@ import Generation from "./pages/Generation";
 import TermsOfService from "./pages/TermsOfService";
 import TikTokCallback from "./pages/TikTokCallback";
 import { Button } from "@/components/ui/button";
+import { FileText, Pencil } from "lucide-react";
 
 const Layout = ({
   children
@@ -32,7 +33,8 @@ const Layout = ({
               />
             </Link>
           </div>
-          <div className="flex gap-4">
+          {/* Desktop Navigation */}
+          <div className="hidden md:flex gap-4">
             <Button 
               variant={location.pathname === "/analytics" ? "default" : "outline"}
               size="lg"
@@ -51,6 +53,29 @@ const Layout = ({
             >
               <Link to="/generation" className="flex items-center gap-2">
                 Creative Studio AI
+              </Link>
+            </Button>
+          </div>
+          {/* Mobile Navigation */}
+          <div className="flex md:hidden gap-2">
+            <Button
+              variant={location.pathname === "/analytics" ? "default" : "outline"}
+              size="icon"
+              className="w-10 h-10"
+              asChild
+            >
+              <Link to="/analytics">
+                <FileText className="h-5 w-5" />
+              </Link>
+            </Button>
+            <Button
+              variant={location.pathname === "/generation" ? "default" : "outline"}
+              size="icon"
+              className="w-10 h-10"
+              asChild
+            >
+              <Link to="/generation">
+                <Pencil className="h-5 w-5" />
               </Link>
             </Button>
           </div>
