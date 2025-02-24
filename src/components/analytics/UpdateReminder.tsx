@@ -13,21 +13,17 @@ export const UpdateReminder = ({ selectedReport }: UpdateReminderProps) => {
   };
 
   return (
-    <div className="mt-8 bg-card rounded-lg p-6 shadow-lg border border-border/50">
+    <div className="bg-muted/50 rounded-lg p-3 text-sm text-muted-foreground border border-border/50">
       {selectedReport ? (
-        <>
-          <h2 className="text-lg font-semibold mb-2">📅 Report Update Reminder</h2>
-          <p className="text-muted-foreground">
-            For the most accurate insights, we recommend uploading a new report for {selectedReport.celebrity_name} by {getNextUpdateDate()}. Regular updates help maintain data accuracy and track growth trends effectively.
-          </p>
-        </>
+        <p className="flex items-center gap-2">
+          <span>📅</span>
+          Next report update recommended by {getNextUpdateDate()} to maintain data accuracy.
+        </p>
       ) : (
-        <>
-          <h2 className="text-lg font-semibold mb-2">👋 Welcome to the Analytics Hub</h2>
-          <p className="text-muted-foreground">
-            Reports are uploaded through chat for analysis. Select a report from the dropdown to view detailed analytics.
-          </p>
-        </>
+        <p className="flex items-center gap-2">
+          <span>👋</span>
+          Select a report from the dropdown or upload a new one to view analytics.
+        </p>
       )}
     </div>
   );
