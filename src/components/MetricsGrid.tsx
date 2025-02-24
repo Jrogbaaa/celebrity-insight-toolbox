@@ -68,7 +68,7 @@ export const MetricsGrid = ({ data }: MetricsGridProps) => {
 
   return (
     <MotionConfig reducedMotion="user">
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 md:gap-6">
         <AnimatePresence>
           {metricsConfig
             .filter(metric => metric.value !== null)
@@ -79,22 +79,23 @@ export const MetricsGrid = ({ data }: MetricsGridProps) => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3, delay: metric.delay }}
                 whileHover={{ scale: 1.02 }}
+                className="w-full"
               >
-                <Card className="overflow-hidden relative group hover:shadow-lg transition-all duration-300 min-w-[160px]">
+                <Card className="overflow-hidden relative group hover:shadow-lg transition-all duration-300">
                   <div className={`absolute inset-0 bg-gradient-to-br ${metric.color} opacity-5 
                     group-hover:opacity-10 transition-opacity duration-300`} />
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 pt-3 px-3">
-                    <CardTitle className="text-sm font-medium text-primary whitespace-nowrap">
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 pt-4 px-4 md:px-6">
+                    <CardTitle className="text-base md:text-lg font-medium text-primary">
                       {metric.title}
                     </CardTitle>
                     <metric.icon 
-                      className="h-4 w-4 transition-transform duration-300 group-hover:scale-110 flex-shrink-0" 
+                      className="h-5 w-5 md:h-6 md:w-6 transition-transform duration-300 group-hover:scale-110 flex-shrink-0" 
                       style={{ color: metric.iconColor }}
                     />
                   </CardHeader>
-                  <CardContent className="pb-3 pt-0 px-3">
+                  <CardContent className="pb-4 pt-0 px-4 md:px-6">
                     <div 
-                      className="text-xl font-bold transition-all duration-300 group-hover:scale-105" 
+                      className="text-2xl md:text-3xl font-bold transition-all duration-300 group-hover:scale-105" 
                       style={{ color: metric.iconColor }}
                     >
                       {metric.value}
