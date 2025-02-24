@@ -27,7 +27,6 @@ export const ChatContainer = ({ selectedReport }: ChatContainerProps) => {
 
   const handlePromptClick = async (promptText: string) => {
     await setPrompt(promptText);
-    // Directly pass the promptText to handleSubmit to avoid validation error
     handleSubmit(promptText);
   };
 
