@@ -1,4 +1,3 @@
-
 import { useState, useRef, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -59,10 +58,6 @@ export const ImageGenerator = () => {
       }
 
       setImageUrl(imageData);
-      toast({
-        title: "Success",
-        description: "Image generated successfully!",
-      });
     } catch (error) {
       console.error('Error generating image:', error);
       toast({
