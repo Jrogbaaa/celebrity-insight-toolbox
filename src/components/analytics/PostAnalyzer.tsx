@@ -169,7 +169,7 @@ export const PostAnalyzer = () => {
         
         <Button 
           onClick={() => fileInputRef.current?.click()} 
-          className="flex items-center gap-2 bg-primary hover:bg-primary/90 transition-all"
+          className="flex items-center gap-2 bg-[#D6BCFA] hover:bg-[#D6BCFA]/90 text-primary transition-all h-11"
           disabled={loading}
         >
           {loading ? (
