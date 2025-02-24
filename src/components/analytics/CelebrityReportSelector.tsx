@@ -27,7 +27,7 @@ interface CelebrityReportSelectorProps {
 
 const celebrityImages: Record<string, string> = {
   'Jaime Lorente Lopez': '/lovable-uploads/90cf8a1b-7d74-4343-b904-af2703049da6.png',
-  'Cristina Pedroche': '/lovable-uploads/399f8136-3693-48a7-bcfb-01d4bf894f6e.png',
+  'Cristina Pedroche': '/lovable-uploads/6978f71c-ffeb-4f82-baeb-cc86b9d3330d.png',
   'Jorge Cremades': '/lovable-uploads/5295d8ff-7074-45d3-8e53-5bf795706af4.png'
 };
 
