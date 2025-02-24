@@ -32,7 +32,7 @@ const Analytics = () => {
     <div className="container animate-fade-in relative min-h-screen">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-0 mb-8">
         <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-          Analytics Hub
+          My Analytics Hub
         </h1>
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full sm:w-auto">
           <CelebrityReportSelector

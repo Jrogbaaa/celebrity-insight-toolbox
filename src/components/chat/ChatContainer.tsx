@@ -31,7 +31,7 @@ export const ChatContainer = ({ selectedReport }: ChatContainerProps) => {
   };
 
   return (
-    <Card className="h-[calc(100vh-6rem)] shadow-lg flex flex-col">
+    <Card className="h-[450px] shadow-lg flex flex-col">
       <CardHeader className="border-b bg-muted/50 py-2">
         <CardTitle className="text-lg font-semibold text-primary">
           {selectedReport ? `Chat about ${selectedReport.celebrity_name}` : 'Social Media Expert'}

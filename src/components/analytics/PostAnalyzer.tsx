@@ -1,10 +1,10 @@
-
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Upload, Loader2, ThumbsUp, AlertCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { createClient } from '@supabase/supabase-js';
 
 type AnalysisResult = {
   strengths: string[];
@@ -21,6 +21,28 @@ export const PostAnalyzer = () => {
   const [mediaType, setMediaType] = useState<"image" | "video">("image");
   const { toast } = useToast();
   const fileInputRef = React.useRef<HTMLInputElement>(null);
+
+  const analyzeContent = async (file: File): Promise<AnalysisResult> => {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const response = await fetch('/api/analyze-content', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error('Analysis failed');
+      }
+
+      const result = await response.json();
+      return result;
+    } catch (error) {
+      console.error('Error analyzing content:', error);
+      throw error;
+    }
+  };
 
   const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -49,40 +71,11 @@ export const PostAnalyzer = () => {
         title: "Analysis in progress",
         description: `Analyzing your ${isVideo ? "video" : "image"}...`,
       });
-      
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      const mockResult: AnalysisResult = {
-        strengths: isVideo ? [
-          "Engaging opening sequence",
-          "Good pacing and transitions",
-          "Clear audio quality",
-          "Effective storytelling structure"
-        ] : [
-          "Strong visual composition with good lighting",
-          "Effective use of color contrast",
-          "Clear focal point that draws attention",
-          "Good image quality and resolution"
-        ],
-        improvements: isVideo ? [
-          "Consider adding captions for accessibility",
-          "Optimize video length for platform",
-          "Include stronger call-to-action",
-          "Enhance thumbnail selection"
-        ] : [
-          "Consider adding more engaging caption text",
-          "Could benefit from strategic hashtag placement",
-          "Try experimenting with different angles",
-          "Add a call-to-action to boost engagement"
-        ],
-        engagement_prediction: isVideo
-          ? "This video is predicted to reach 20% more viewers than your typical content"
-          : "This post is likely to perform 15% above your average engagement rate"
-      };
-      
-      setAnalysisResult(mockResult);
+
+      const result = await analyzeContent(file);
+      setAnalysisResult(result);
       setShowAnalysis(true);
-      
+
       toast({
         title: "Analysis Complete",
         description: "View your detailed post analysis.",
