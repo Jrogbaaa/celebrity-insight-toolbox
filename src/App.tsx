@@ -4,13 +4,13 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Link, useLocation, useNavigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Link, useLocation } from "react-router-dom";
 import Analytics from "./pages/Analytics";
 import Generation from "./pages/Generation";
 import TermsOfService from "./pages/TermsOfService";
 import TikTokCallback from "./pages/TikTokCallback";
 import { Button } from "@/components/ui/button";
-import { FileText, Pencil } from "lucide-react";
+import { FileText, Pencil, Search, Menu } from "lucide-react";
 
 const Layout = ({
   children
@@ -18,50 +18,31 @@ const Layout = ({
   children: React.ReactNode;
 }) => {
   const location = useLocation();
-  const navigate = useNavigate();
   
   return (
     <div className="min-h-screen bg-background">
-      <div className="container py-4">
-        <div className="flex items-center justify-between mb-8 animate-fade-in">
-          <div className="flex items-center">
-            <Link to="/">
-              <img 
-                src="/lovable-uploads/e7bef072-8d1a-4444-a41f-6dca6ff42c63.png" 
-                alt="Look After You" 
-                className="h-32 w-auto object-contain transition-all duration-300 hover:scale-105 cursor-pointer"
-              />
-            </Link>
-          </div>
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex gap-4">
-            <Button 
-              variant={location.pathname === "/analytics" ? "default" : "outline"}
-              size="lg"
-              className="shadow-md hover:shadow-lg transition-all duration-300"
-              asChild
-            >
-              <Link to="/analytics" className="flex items-center gap-2">
-                My Analytics Hub
-              </Link>
-            </Button>
-            <Button 
-              variant={location.pathname === "/generation" ? "default" : "outline"}
-              size="lg"
-              className="shadow-md hover:shadow-lg transition-all duration-300"
-              asChild
-            >
-              <Link to="/generation" className="flex items-center gap-2">
-                Creative Studio AI
-              </Link>
-            </Button>
-          </div>
-          {/* Mobile Navigation */}
-          <div className="flex md:hidden gap-2">
+      {/* Mobile Header - Fixed */}
+      <div className="md:hidden fixed top-0 left-0 right-0 bg-background/95 backdrop-blur-sm border-b z-50">
+        <div className="container py-4 flex items-center justify-between">
+          <Link to="/">
+            <img 
+              src="/lovable-uploads/e7bef072-8d1a-4444-a41f-6dca6ff42c63.png" 
+              alt="Look After You" 
+              className="h-8 w-auto object-contain"
+            />
+          </Link>
+          <div className="flex items-center gap-4">
             <Button
-              variant={location.pathname === "/analytics" ? "default" : "outline"}
+              variant="ghost"
               size="icon"
-              className="w-10 h-10"
+              className="w-8 h-8"
+            >
+              <Search className="h-5 w-5" />
+            </Button>
+            <Button
+              variant={location.pathname === "/analytics" ? "default" : "ghost"}
+              size="icon"
+              className="w-8 h-8"
               asChild
             >
               <Link to="/analytics">
@@ -69,18 +50,68 @@ const Layout = ({
               </Link>
             </Button>
             <Button
-              variant={location.pathname === "/generation" ? "default" : "outline"}
+              variant={location.pathname === "/generation" ? "default" : "ghost"}
               size="icon"
-              className="w-10 h-10"
+              className="w-8 h-8"
               asChild
             >
               <Link to="/generation">
                 <Pencil className="h-5 w-5" />
               </Link>
             </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="w-8 h-8"
+            >
+              <Menu className="h-5 w-5" />
+            </Button>
           </div>
         </div>
-        {children}
+      </div>
+
+      {/* Desktop Header */}
+      <div className="hidden md:block">
+        <div className="container py-4">
+          <div className="flex items-center justify-between mb-8 animate-fade-in">
+            <Link to="/">
+              <img 
+                src="/lovable-uploads/e7bef072-8d1a-4444-a41f-6dca6ff42c63.png" 
+                alt="Look After You" 
+                className="h-32 w-auto object-contain transition-all duration-300 hover:scale-105 cursor-pointer"
+              />
+            </Link>
+            <div className="flex gap-4">
+              <Button 
+                variant={location.pathname === "/analytics" ? "default" : "outline"}
+                size="lg"
+                className="shadow-md hover:shadow-lg transition-all duration-300"
+                asChild
+              >
+                <Link to="/analytics" className="flex items-center gap-2">
+                  My Analytics Hub
+                </Link>
+              </Button>
+              <Button 
+                variant={location.pathname === "/generation" ? "default" : "outline"}
+                size="lg"
+                className="shadow-md hover:shadow-lg transition-all duration-300"
+                asChild
+              >
+                <Link to="/generation" className="flex items-center gap-2">
+                  Creative Studio AI
+                </Link>
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Content with mobile padding for fixed header */}
+      <div className="md:container">
+        <div className="md:py-4 mt-[72px] md:mt-0">
+          {children}
+        </div>
       </div>
     </div>
   );
