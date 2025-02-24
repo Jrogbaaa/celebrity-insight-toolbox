@@ -82,7 +82,7 @@ export const MetricsGrid = ({ data }: MetricsGridProps) => {
                 whileHover={{ scale: 1.02 }}
                 className={`w-full ${index === 4 ? 'col-span-2 sm:col-span-1' : ''}`}
               >
-                <Card className="overflow-hidden relative group hover:shadow-lg transition-all duration-300">
+                <Card className="overflow-hidden relative group hover:shadow-lg transition-all duration-300 md:min-w-[240px]">
                   <div className={`absolute inset-0 bg-gradient-to-br ${metric.color} opacity-5 
                     group-hover:opacity-10 transition-opacity duration-300`} />
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 pt-3 px-3 md:pb-2 md:pt-4 md:px-6">
