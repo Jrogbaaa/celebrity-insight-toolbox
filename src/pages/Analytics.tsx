@@ -13,7 +13,7 @@ import { PostingInsights } from "@/components/analytics/PostingInsights";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { ChatContainer } from "@/components/chat/ChatContainer";
-import { MessageCircle, ArrowUpRight } from "lucide-react";
+import { MessageCircle } from "lucide-react";
 
 const Analytics = () => {
   const { reports, selectedReport, setSelectedReport, fetchReports } = useReportsData();
@@ -82,16 +82,6 @@ const Analytics = () => {
           <ChatContainer selectedReport={selectedReport} />
         </DialogContent>
       </Dialog>
-
-      {/* Navigation button */}
-      <Button 
-        className="fixed top-24 right-4 rounded-full shadow-lg md:hidden" 
-        size="icon"
-        variant="default"
-        onClick={() => document.querySelector('.container')?.scrollTo({ top: 0, behavior: 'smooth' })}
-      >
-        <ArrowUpRight className="h-5 w-5" />
-      </Button>
     </div>
   );
 };
