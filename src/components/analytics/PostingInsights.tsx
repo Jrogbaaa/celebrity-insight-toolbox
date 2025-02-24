@@ -132,7 +132,12 @@ export const PostingInsights = ({ insights }: PostingInsightsProps) => {
                 Peak Engagement Times
               </h3>
               <p className="text-foreground text-base">
-                Highest engagement occurs at <strong>{peak_engagement_times.join("</strong> and <strong>")}</strong>
+                Highest engagement occurs at {peak_engagement_times.map((time, index) => (
+                  <React.Fragment key={time}>
+                    {index > 0 && index === peak_engagement_times.length - 1 ? ' and ' : index > 0 ? ', ' : ''}
+                    <strong>{time}</strong>
+                  </React.Fragment>
+                ))}
               </p>
             </div>
           )}

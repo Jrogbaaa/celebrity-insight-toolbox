@@ -17,7 +17,7 @@ export const CelebrityReportUploader = ({ onUploadSuccess }: { onUploadSuccess: 
       />
       <Button 
         onClick={() => fileInputRef.current?.click()} 
-        className="flex items-center gap-2 bg-primary hover:bg-primary/90 transition-all max-w-[180px] sm:max-w-none"
+        className="flex items-center gap-2 bg-primary hover:bg-primary/90 transition-all h-9 sm:h-10 px-3 sm:px-4 max-w-[120px] sm:max-w-none"
         disabled={loading}
       >
         {loading ? (
@@ -25,7 +25,7 @@ export const CelebrityReportUploader = ({ onUploadSuccess }: { onUploadSuccess: 
         ) : (
           <Upload className="h-4 w-4" />
         )}
-        Upload PDF Report
+        Upload PDF
       </Button>
     </div>
   );

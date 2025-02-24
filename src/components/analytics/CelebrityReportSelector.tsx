@@ -62,7 +62,10 @@ export const CelebrityReportSelector = ({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" className="flex items-center gap-2 min-w-[200px]">
+        <Button 
+          variant="outline" 
+          className="flex items-center gap-2 min-w-[200px] sm:min-w-[200px] max-w-[150px] sm:max-w-none h-9 sm:h-10"
+        >
           {selectedReport && (
             <Avatar className="h-8 w-8">
               <AvatarImage 
@@ -74,7 +77,7 @@ export const CelebrityReportSelector = ({
               <AvatarFallback>{selectedReport.celebrity_name[0]}</AvatarFallback>
             </Avatar>
           )}
-          <span>{selectedReport ? selectedReport.celebrity_name : "Select Celebrity"}</span>
+          <span className="truncate">{selectedReport ? selectedReport.celebrity_name : "Select Celebrity"}</span>
           <ChevronDown className="h-4 w-4 ml-auto" />
         </Button>
       </DropdownMenuTrigger>
