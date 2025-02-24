@@ -25,9 +25,9 @@ interface CelebrityReportSelectorProps {
 }
 
 const celebrityImages: Record<string, string> = {
-  'Jaime': '/lovable-uploads/e644962b-a296-4b0e-8d7b-77d913bd4fd2.png',
-  'Cristina': '/lovable-uploads/14455bf9-eab5-417b-a412-10c0372a9e52.png',
-  'Jorge Cremades': '/lovable-uploads/8f6cae49-bfa3-4b2c-9e77-b10bf20515c2.png'
+  'Jaime': '/lovable-uploads/90cf8a1b-7d74-4343-b904-af2703049da6.png',
+  'Cristina': '/lovable-uploads/b4964eb4-66c5-4cf9-8f67-efacbe88fd7c.png',
+  'Jorge Cremades': '/lovable-uploads/5295d8ff-7074-45d3-8e53-5bf795706af4.png'
 };
 
 export const CelebrityReportSelector = ({
@@ -46,7 +46,7 @@ export const CelebrityReportSelector = ({
       <DropdownMenuTrigger asChild>
         <Button variant="outline" className="flex items-center gap-2 min-w-[200px]">
           {selectedReport && (
-            <Avatar className="h-6 w-6">
+            <Avatar className="h-8 w-8">
               <AvatarImage 
                 src={celebrityImages[selectedReport.celebrity_name]} 
                 alt={selectedReport.celebrity_name}
@@ -59,7 +59,10 @@ export const CelebrityReportSelector = ({
           <ChevronDown className="h-4 w-4 ml-auto" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-[200px]">
+      <DropdownMenuContent 
+        className="w-[200px] bg-white dark:bg-gray-800 p-1 shadow-lg rounded-md border"
+        align="start"
+      >
         {uniqueCelebrities.map((celebrityName) => {
           const firstReport = getFirstReportForCelebrity(celebrityName);
           if (!firstReport) return null;
@@ -67,9 +70,9 @@ export const CelebrityReportSelector = ({
             <DropdownMenuItem
               key={celebrityName}
               onClick={() => onSelectReport(firstReport)}
-              className="flex items-center gap-2 p-2"
+              className="flex items-center gap-3 px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-sm cursor-pointer"
             >
-              <Avatar className="h-8 w-8">
+              <Avatar className="h-10 w-10">
                 <AvatarImage 
                   src={celebrityImages[celebrityName]} 
                   alt={celebrityName}
@@ -77,7 +80,7 @@ export const CelebrityReportSelector = ({
                 />
                 <AvatarFallback>{celebrityName[0]}</AvatarFallback>
               </Avatar>
-              <span>{celebrityName}</span>
+              <span className="flex-1 truncate">{celebrityName}</span>
             </DropdownMenuItem>
           );
         })}
