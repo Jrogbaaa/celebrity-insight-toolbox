@@ -1,6 +1,6 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, Heart, MessageCircle, Share2 } from "lucide-react";
+import { Users, Heart, MessageCircle, Share2, TrendingUp, CircleUser } from "lucide-react";
 
 interface MetricsGridProps {
   data: {
@@ -29,31 +29,36 @@ export const MetricsGrid = ({ data }: MetricsGridProps) => {
       value: data.followers > 0 ? formatNumber(data.followers) : null,
       icon: Users,
       color: "from-purple-500 to-purple-600",
+      iconColor: "#9b87f5",
     },
     {
       title: "Following",
       value: data.following && data.following > 0 ? data.following.toString() : null,
-      icon: Users,
-      color: "from-purple-500 to-purple-600",
+      icon: CircleUser,
+      color: "from-blue-500 to-blue-600",
+      iconColor: "#0EA5E9",
     },
     {
       title: "Engagement Rate",
       value: data.engagementRate > 0 ? `${data.engagementRate}%` : null,
-      icon: Heart,
-      color: "from-purple-400 to-purple-500",
+      icon: TrendingUp,
+      color: "from-green-500 to-green-600",
+      iconColor: "#10B981",
     },
     {
       title: "Average Likes",
       value: data.averageLikes && data.averageLikes > 0 ? formatNumber(data.averageLikes) : null,
       icon: Heart,
-      color: "from-purple-500 to-purple-600",
+      color: "from-pink-500 to-pink-600",
+      iconColor: "#EC4899",
     },
     {
       title: "Comments/Post",
       value: data.commentsPerPost > 0 ? formatNumber(data.commentsPerPost) : null,
       icon: MessageCircle,
-      color: "from-purple-400 to-purple-500",
-    },
+      color: "from-orange-500 to-orange-600",
+      iconColor: "#F97316",
+    }
   ];
 
   return (
@@ -62,16 +67,20 @@ export const MetricsGrid = ({ data }: MetricsGridProps) => {
         .filter(metric => metric.value !== null)
         .map((metric) => (
           <Card key={metric.title} className="overflow-hidden relative">
-            <div className={`absolute inset-0 bg-gradient 
-              opacity-5 bg-gradient-to-br ${metric.color}`} />
+            <div className={`absolute inset-0 bg-gradient-to-br ${metric.color} opacity-5`} />
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-base font-medium text-primary">
                 {metric.title}
               </CardTitle>
-              <metric.icon className="h-4 w-4 text-primary" />
+              <metric.icon 
+                className="h-5 w-5" 
+                style={{ color: metric.iconColor }}
+              />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-primary">{metric.value}</div>
+              <div className="text-2xl font-bold" style={{ color: metric.iconColor }}>
+                {metric.value}
+              </div>
             </CardContent>
           </Card>
         ))}
