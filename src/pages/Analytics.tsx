@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { CelebrityReportSelector } from "@/components/analytics/CelebrityReportSelector";
@@ -69,12 +70,12 @@ const Analytics = () => {
       <Dialog>
         <DialogTrigger asChild>
           <Button 
-            className="fixed bottom-8 right-8 shadow-lg rounded-full md:px-6 z-50" 
-            size="icon"
+            className="fixed bottom-8 right-8 shadow-lg rounded-full md:px-6 z-50 w-auto inline-flex items-center" 
+            size={undefined}
             variant="default"
           >
             <MessageCircle className="h-5 w-5 md:mr-2" />
-            <span className="hidden md:inline">My AI Social Expert</span>
+            <span className="hidden md:inline whitespace-nowrap">My AI Social Expert</span>
           </Button>
         </DialogTrigger>
         <DialogContent className="max-w-[500px] h-[450px] p-0">
