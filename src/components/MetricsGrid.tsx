@@ -84,18 +84,19 @@ export const MetricsGrid = ({ data }: MetricsGridProps) => {
                 <Card className="overflow-hidden relative group hover:shadow-lg transition-all duration-300">
                   <div className={`absolute inset-0 bg-gradient-to-br ${metric.color} opacity-5 
                     group-hover:opacity-10 transition-opacity duration-300`} />
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 pt-3 px-3">
-                    <CardTitle className="text-sm font-medium text-primary">
+                  <CardHeader className={`flex flex-row items-center justify-between space-y-0 md:pb-2 md:pt-6 
+                    pb-1 pt-3 md:px-6 px-3`}>
+                    <CardTitle className="md:text-lg text-sm font-medium text-primary">
                       {metric.title}
                     </CardTitle>
                     <metric.icon 
-                      className="h-4 w-4 transition-transform duration-300 group-hover:scale-110" 
+                      className="md:h-5 md:w-5 h-4 w-4 transition-transform duration-300 group-hover:scale-110" 
                       style={{ color: metric.iconColor }}
                     />
                   </CardHeader>
-                  <CardContent className="pb-3 pt-0 px-3">
+                  <CardContent className="md:pb-6 md:pt-1 pb-3 pt-0 md:px-6 px-3">
                     <div 
-                      className="text-xl font-bold transition-all duration-300 group-hover:scale-105" 
+                      className="md:text-2xl text-xl font-bold transition-all duration-300 group-hover:scale-105" 
                       style={{ color: metric.iconColor }}
                     >
                       {metric.value}

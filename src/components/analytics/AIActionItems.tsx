@@ -101,7 +101,9 @@ export const AIActionItems: React.FC<AIActionItemsProps> = ({ selectedReport }) 
               <h3 className="text-lg font-semibold text-primary mb-3">Personalized Action Plan</h3>
               <ul className="list-disc list-inside space-y-2">
                 {getPersonalizedActionItems(selectedReport).map((item: string, index: number) => (
-                  <li key={index} className="text-foreground text-base">{item}</li>
+                  <li key={index} className="text-foreground text-base" dangerouslySetInnerHTML={{
+                    __html: item.replace(/(photoshoots|peak hours|exclusive footage|prime engagement windows|golden hour|training sessions|comedy sketches)/g, '<strong>$1</strong>')
+                  }} />
                 ))}
               </ul>
             </div>
@@ -113,13 +115,13 @@ export const AIActionItems: React.FC<AIActionItemsProps> = ({ selectedReport }) 
                   Optimal Posting Windows
                 </h3>
                 <p className="text-foreground text-base">
-                  Peak engagement times: {selectedReport.report_data.posting_insights.peak_engagement_times.join(', ')}
+                  Peak engagement times: <strong>{selectedReport.report_data.posting_insights.peak_engagement_times.join(', ')}</strong>
                 </p>
                 <ul className="mt-2 space-y-1 text-sm text-muted-foreground">
-                  <li>• Post 1 hour before peak platform times</li>
-                  <li>• Share stories during commute hours (7-9am, 5-7pm)</li>
-                  <li>• Maintain 1 high-quality post per day</li>
-                  <li>• Share 3-5 authentic stories daily</li>
+                  <li>• Post <strong>1 hour before</strong> peak platform times</li>
+                  <li>• Share stories during <strong>commute hours (7-9am, 5-7pm)</strong></li>
+                  <li>• Maintain <strong>1 high-quality post per day</strong></li>
+                  <li>• Share <strong>3-5 authentic stories</strong> daily</li>
                 </ul>
               </div>
             )}
@@ -130,10 +132,10 @@ export const AIActionItems: React.FC<AIActionItemsProps> = ({ selectedReport }) 
                 Content Format Guidelines
               </h3>
               <ul className="space-y-1 text-sm text-muted-foreground">
-                <li>• Use high-quality action shots</li>
-                <li>• Create 15-30 second video clips</li>
-                <li>• Share multi-image carousels (3-5 images)</li>
-                <li>• Include raw, unfiltered moments</li>
+                <li>• Use <strong>high-quality action shots</strong></li>
+                <li>• Create <strong>15-30 second video clips</strong></li>
+                <li>• Share <strong>multi-image carousels (3-5 images)</strong></li>
+                <li>• Include <strong>raw, unfiltered moments</strong></li>
               </ul>
             </div>
           </div>

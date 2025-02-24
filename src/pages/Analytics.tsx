@@ -34,13 +34,17 @@ const Analytics = () => {
         <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
           My Analytics Hub
         </h1>
-        <div className="flex flex-row items-center gap-4 w-full sm:w-auto">
-          <CelebrityReportSelector
-            reports={reports}
-            selectedReport={selectedReport}
-            onSelectReport={setSelectedReport}
-          />
-          <CelebrityReportUploader onUploadSuccess={fetchReports} />
+        <div className="flex flex-row items-center gap-2 w-full sm:w-auto">
+          <div className="flex-1 sm:flex-none">
+            <CelebrityReportSelector
+              reports={reports}
+              selectedReport={selectedReport}
+              onSelectReport={setSelectedReport}
+            />
+          </div>
+          <div className="flex-shrink-0">
+            <CelebrityReportUploader onUploadSuccess={fetchReports} />
+          </div>
         </div>
       </div>
 
