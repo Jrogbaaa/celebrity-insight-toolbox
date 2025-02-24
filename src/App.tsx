@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -23,15 +24,15 @@ const Layout = ({
       {/* Mobile Header - Fixed */}
       <div className="md:hidden fixed top-0 left-0 right-0 bg-background/95 backdrop-blur-sm border-b z-50">
         <div className="container p-0">
-          <div className="flex items-center justify-between px-4 py-3">
-            <Link to="/" className="flex-1">
+          <div className="flex items-center justify-between px-4 py-2">
+            <Link to="/" className="flex-1 flex items-center">
               <img 
                 src="/lovable-uploads/e7bef072-8d1a-4444-a41f-6dca6ff42c63.png" 
                 alt="Look After You" 
-                className="h-12 w-auto object-contain"
+                className="h-16 w-auto object-contain"
               />
             </Link>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 ml-2">
               <Button
                 variant={location.pathname === "/analytics" ? "default" : "ghost"}
                 size="icon"
@@ -95,7 +96,7 @@ const Layout = ({
       </div>
 
       {/* Content with mobile padding for fixed header */}
-      <div className="container md:py-4 mt-[72px] md:mt-0 px-0 md:px-4">
+      <div className="container md:py-4 mt-[84px] md:mt-0 px-0 md:px-4">
         {children}
       </div>
     </div>
