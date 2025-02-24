@@ -81,22 +81,22 @@ export const MetricsGrid = ({ data }: MetricsGridProps) => {
                 transition={{ duration: 0.3, delay: metric.delay }}
                 whileHover={{ scale: 1.02 }}
               >
-                <Card className="overflow-hidden relative group hover:shadow-lg transition-all duration-300">
+                <Card className="overflow-hidden relative group hover:shadow-lg transition-all duration-300 min-w-[160px]">
                   <div className={`absolute inset-0 bg-gradient-to-br ${metric.color} opacity-5 
                     group-hover:opacity-10 transition-opacity duration-300`} />
-                  <CardHeader className={`flex flex-row items-center justify-between space-y-0 md:pb-2 md:pt-6 
-                    pb-1 pt-3 md:px-6 px-3`}>
-                    <CardTitle className="md:text-lg text-sm font-medium text-primary">
+                  <CardHeader className={`flex flex-row items-center justify-between space-y-0 
+                    pb-1 pt-3 px-3 md:pb-3 md:pt-4 md:px-4`}>
+                    <CardTitle className="text-sm md:text-base font-medium text-primary whitespace-nowrap">
                       {metric.title}
                     </CardTitle>
                     <metric.icon 
-                      className="md:h-5 md:w-5 h-4 w-4 transition-transform duration-300 group-hover:scale-110" 
+                      className="h-4 w-4 md:h-5 md:w-5 transition-transform duration-300 group-hover:scale-110 flex-shrink-0" 
                       style={{ color: metric.iconColor }}
                     />
                   </CardHeader>
-                  <CardContent className="md:pb-6 md:pt-1 pb-3 pt-0 md:px-6 px-3">
+                  <CardContent className="pb-3 pt-0 px-3 md:pb-4 md:px-4">
                     <div 
-                      className="md:text-2xl text-xl font-bold transition-all duration-300 group-hover:scale-105" 
+                      className="text-xl md:text-2xl font-bold transition-all duration-300 group-hover:scale-105" 
                       style={{ color: metric.iconColor }}
                     >
                       {metric.value}

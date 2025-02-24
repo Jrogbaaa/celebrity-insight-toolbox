@@ -104,12 +104,14 @@ const Layout = ({
 };
 
 const WelcomePage = () => (
-  <div className="flex flex-col items-center justify-center min-h-[60vh] animate-fade-in">
-    <h1 className="text-4xl font-bold text-primary mb-6">Welcome to Your Social Media Command Center</h1>
-    <p className="text-xl text-muted-foreground mb-12 text-center max-w-2xl">
+  <div className="flex flex-col items-center justify-center min-h-[60vh] animate-fade-in px-4 md:px-0">
+    <h1 className="text-3xl md:text-4xl font-bold text-primary mb-6 text-center">
+      Welcome to Your Social Media Command Center
+    </h1>
+    <p className="text-lg md:text-xl text-muted-foreground mb-12 text-center max-w-2xl px-2">
       Analyze your social media performance, generate AI-powered content, and get personalized recommendations to grow your audience.
     </p>
-    <div className="flex gap-6">
+    <div className="flex gap-4 flex-col sm:flex-row">
       <Button size="lg" asChild className="shadow-lg hover:shadow-xl transition-all">
         <Link to="/analytics">Explore Analytics</Link>
       </Button>
