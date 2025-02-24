@@ -1,7 +1,7 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
-import { GoogleGenerativeAI } from "https://esm.sh/@google/generative-ai@^0.1.0";
+import { GoogleGenerativeAI } from "https://esm.sh/@google/generative-ai@^0.1.3";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -22,7 +22,7 @@ serve(async (req) => {
     }
 
     const genAI = new GoogleGenerativeAI(Deno.env.get('GEMINI_API_KEY') || '');
-    const model = genAI.getGenerativeModel({ model: "gemini-pro-vision" });
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
     // Convert file to base64
     const arrayBuffer = await (file as File).arrayBuffer();
@@ -69,17 +69,18 @@ serve(async (req) => {
         analysisResult = JSON.parse(jsonMatch[0]);
       } else {
         // If no JSON found, create structured format from the text
+        const lines = text.split('\n').filter(line => line.trim());
         analysisResult = {
-          strengths: [text.split('\n')[0]], // First line as strength
-          improvements: [text.split('\n')[1]], // Second line as improvement
-          engagement_prediction: text.split('\n')[2] || "Moderate engagement potential expected" // Third line or default
+          strengths: [lines[0] || "Content has potential for engagement"],
+          improvements: [lines[1] || "Consider optimizing for better engagement"],
+          engagement_prediction: lines[2] || "Moderate engagement potential expected"
         };
       }
     } catch (e) {
       console.error('Error parsing Gemini response:', e);
       // Fallback structured response if parsing fails
       analysisResult = {
-        strengths: [text.split('\n')[0]],
+        strengths: ["Content has potential for engagement"],
         improvements: ["Consider optimizing for better engagement"],
         engagement_prediction: "Moderate engagement potential expected"
       };
