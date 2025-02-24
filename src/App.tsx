@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -11,44 +10,27 @@ import TermsOfService from "./pages/TermsOfService";
 import TikTokCallback from "./pages/TikTokCallback";
 import { Button } from "@/components/ui/button";
 import { FileText, Pencil } from "lucide-react";
-
 const Layout = ({
   children
 }: {
   children: React.ReactNode;
 }) => {
   const location = useLocation();
-  
-  return (
-    <div className="min-h-screen bg-background">
+  return <div className="min-h-screen bg-background">
       {/* Mobile Header - Fixed */}
       <div className="md:hidden fixed top-0 left-0 right-0 bg-background/95 backdrop-blur-sm border-b z-50">
         <div className="container p-0">
           <div className="flex items-center justify-between px-2 py-2">
             <Link to="/" className="flex-1 flex items-center">
-              <img 
-                src="/lovable-uploads/e7bef072-8d1a-4444-a41f-6dca6ff42c63.png" 
-                alt="Look After You" 
-                className="h-20 w-auto object-contain"
-              />
+              <img src="/lovable-uploads/e7bef072-8d1a-4444-a41f-6dca6ff42c63.png" alt="Look After You" className="h-20 w-auto object-contain" />
             </Link>
             <div className="flex items-center gap-2 justify-center flex-shrink-0">
-              <Button
-                variant={location.pathname === "/analytics" ? "default" : "ghost"}
-                size="icon"
-                className="w-10 h-10"
-                asChild
-              >
-                <Link to="/analytics">
+              <Button variant={location.pathname === "/analytics" ? "default" : "ghost"} size="icon" className="w-10 h-10" asChild>
+                <Link to="/analytics" className="chage this button with ">
                   <FileText className="h-5 w-5" />
                 </Link>
               </Button>
-              <Button
-                variant={location.pathname === "/generation" ? "default" : "ghost"}
-                size="icon"
-                className="w-10 h-10"
-                asChild
-              >
+              <Button variant={location.pathname === "/generation" ? "default" : "ghost"} size="icon" className="w-10 h-10" asChild>
                 <Link to="/generation">
                   <Pencil className="h-5 w-5" />
                 </Link>
@@ -63,29 +45,15 @@ const Layout = ({
         <div className="container py-4">
           <div className="flex items-center justify-between mb-8 animate-fade-in">
             <Link to="/">
-              <img 
-                src="/lovable-uploads/e7bef072-8d1a-4444-a41f-6dca6ff42c63.png" 
-                alt="Look After You" 
-                className="h-32 w-auto object-contain transition-all duration-300 hover:scale-105 cursor-pointer"
-              />
+              <img src="/lovable-uploads/e7bef072-8d1a-4444-a41f-6dca6ff42c63.png" alt="Look After You" className="h-32 w-auto object-contain transition-all duration-300 hover:scale-105 cursor-pointer" />
             </Link>
             <div className="flex gap-4">
-              <Button 
-                variant={location.pathname === "/analytics" ? "default" : "outline"}
-                size="lg"
-                className="shadow-md hover:shadow-lg transition-all duration-300"
-                asChild
-              >
+              <Button variant={location.pathname === "/analytics" ? "default" : "outline"} size="lg" className="shadow-md hover:shadow-lg transition-all duration-300" asChild>
                 <Link to="/analytics" className="flex items-center gap-2">
                   My Analytics Hub
                 </Link>
               </Button>
-              <Button 
-                variant={location.pathname === "/generation" ? "default" : "outline"}
-                size="lg"
-                className="shadow-md hover:shadow-lg transition-all duration-300"
-                asChild
-              >
+              <Button variant={location.pathname === "/generation" ? "default" : "outline"} size="lg" className="shadow-md hover:shadow-lg transition-all duration-300" asChild>
                 <Link to="/generation" className="flex items-center gap-2">
                   Creative Studio AI
                 </Link>
@@ -99,12 +67,9 @@ const Layout = ({
       <div className="container md:py-4 mt-[96px] md:mt-0 px-0 md:px-4">
         {children}
       </div>
-    </div>
-  );
+    </div>;
 };
-
-const WelcomePage = () => (
-  <div className="flex flex-col items-center justify-center min-h-[60vh] animate-fade-in px-4 md:px-0">
+const WelcomePage = () => <div className="flex flex-col items-center justify-center min-h-[60vh] animate-fade-in px-4 md:px-0">
     <h1 className="text-3xl md:text-4xl font-bold text-primary mb-6 text-center">
       Welcome to Your Social Media Command Center
     </h1>
@@ -119,13 +84,9 @@ const WelcomePage = () => (
         <Link to="/generation">Create Content</Link>
       </Button>
     </div>
-  </div>
-);
-
+  </div>;
 const queryClient = new QueryClient();
-
-const App = () => (
-  <React.StrictMode>
+const App = () => <React.StrictMode>
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <Toaster />
@@ -141,7 +102,5 @@ const App = () => (
         </BrowserRouter>
       </TooltipProvider>
     </QueryClientProvider>
-  </React.StrictMode>
-);
-
+  </React.StrictMode>;
 export default App;
