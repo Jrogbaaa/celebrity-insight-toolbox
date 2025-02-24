@@ -8,7 +8,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 interface CelebrityReport {
   id: string;
@@ -37,6 +37,17 @@ export const CelebrityReportSelector = ({
   onSelectReport,
 }: CelebrityReportSelectorProps) => {
   const [imageLoadError, setImageLoadError] = useState<Record<string, boolean>>({});
+  
+  useEffect(() => {
+    // Preload and test all images
+    Object.entries(celebrityImages).forEach(([name, path]) => {
+      const img = new Image();
+      img.onload = () => console.log(`Successfully loaded image for ${name}:`, path);
+      img.onerror = (error) => console.error(`Failed to load image for ${name}:`, path, error);
+      img.src = path;
+    });
+  }, []);
+
   const uniqueCelebrities = Array.from(new Set(reports.map(report => report.celebrity_name)));
   
   const getFirstReportForCelebrity = (celebrityName: string) => {
@@ -76,7 +87,6 @@ export const CelebrityReportSelector = ({
           if (!firstReport) return null;
 
           const imagePath = celebrityImages[celebrityName];
-          console.log('Loading image:', imagePath, 'for celebrity:', celebrityName);
 
           return (
             <DropdownMenuItem
