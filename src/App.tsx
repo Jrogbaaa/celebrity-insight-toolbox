@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -10,7 +9,7 @@ import Generation from "./pages/Generation";
 import TermsOfService from "./pages/TermsOfService";
 import TikTokCallback from "./pages/TikTokCallback";
 import { Button } from "@/components/ui/button";
-import { FileText, Pencil, Search, Menu } from "lucide-react";
+import { FileText, Pencil } from "lucide-react";
 
 const Layout = ({
   children
@@ -23,49 +22,37 @@ const Layout = ({
     <div className="min-h-screen bg-background">
       {/* Mobile Header - Fixed */}
       <div className="md:hidden fixed top-0 left-0 right-0 bg-background/95 backdrop-blur-sm border-b z-50">
-        <div className="container py-4 flex items-center justify-between">
-          <Link to="/">
-            <img 
-              src="/lovable-uploads/e7bef072-8d1a-4444-a41f-6dca6ff42c63.png" 
-              alt="Look After You" 
-              className="h-8 w-auto object-contain"
-            />
-          </Link>
-          <div className="flex items-center gap-4">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="w-8 h-8"
-            >
-              <Search className="h-5 w-5" />
-            </Button>
-            <Button
-              variant={location.pathname === "/analytics" ? "default" : "ghost"}
-              size="icon"
-              className="w-8 h-8"
-              asChild
-            >
-              <Link to="/analytics">
-                <FileText className="h-5 w-5" />
-              </Link>
-            </Button>
-            <Button
-              variant={location.pathname === "/generation" ? "default" : "ghost"}
-              size="icon"
-              className="w-8 h-8"
-              asChild
-            >
-              <Link to="/generation">
-                <Pencil className="h-5 w-5" />
-              </Link>
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="w-8 h-8"
-            >
-              <Menu className="h-5 w-5" />
-            </Button>
+        <div className="container p-0">
+          <div className="flex items-center justify-between px-4 py-3">
+            <Link to="/" className="flex-1">
+              <img 
+                src="/lovable-uploads/e7bef072-8d1a-4444-a41f-6dca6ff42c63.png" 
+                alt="Look After You" 
+                className="h-12 w-auto object-contain"
+              />
+            </Link>
+            <div className="flex items-center gap-3">
+              <Button
+                variant={location.pathname === "/analytics" ? "default" : "ghost"}
+                size="icon"
+                className="w-10 h-10"
+                asChild
+              >
+                <Link to="/analytics">
+                  <FileText className="h-5 w-5" />
+                </Link>
+              </Button>
+              <Button
+                variant={location.pathname === "/generation" ? "default" : "ghost"}
+                size="icon"
+                className="w-10 h-10"
+                asChild
+              >
+                <Link to="/generation">
+                  <Pencil className="h-5 w-5" />
+                </Link>
+              </Button>
+            </div>
           </div>
         </div>
       </div>
@@ -108,10 +95,8 @@ const Layout = ({
       </div>
 
       {/* Content with mobile padding for fixed header */}
-      <div className="md:container">
-        <div className="md:py-4 mt-[72px] md:mt-0">
-          {children}
-        </div>
+      <div className="container md:py-4 mt-[72px] md:mt-0 px-0 md:px-4">
+        {children}
       </div>
     </div>
   );
