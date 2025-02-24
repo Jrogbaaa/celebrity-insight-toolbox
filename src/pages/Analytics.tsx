@@ -76,26 +76,21 @@ const Analytics = () => {
         {selectedReport?.report_data.demographics && <DemographicsDisplay demographics={selectedReport.report_data.demographics} />}
       </div>
 
-      {/* Mobile floating button */}
+      {/* Chat button and dialog */}
       <Dialog>
         <DialogTrigger asChild>
           <Button 
-            className="fixed bottom-8 right-4 rounded-full shadow-lg md:hidden" 
-            size="icon"
+            className="fixed bottom-8 right-4 shadow-lg rounded-full px-6" 
             variant="default"
           >
-            <MessageCircle className="h-5 w-5" />
+            <MessageCircle className="h-5 w-5 mr-2" />
+            My AI Social Expert
           </Button>
         </DialogTrigger>
         <DialogContent className="max-w-[500px] h-[450px] p-0">
           <ChatContainer selectedReport={selectedReport} />
         </DialogContent>
       </Dialog>
-
-      {/* Desktop chat container */}
-      <div className="hidden md:block fixed top-32 right-8 w-[400px]">
-        <ChatContainer selectedReport={selectedReport} />
-      </div>
 
       {/* Mobile document button */}
       <Button 
