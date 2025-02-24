@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { CelebrityReportSelector } from "@/components/analytics/CelebrityReportSelector";
@@ -14,6 +13,7 @@ import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { ChatContainer } from "@/components/chat/ChatContainer";
 import { MessageCircle } from "lucide-react";
 import { PostingInsights } from "@/components/analytics/PostingInsights";
+import { TrendingUp } from "lucide-react";
 
 const Analytics = () => {
   const { reports, selectedReport, setSelectedReport, fetchReports } = useReportsData();
@@ -79,11 +79,11 @@ const Analytics = () => {
       <Dialog>
         <DialogTrigger asChild>
           <Button 
-            className="fixed bottom-8 right-4 rounded-full shadow-lg" 
+            className="fixed bottom-8 right-4 rounded-full shadow-lg md:hidden" 
             size="icon"
             variant="default"
           >
-            <MessageCircle className="h-5 w-5" />
+            <TrendingUp className="h-5 w-5" />
           </Button>
         </DialogTrigger>
         <DialogContent className="max-w-[500px] h-[450px] p-0">

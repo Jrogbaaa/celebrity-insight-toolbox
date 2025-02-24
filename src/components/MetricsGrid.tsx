@@ -1,5 +1,6 @@
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, Heart, MessageCircle, Share2, TrendingUp, CircleUser } from "lucide-react";
+import { Users, Heart, MessageCircle, TrendingUp, CircleUser } from "lucide-react";
 import { motion, AnimatePresence, MotionConfig } from "framer-motion";
 
 interface MetricsGridProps {
@@ -68,7 +69,7 @@ export const MetricsGrid = ({ data }: MetricsGridProps) => {
 
   return (
     <MotionConfig reducedMotion="user">
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-6">
+      <div className="grid grid-cols-2 grid-rows-3 sm:grid-cols-3 md:grid-cols-5 md:grid-rows-1 gap-3 px-2">
         <AnimatePresence>
           {metricsConfig
             .filter(metric => metric.value !== null)
@@ -79,23 +80,23 @@ export const MetricsGrid = ({ data }: MetricsGridProps) => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3, delay: metric.delay }}
                 whileHover={{ scale: 1.02 }}
-                className="w-full"
+                className={`w-full ${index === 4 ? 'col-span-2 sm:col-span-1' : ''}`}
               >
-                <Card className="overflow-hidden relative group hover:shadow-lg transition-all duration-300 min-w-[240px]">
+                <Card className="overflow-hidden relative group hover:shadow-lg transition-all duration-300">
                   <div className={`absolute inset-0 bg-gradient-to-br ${metric.color} opacity-5 
                     group-hover:opacity-10 transition-opacity duration-300`} />
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 pt-4 px-4 md:px-6">
-                    <CardTitle className="text-base md:text-lg font-medium text-primary">
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 pt-3 px-3 md:pb-2 md:pt-4 md:px-6">
+                    <CardTitle className="text-sm md:text-lg font-medium text-primary">
                       {metric.title}
                     </CardTitle>
                     <metric.icon 
-                      className="h-5 w-5 md:h-6 md:w-6 transition-transform duration-300 group-hover:scale-110 flex-shrink-0" 
+                      className="h-4 w-4 md:h-6 md:w-6 transition-transform duration-300 group-hover:scale-110 flex-shrink-0" 
                       style={{ color: metric.iconColor }}
                     />
                   </CardHeader>
-                  <CardContent className="pb-4 pt-0 px-4 md:px-6">
+                  <CardContent className="pb-3 pt-0 px-3 md:pb-4 md:px-6">
                     <div 
-                      className="text-2xl md:text-3xl font-bold transition-all duration-300 group-hover:scale-105" 
+                      className="text-xl md:text-3xl font-bold transition-all duration-300 group-hover:scale-105" 
                       style={{ color: metric.iconColor }}
                     >
                       {metric.value}

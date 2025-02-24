@@ -17,7 +17,7 @@ export const CelebrityReportUploader = ({ onUploadSuccess }: { onUploadSuccess: 
       />
       <Button 
         onClick={() => fileInputRef.current?.click()} 
-        className="flex items-center gap-2 bg-primary hover:bg-primary/90 transition-all"
+        className="flex items-center gap-2 bg-primary hover:bg-primary/90 transition-all max-w-[180px] sm:max-w-none"
         disabled={loading}
       >
         {loading ? (
