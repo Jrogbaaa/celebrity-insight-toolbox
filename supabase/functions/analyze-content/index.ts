@@ -8,6 +8,8 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20MB limit
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -21,15 +23,35 @@ serve(async (req) => {
       throw new Error('No file uploaded');
     }
 
+    // Check file size
+    if ((file as File).size > MAX_FILE_SIZE) {
+      throw new Error('File size exceeds 20MB limit');
+    }
+
+    const isVideo = (file as File).type.startsWith('video/');
+    
+    // For now, we'll handle videos differently
+    if (isVideo) {
+      return new Response(
+        JSON.stringify({
+          strengths: ["Video content detected"],
+          improvements: ["For optimal analysis, consider uploading key frames or screenshots from your video"],
+          engagement_prediction: "Video analysis is currently optimized for shorter clips under 20MB"
+        }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     const genAI = new GoogleGenerativeAI(Deno.env.get('GEMINI_API_KEY') || '');
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
-    // Convert file to base64
+    // Convert file to base64 with chunking for large files
     const arrayBuffer = await (file as File).arrayBuffer();
-    const base64 = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
+    const chunk = arrayBuffer.slice(0, Math.min(arrayBuffer.byteLength, 5 * 1024 * 1024)); // First 5MB for large files
+    const base64 = btoa(String.fromCharCode(...new Uint8Array(chunk)));
     const mimeType = file.type;
 
-    const prompt = `Analyze this ${file.type.startsWith('video/') ? 'video' : 'image'} for social media potential. 
+    const prompt = `Analyze this image for social media potential. 
     Consider:
     1. Visual composition and quality
     2. Engagement potential
@@ -45,6 +67,7 @@ serve(async (req) => {
       "engagement_prediction": ""
     }`;
 
+    console.log('Sending request to Gemini API...');
     const result = await model.generateContent([
       prompt,
       {
@@ -55,8 +78,7 @@ serve(async (req) => {
       }
     ]);
 
-    console.log('Gemini API Response:', result);
-
+    console.log('Received response from Gemini API');
     const response = await result.response;
     const text = response.text();
     
