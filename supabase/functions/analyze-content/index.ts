@@ -1,7 +1,7 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1'
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
+import { GoogleGenerativeAI } from "https://esm.sh/@google/generative-ai@^0.1.0";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -21,57 +21,83 @@ serve(async (req) => {
       throw new Error('No file uploaded');
     }
 
-    let analysis;
+    const genAI = new GoogleGenerativeAI(Deno.env.get('GEMINI_API_KEY') || '');
+    const model = genAI.getGenerativeModel({ model: "gemini-pro-vision" });
+
+    // Convert file to base64
+    const arrayBuffer = await (file as File).arrayBuffer();
+    const base64 = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
+    const mimeType = file.type;
+
+    const prompt = `Analyze this ${file.type.startsWith('video/') ? 'video' : 'image'} for social media potential. 
+    Consider:
+    1. Visual composition and quality
+    2. Engagement potential
+    3. Target audience appeal
+    4. Branding consistency
+    5. Call-to-action effectiveness
     
-    if (file.type.startsWith('image/')) {
-      // Analyze image using Vision API
-      const response = await fetch('https://api.openai.com/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${Deno.env.get('OPENAI_API_KEY')}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          model: 'gpt-4-vision-preview',
-          messages: [
-            {
-              role: 'user',
-              content: [
-                { type: 'text', text: 'Analyze this image for social media potential. What are its strengths and areas for improvement?' },
-                {
-                  type: 'image_url',
-                  image_url: {
-                    url: URL.createObjectURL(file),
-                  },
-                },
-              ],
-            },
-          ],
-        }),
-      });
+    Provide specific strengths, areas for improvement, and predict engagement potential.
+    Format the response as JSON with these keys:
+    {
+      "strengths": [],
+      "improvements": [],
+      "engagement_prediction": ""
+    }`;
 
-      const data = await response.json();
-      analysis = data.choices[0].message.content;
-    } else if (file.type.startsWith('video/')) {
-      // For video analysis, we'll use a specialized video analysis API
-      // This is a placeholder - you would integrate with a video analysis service
-      analysis = "Video analysis content";
+    const result = await model.generateContent([
+      prompt,
+      {
+        inlineData: {
+          mimeType,
+          data: base64
+        }
+      }
+    ]);
+
+    console.log('Gemini API Response:', result);
+
+    const response = await result.response;
+    const text = response.text();
+    
+    // Parse the JSON response from the text
+    let analysisResult;
+    try {
+      // Find JSON object in the text (it might be wrapped in other text)
+      const jsonMatch = text.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        analysisResult = JSON.parse(jsonMatch[0]);
+      } else {
+        // If no JSON found, create structured format from the text
+        analysisResult = {
+          strengths: [text.split('\n')[0]], // First line as strength
+          improvements: [text.split('\n')[1]], // Second line as improvement
+          engagement_prediction: text.split('\n')[2] || "Moderate engagement potential expected" // Third line or default
+        };
+      }
+    } catch (e) {
+      console.error('Error parsing Gemini response:', e);
+      // Fallback structured response if parsing fails
+      analysisResult = {
+        strengths: [text.split('\n')[0]],
+        improvements: ["Consider optimizing for better engagement"],
+        engagement_prediction: "Moderate engagement potential expected"
+      };
     }
-
-    // Structure the analysis results
-    const analysisResult = {
-      strengths: analysis.strengths || [],
-      improvements: analysis.improvements || [],
-      engagement_prediction: analysis.prediction || "",
-    };
 
     return new Response(
       JSON.stringify(analysisResult),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   } catch (error) {
+    console.error('Error in analyze-content function:', error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ 
+        error: error.message,
+        strengths: [],
+        improvements: ["Unable to analyze content at this time"],
+        engagement_prediction: "Analysis unavailable"
+      }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
     );
   }
