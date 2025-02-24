@@ -40,25 +40,25 @@ export const PostingInsights = ({ insights }: PostingInsightsProps) => {
               <div className="space-y-2">
                 {general_best_times.monday && (
                   <div className="flex gap-2">
-                    <span className="font-medium text-base">Monday:</span>
+                    <span className="font-bold text-base">Monday:</span>
                     <span className="text-foreground text-base">
-                      {general_best_times.monday.join(", ")}
+                      <strong>{general_best_times.monday.join(", ")}</strong>
                     </span>
                   </div>
                 )}
                 {general_best_times.tuesday && (
                   <div className="flex gap-2">
-                    <span className="font-medium text-base">Tuesday:</span>
+                    <span className="font-bold text-base">Tuesday:</span>
                     <span className="text-foreground text-base">
-                      {general_best_times.tuesday.join(", ")}
+                      <strong>{general_best_times.tuesday.join(", ")}</strong>
                     </span>
                   </div>
                 )}
                 {general_best_times.thursday && (
                   <div className="flex gap-2">
-                    <span className="font-medium text-base">Thursday:</span>
+                    <span className="font-bold text-base">Thursday:</span>
                     <span className="text-foreground text-base">
-                      {general_best_times.thursday.join(", ")}
+                      <strong>{general_best_times.thursday.join(", ")}</strong>
                     </span>
                   </div>
                 )}
@@ -73,7 +73,7 @@ export const PostingInsights = ({ insights }: PostingInsightsProps) => {
                 Peak Engagement Times
               </h3>
               <p className="text-foreground text-base">
-                Highest engagement occurs at {peak_engagement_times.join(" and ")}
+                Highest engagement occurs at <strong>{peak_engagement_times.join("</strong> and <strong>")}</strong>
               </p>
             </div>
           )}
@@ -83,9 +83,9 @@ export const PostingInsights = ({ insights }: PostingInsightsProps) => {
               <h3 className="text-lg font-semibold text-primary mb-3">Tips for Better Engagement</h3>
               <ul className="list-disc list-inside space-y-2">
                 {posting_tips.map((tip, index) => (
-                  <li key={index} className="text-foreground text-base">
-                    {tip}
-                  </li>
+                  <li key={index} className="text-foreground text-base" dangerouslySetInnerHTML={{
+                    __html: tip.replace(/(morning|evening|afternoon|peak hours|best times|engagement rates)/gi, '<strong>$1</strong>')
+                  }} />
                 ))}
               </ul>
             </div>

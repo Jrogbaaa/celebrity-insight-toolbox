@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users, Heart, MessageCircle, Share2, TrendingUp, CircleUser } from "lucide-react";
 import { motion, AnimatePresence, MotionConfig } from "framer-motion";
@@ -84,19 +83,18 @@ export const MetricsGrid = ({ data }: MetricsGridProps) => {
                 <Card className="overflow-hidden relative group hover:shadow-lg transition-all duration-300 min-w-[160px]">
                   <div className={`absolute inset-0 bg-gradient-to-br ${metric.color} opacity-5 
                     group-hover:opacity-10 transition-opacity duration-300`} />
-                  <CardHeader className={`flex flex-row items-center justify-between space-y-0 
-                    pb-1 pt-3 px-3 md:pb-3 md:pt-4 md:px-4`}>
-                    <CardTitle className="text-sm md:text-base font-medium text-primary whitespace-nowrap">
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 pt-3 px-3">
+                    <CardTitle className="text-sm font-medium text-primary whitespace-nowrap">
                       {metric.title}
                     </CardTitle>
                     <metric.icon 
-                      className="h-4 w-4 md:h-5 md:w-5 transition-transform duration-300 group-hover:scale-110 flex-shrink-0" 
+                      className="h-4 w-4 transition-transform duration-300 group-hover:scale-110 flex-shrink-0" 
                       style={{ color: metric.iconColor }}
                     />
                   </CardHeader>
-                  <CardContent className="pb-3 pt-0 px-3 md:pb-4 md:px-4">
+                  <CardContent className="pb-3 pt-0 px-3">
                     <div 
-                      className="text-xl md:text-2xl font-bold transition-all duration-300 group-hover:scale-105" 
+                      className="text-xl font-bold transition-all duration-300 group-hover:scale-105" 
                       style={{ color: metric.iconColor }}
                     >
                       {metric.value}
