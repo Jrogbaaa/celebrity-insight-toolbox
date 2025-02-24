@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { CelebrityReportSelector } from "@/components/analytics/CelebrityReportSelector";
@@ -11,9 +12,7 @@ import { SponsorOpportunities } from "@/components/analytics/SponsorOpportunitie
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { ChatContainer } from "@/components/chat/ChatContainer";
-import { MessageCircle } from "lucide-react";
-import { PostingInsights } from "@/components/analytics/PostingInsights";
-import { TrendingUp } from "lucide-react";
+import { MessageCircle, TrendingUp } from "lucide-react";
 
 const Analytics = () => {
   const { reports, selectedReport, setSelectedReport, fetchReports } = useReportsData();
@@ -76,6 +75,7 @@ const Analytics = () => {
         {selectedReport?.report_data.demographics && <DemographicsDisplay demographics={selectedReport.report_data.demographics} />}
       </div>
 
+      {/* Mobile floating button */}
       <Dialog>
         <DialogTrigger asChild>
           <Button 
@@ -83,13 +83,28 @@ const Analytics = () => {
             size="icon"
             variant="default"
           >
-            <TrendingUp className="h-5 w-5" />
+            <MessageCircle className="h-5 w-5" />
           </Button>
         </DialogTrigger>
         <DialogContent className="max-w-[500px] h-[450px] p-0">
           <ChatContainer selectedReport={selectedReport} />
         </DialogContent>
       </Dialog>
+
+      {/* Desktop chat container */}
+      <div className="hidden md:block fixed top-32 right-8 w-[400px]">
+        <ChatContainer selectedReport={selectedReport} />
+      </div>
+
+      {/* Mobile document button */}
+      <Button 
+        className="fixed top-24 right-4 rounded-full shadow-lg md:hidden" 
+        size="icon"
+        variant="default"
+        onClick={() => document.querySelector('.container')?.scrollTo({ top: 0, behavior: 'smooth' })}
+      >
+        <TrendingUp className="h-5 w-5" />
+      </Button>
     </div>
   );
 };
