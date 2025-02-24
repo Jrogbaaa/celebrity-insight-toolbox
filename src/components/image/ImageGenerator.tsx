@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -12,8 +12,16 @@ export const ImageGenerator = () => {
   const [prompt, setPrompt] = useState("");
   const [loading, setLoading] = useState(false);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
-  const [selectedModel, setSelectedModel] = useState("standard"); // "standard" or "jaime"
+  const [selectedModel, setSelectedModel] = useState("standard");
   const { toast } = useToast();
+  const imageRef = useRef<HTMLDivElement>(null);
+
+  // Scroll to generated image when it appears
+  useEffect(() => {
+    if (imageUrl && imageRef.current) {
+      imageRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, [imageUrl]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -98,14 +106,14 @@ export const ImageGenerator = () => {
   };
 
   return (
-    <Card className="p-4">
+    <Card className="p-4 max-w-full overflow-hidden">
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="space-y-4">
           <Select
             value={selectedModel}
             onValueChange={setSelectedModel}
           >
-            <SelectTrigger>
+            <SelectTrigger className="w-full">
               <SelectValue placeholder="Select a model" />
             </SelectTrigger>
             <SelectContent>
@@ -121,7 +129,7 @@ export const ImageGenerator = () => {
             }
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
-            className="h-24 resize-none"
+            className="h-24 resize-none w-full"
           />
         </div>
         <Button 
@@ -143,23 +151,34 @@ export const ImageGenerator = () => {
         </Button>
       </form>
 
-      {imageUrl && (
-        <div className="mt-4">
-          <div className="relative rounded-lg overflow-hidden group">
-            <img 
-              src={imageUrl} 
-              alt="Generated content"
-              className="w-full rounded-lg shadow-lg" 
-            />
-            <Button
-              onClick={handleDownload}
-              className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity"
-              variant="secondary"
-            >
-              <Download className="mr-2 h-4 w-4" />
-              Download
-            </Button>
-          </div>
+      {(loading || imageUrl) && (
+        <div 
+          ref={imageRef}
+          className="mt-4 transition-all duration-500 ease-in-out"
+        >
+          {loading && (
+            <div className="flex items-center justify-center p-8 border-2 border-dashed rounded-lg animate-pulse">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+          )}
+          
+          {imageUrl && (
+            <div className="relative rounded-lg overflow-hidden group animate-fade-in">
+              <img 
+                src={imageUrl} 
+                alt="Generated content"
+                className="w-full rounded-lg shadow-lg" 
+              />
+              <Button
+                onClick={handleDownload}
+                className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity"
+                variant="secondary"
+              >
+                <Download className="mr-2 h-4 w-4" />
+                Download
+              </Button>
+            </div>
+          )}
         </div>
       )}
     </Card>

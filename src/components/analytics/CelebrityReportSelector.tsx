@@ -35,10 +35,8 @@ export const CelebrityReportSelector = ({
   selectedReport,
   onSelectReport,
 }: CelebrityReportSelectorProps) => {
-  // Get unique celebrity names
   const uniqueCelebrities = Array.from(new Set(reports.map(report => report.celebrity_name)));
   
-  // Find the first report for a celebrity
   const getFirstReportForCelebrity = (celebrityName: string) => {
     return reports.find(report => report.celebrity_name === celebrityName);
   };
@@ -51,7 +49,8 @@ export const CelebrityReportSelector = ({
             <Avatar className="h-6 w-6">
               <AvatarImage 
                 src={celebrityImages[selectedReport.celebrity_name]} 
-                alt={selectedReport.celebrity_name} 
+                alt={selectedReport.celebrity_name}
+                className="object-cover"
               />
               <AvatarFallback>{selectedReport.celebrity_name[0]}</AvatarFallback>
             </Avatar>
@@ -73,7 +72,8 @@ export const CelebrityReportSelector = ({
               <Avatar className="h-8 w-8">
                 <AvatarImage 
                   src={celebrityImages[celebrityName]} 
-                  alt={celebrityName} 
+                  alt={celebrityName}
+                  className="object-cover" 
                 />
                 <AvatarFallback>{celebrityName[0]}</AvatarFallback>
               </Avatar>
