@@ -13,20 +13,22 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { ChatContainer } from "@/components/chat/ChatContainer";
 import { MessageCircle, ArrowUpRight } from "lucide-react";
+
 const Analytics = () => {
-  const {
-    reports,
-    selectedReport,
-    setSelectedReport,
-    fetchReports
-  } = useReportsData();
+  const { reports, selectedReport, setSelectedReport, fetchReports } = useReportsData();
+
   const getUniquePlatforms = () => {
     if (!selectedReport) return [];
-    return [...new Set(reports.filter(report => report.celebrity_name === selectedReport.celebrity_name).map(report => report.platform))];
+    return [...new Set(reports
+      .filter(report => report.celebrity_name === selectedReport.celebrity_name)
+      .map(report => report.platform))];
   };
+
   const platforms = getUniquePlatforms();
   const currentPlatform = selectedReport?.platform || platforms[0];
-  return <div className="container animate-fade-in relative min-h-screen">
+
+  return (
+    <div className="container animate-fade-in relative min-h-screen pb-24">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-0 mb-8">
         <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
           My Analytics Hub
@@ -66,7 +68,11 @@ const Analytics = () => {
       {/* Chat button and dialog */}
       <Dialog>
         <DialogTrigger asChild>
-          <Button className="fixed bottom-8 right-4 shadow-lg rounded-full md:px-6" size="icon" variant="default">
+          <Button 
+            className="fixed bottom-8 right-8 shadow-lg rounded-full md:px-6 z-50" 
+            size="icon"
+            variant="default"
+          >
             <MessageCircle className="h-5 w-5 md:mr-2" />
             <span className="hidden md:inline">My AI Social Expert</span>
           </Button>
@@ -77,7 +83,16 @@ const Analytics = () => {
       </Dialog>
 
       {/* Navigation button */}
-      
-    </div>;
+      <Button 
+        className="fixed top-24 right-4 rounded-full shadow-lg md:hidden" 
+        size="icon"
+        variant="default"
+        onClick={() => document.querySelector('.container')?.scrollTo({ top: 0, behavior: 'smooth' })}
+      >
+        <ArrowUpRight className="h-5 w-5" />
+      </Button>
+    </div>
+  );
 };
+
 export default Analytics;
