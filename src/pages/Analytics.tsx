@@ -80,11 +80,12 @@ const Analytics = () => {
       <Dialog>
         <DialogTrigger asChild>
           <Button 
-            className="fixed bottom-8 right-4 shadow-lg rounded-full px-6" 
+            className="fixed bottom-8 right-4 shadow-lg rounded-full md:px-6" 
+            size="icon"
             variant="default"
           >
-            <MessageCircle className="h-5 w-5 mr-2" />
-            My AI Social Expert
+            <MessageCircle className="h-5 w-5 md:mr-2" />
+            <span className="hidden md:inline">My AI Social Expert</span>
           </Button>
         </DialogTrigger>
         <DialogContent className="max-w-[500px] h-[450px] p-0">
