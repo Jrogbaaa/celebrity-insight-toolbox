@@ -1,4 +1,3 @@
-
 import { useState, useRef, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -96,59 +95,58 @@ export const ImageGenerator = () => {
   };
 
   return (
-    <>
-      <Card className="p-4 max-w-full">
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-4">
-            <Select
-              value={selectedModel}
-              onValueChange={setSelectedModel}
-            >
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select a model" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="standard">Standard Image Generator</SelectItem>
-                <SelectItem value="jaime">Jaime Lorente Generator</SelectItem>
-              </SelectContent>
-            </Select>
-            
-            <Textarea
-              placeholder={`First select a model, then describe the image you want to generate... ${
-                selectedModel === "jaime" 
-                  ? "(e.g., 'A portrait of Jaime in a modern suit')"
-                  : "(e.g., 'A professional Instagram photo of a coffee shop with warm lighting and modern decor')"
-              }`}
-              value={prompt}
-              onChange={(e) => setPrompt(e.target.value)}
-              className="h-24 resize-none w-full"
-            />
-          </div>
-          <Button 
-            type="submit" 
-            disabled={loading}
-            className="w-full"
+    <Card className="h-full flex flex-col p-4">
+      <form onSubmit={handleSubmit} className="flex flex-col h-full">
+        <div className="flex-1 space-y-4 overflow-y-auto">
+          <Select
+            value={selectedModel}
+            onValueChange={setSelectedModel}
           >
-            {loading ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Generating...
-              </>
-            ) : (
-              <>
-                <ImageIcon className="mr-2 h-4 w-4" />
-                Generate Image
-              </>
-            )}
-          </Button>
-        </form>
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Select a model" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="standard">Standard Image Generator</SelectItem>
+              <SelectItem value="jaime">Jaime Lorente Generator</SelectItem>
+            </SelectContent>
+          </Select>
+          
+          <Textarea
+            placeholder={`First select a model, then describe the image you want to generate... ${
+              selectedModel === "jaime" 
+                ? "(e.g., 'A portrait of Jaime in a modern suit')"
+                : "(e.g., 'A professional Instagram photo of a coffee shop with warm lighting and modern decor')"
+            }`}
+            value={prompt}
+            onChange={(e) => setPrompt(e.target.value)}
+            className="flex-1 resize-none min-h-[150px]"
+          />
 
-        {loading && (
-          <div className="mt-4 flex items-center justify-center p-8 border-2 border-dashed rounded-lg animate-pulse">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          </div>
-        )}
-      </Card>
+          {loading && (
+            <div className="flex items-center justify-center p-8 border-2 border-dashed rounded-lg animate-pulse">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+          )}
+        </div>
+
+        <Button 
+          type="submit" 
+          disabled={loading}
+          className="w-full mt-4"
+        >
+          {loading ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Generating...
+            </>
+          ) : (
+            <>
+              <ImageIcon className="mr-2 h-4 w-4" />
+              Generate Image
+            </>
+          )}
+        </Button>
+      </form>
 
       <Dialog open={!!imageUrl} onOpenChange={() => setImageUrl(null)}>
         <DialogContent className="max-w-[90vw] w-auto h-auto max-h-[90vh] p-0 overflow-hidden bg-transparent border-0">
@@ -179,6 +177,6 @@ export const ImageGenerator = () => {
           )}
         </DialogContent>
       </Dialog>
-    </>
+    </Card>
   );
 };
