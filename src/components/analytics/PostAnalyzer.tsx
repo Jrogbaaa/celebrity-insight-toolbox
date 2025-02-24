@@ -1,10 +1,11 @@
+
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Upload, Loader2, ThumbsUp, AlertCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { createClient } from '@supabase/supabase-js';
+import { supabase } from "@/integrations/supabase/client";
 
 type AnalysisResult = {
   strengths: string[];
@@ -26,22 +27,16 @@ export const PostAnalyzer = () => {
     const formData = new FormData();
     formData.append('file', file);
 
-    try {
-      const response = await fetch('/api/analyze-content', {
-        method: 'POST',
-        body: formData,
-      });
+    const { data, error } = await supabase.functions.invoke('analyze-content', {
+      body: formData,
+    });
 
-      if (!response.ok) {
-        throw new Error('Analysis failed');
-      }
-
-      const result = await response.json();
-      return result;
-    } catch (error) {
+    if (error) {
       console.error('Error analyzing content:', error);
-      throw error;
+      throw new Error('Failed to analyze content');
     }
+
+    return data as AnalysisResult;
   };
 
   const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
