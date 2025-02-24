@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { ChatContainer } from "@/components/chat/ChatContainer";
 import { MessageCircle } from "lucide-react";
+import { PostingInsights } from "@/components/analytics/PostingInsights";
 
 const Analytics = () => {
   const { reports, selectedReport, setSelectedReport, fetchReports } = useReportsData();
@@ -29,7 +30,13 @@ const Analytics = () => {
   const currentPlatform = selectedReport?.platform || platforms[0];
 
   return (
-    <div className="container py-8 animate-fade-in relative min-h-screen">
+    <div className="container animate-fade-in relative min-h-screen">
+      {selectedReport && (
+        <div className="mb-6">
+          <UpdateReminder selectedReport={selectedReport} />
+        </div>
+      )}
+
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-0 mb-8">
         <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
           Analytics Hub
@@ -65,35 +72,33 @@ const Analytics = () => {
         />
       )}
 
-      <div className="mt-8">
+      <div className="space-y-8 mt-8">
         <AIActionItems selectedReport={selectedReport} />
-      </div>
+        
+        {selectedReport?.report_data.posting_insights && (
+          <PostingInsights insights={selectedReport.report_data.posting_insights} />
+        )}
 
-      {selectedReport?.report_data.demographics && (
-        <div className="mt-8">
-          <DemographicsDisplay demographics={selectedReport.report_data.demographics} />
-        </div>
-      )}
-
-      {selectedReport?.report_data.sponsor_opportunities && (
-        <div className="mt-8">
+        {selectedReport?.report_data.sponsor_opportunities && (
           <SponsorOpportunities selectedReport={selectedReport} />
-        </div>
-      )}
+        )}
 
-      <UpdateReminder selectedReport={selectedReport} />
+        {selectedReport?.report_data.demographics && (
+          <DemographicsDisplay demographics={selectedReport.report_data.demographics} />
+        )}
+      </div>
 
       <Dialog>
         <DialogTrigger asChild>
           <Button
-            className="fixed bottom-8 right-4 rounded-full px-6 shadow-lg flex items-center gap-2"
+            className="fixed bottom-8 right-4 rounded-full px-6 shadow-lg flex items-center gap-2 bg-primary hover:bg-primary/90"
             size="lg"
           >
             <MessageCircle className="h-5 w-5" />
-            AI Social Expert Chat
+            My AI Social Expert
           </Button>
         </DialogTrigger>
-        <DialogContent className="max-w-[600px] h-[500px] p-0">
+        <DialogContent className="max-w-[500px] h-[450px] p-0">
           <ChatContainer selectedReport={selectedReport} />
         </DialogContent>
       </Dialog>
