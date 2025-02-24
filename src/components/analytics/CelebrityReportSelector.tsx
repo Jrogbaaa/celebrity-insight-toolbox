@@ -8,6 +8,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { useState } from "react";
 
 interface CelebrityReport {
   id: string;
@@ -35,14 +36,17 @@ export const CelebrityReportSelector = ({
   selectedReport,
   onSelectReport,
 }: CelebrityReportSelectorProps) => {
+  const [imageLoadError, setImageLoadError] = useState<Record<string, boolean>>({});
   const uniqueCelebrities = Array.from(new Set(reports.map(report => report.celebrity_name)));
   
   const getFirstReportForCelebrity = (celebrityName: string) => {
     return reports.find(report => report.celebrity_name === celebrityName);
   };
 
-  // Debug log to check all unique celebrities
-  console.log('All unique celebrities:', uniqueCelebrities);
+  const handleImageError = (celebrityName: string) => {
+    console.error(`Failed to load image for ${celebrityName}`);
+    setImageLoadError(prev => ({ ...prev, [celebrityName]: true }));
+  };
 
   return (
     <DropdownMenu>
@@ -53,6 +57,7 @@ export const CelebrityReportSelector = ({
               <AvatarImage 
                 src={celebrityImages[selectedReport.celebrity_name]} 
                 alt={selectedReport.celebrity_name}
+                onError={() => handleImageError(selectedReport.celebrity_name)}
                 className="object-cover"
               />
               <AvatarFallback>{selectedReport.celebrity_name[0]}</AvatarFallback>
@@ -70,10 +75,8 @@ export const CelebrityReportSelector = ({
           const firstReport = getFirstReportForCelebrity(celebrityName);
           if (!firstReport) return null;
 
-          // Debug log for each celebrity name and its image path
-          console.log('Rendering celebrity:', celebrityName);
-          console.log('Image path:', celebrityImages[celebrityName]);
-          console.log('Image exists?:', !!celebrityImages[celebrityName]);
+          const imagePath = celebrityImages[celebrityName];
+          console.log('Loading image:', imagePath, 'for celebrity:', celebrityName);
 
           return (
             <DropdownMenuItem
@@ -83,9 +86,10 @@ export const CelebrityReportSelector = ({
             >
               <Avatar className="h-10 w-10">
                 <AvatarImage 
-                  src={celebrityImages[celebrityName]} 
+                  src={imagePath}
                   alt={celebrityName}
-                  className="object-cover" 
+                  onError={() => handleImageError(celebrityName)}
+                  className="object-cover"
                 />
                 <AvatarFallback>{celebrityName[0]}</AvatarFallback>
               </Avatar>
