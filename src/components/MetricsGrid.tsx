@@ -1,6 +1,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users, Heart, MessageCircle, Share2, TrendingUp, CircleUser } from "lucide-react";
+import { motion } from "framer-motion";
 
 interface MetricsGridProps {
   data: {
@@ -30,6 +31,7 @@ export const MetricsGrid = ({ data }: MetricsGridProps) => {
       icon: Users,
       color: "from-purple-500 to-purple-600",
       iconColor: "#9b87f5",
+      animation: { y: [20, 0], opacity: [0, 1] }
     },
     {
       title: "Following",
@@ -37,6 +39,7 @@ export const MetricsGrid = ({ data }: MetricsGridProps) => {
       icon: CircleUser,
       color: "from-blue-500 to-blue-600",
       iconColor: "#0EA5E9",
+      animation: { y: [20, 0], opacity: [0, 1], transition: { delay: 0.1 } }
     },
     {
       title: "Engagement Rate",
@@ -44,6 +47,7 @@ export const MetricsGrid = ({ data }: MetricsGridProps) => {
       icon: TrendingUp,
       color: "from-green-500 to-green-600",
       iconColor: "#10B981",
+      animation: { y: [20, 0], opacity: [0, 1], transition: { delay: 0.2 } }
     },
     {
       title: "Average Likes",
@@ -51,6 +55,7 @@ export const MetricsGrid = ({ data }: MetricsGridProps) => {
       icon: Heart,
       color: "from-pink-500 to-pink-600",
       iconColor: "#EC4899",
+      animation: { y: [20, 0], opacity: [0, 1], transition: { delay: 0.3 } }
     },
     {
       title: "Comments/Post",
@@ -58,6 +63,7 @@ export const MetricsGrid = ({ data }: MetricsGridProps) => {
       icon: MessageCircle,
       color: "from-orange-500 to-orange-600",
       iconColor: "#F97316",
+      animation: { y: [20, 0], opacity: [0, 1], transition: { delay: 0.4 } }
     }
   ];
 
@@ -65,24 +71,36 @@ export const MetricsGrid = ({ data }: MetricsGridProps) => {
     <>
       {metricsConfig
         .filter(metric => metric.value !== null)
-        .map((metric) => (
-          <Card key={metric.title} className="overflow-hidden relative">
-            <div className={`absolute inset-0 bg-gradient-to-br ${metric.color} opacity-5`} />
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-base font-medium text-primary">
-                {metric.title}
-              </CardTitle>
-              <metric.icon 
-                className="h-5 w-5" 
-                style={{ color: metric.iconColor }}
-              />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold" style={{ color: metric.iconColor }}>
-                {metric.value}
-              </div>
-            </CardContent>
-          </Card>
+        .map((metric, index) => (
+          <motion.div
+            key={metric.title}
+            initial={{ opacity: 0, y: 20 }}
+            animate={metric.animation}
+            whileHover={{ scale: 1.02 }}
+            transition={{ duration: 0.3 }}
+          >
+            <Card className="overflow-hidden relative group hover:shadow-lg transition-all duration-300">
+              <div className={`absolute inset-0 bg-gradient-to-br ${metric.color} opacity-5 
+                group-hover:opacity-10 transition-opacity duration-300`} />
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-base font-medium text-primary">
+                  {metric.title}
+                </CardTitle>
+                <metric.icon 
+                  className="h-5 w-5 transition-transform duration-300 group-hover:scale-110" 
+                  style={{ color: metric.iconColor }}
+                />
+              </CardHeader>
+              <CardContent>
+                <div 
+                  className="text-2xl font-bold transition-all duration-300 group-hover:scale-105" 
+                  style={{ color: metric.iconColor }}
+                >
+                  {metric.value}
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
         ))}
     </>
   );
