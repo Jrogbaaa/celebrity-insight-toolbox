@@ -5,6 +5,7 @@ import { ChatInput } from "@/components/chat/ChatInput";
 import { useChat } from "@/hooks/useChat";
 import { CelebrityReport } from "@/types/reports";
 import { Button } from "@/components/ui/button";
+import { Loader2, MessageSquare, Send } from "lucide-react";
 
 interface ChatContainerProps {
   selectedReport?: CelebrityReport | null;
@@ -31,14 +32,15 @@ export const ChatContainer = ({ selectedReport }: ChatContainerProps) => {
   };
 
   return (
-    <Card className="h-[450px] shadow-lg flex flex-col">
+    <Card className="h-full shadow-lg flex flex-col overflow-hidden animate-fade-in">
       <CardHeader className="border-b bg-muted/50 py-2">
-        <CardTitle className="text-lg font-semibold text-primary">
+        <CardTitle className="text-lg font-semibold text-primary flex items-center gap-2">
+          <MessageSquare className="h-5 w-5" />
           {selectedReport ? `Chat about ${selectedReport.celebrity_name}` : 'Social Media Expert'}
         </CardTitle>
       </CardHeader>
-      <CardContent className="flex-1 p-0 flex flex-col h-full overflow-hidden">
-        <div className="flex-1 overflow-y-auto">
+      <CardContent className="flex-1 p-0 flex flex-col h-[calc(100%-60px)] overflow-hidden">
+        <div className="flex-1 overflow-y-auto relative">
           <ChatMessages messages={messages} loading={loading} />
         </div>
         <div className="p-2 space-y-2 border-t bg-muted/30">
@@ -48,8 +50,9 @@ export const ChatContainer = ({ selectedReport }: ChatContainerProps) => {
                 key={index}
                 variant="outline"
                 size="sm"
-                className="text-[10px] h-6 px-2"
+                className="text-[10px] h-6 px-2 hover:scale-105 transition-transform"
                 onClick={() => handlePromptClick(promptText)}
+                disabled={loading}
               >
                 {promptText}
               </Button>
