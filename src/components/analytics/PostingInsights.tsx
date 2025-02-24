@@ -21,6 +21,47 @@ export const PostingInsights = ({ insights }: PostingInsightsProps) => {
 
   const { general_best_times, peak_engagement_times, posting_tips } = insights;
 
+  const highlightKeyPhrases = (text: string) => {
+    const patterns = [
+      {
+        pattern: /(highest engagement during midday hours)/i,
+        replacement: '<strong>$1</strong>'
+      },
+      {
+        pattern: /(optimal posting time is early evening)/i,
+        replacement: '<strong>$1</strong>'
+      },
+      {
+        pattern: /(weekday mornings show better performance)/i,
+        replacement: '<strong>$1</strong>'
+      },
+      {
+        pattern: /(stories perform best during commute times)/i,
+        replacement: '<strong>$1</strong>'
+      },
+      {
+        pattern: /(weekend content reaches wider audience)/i,
+        replacement: '<strong>$1</strong>'
+      }
+    ];
+
+    let result = text;
+    patterns.forEach(({ pattern, replacement }) => {
+      result = result.replace(pattern, replacement);
+    });
+
+    // For any tips that didn't match specific patterns,
+    // highlight the key timing or engagement insights
+    if (!result.includes('<strong>')) {
+      result = result.replace(
+        /(best engagement window|peak activity hours|optimal posting schedule|highest reach times|key posting periods)/gi,
+        '<strong>$1</strong>'
+      );
+    }
+
+    return result;
+  };
+
   return (
     <Card className="col-span-4">
       <CardHeader>
@@ -83,9 +124,13 @@ export const PostingInsights = ({ insights }: PostingInsightsProps) => {
               <h3 className="text-lg font-semibold text-primary mb-3">Tips for Better Engagement</h3>
               <ul className="list-disc list-inside space-y-2">
                 {posting_tips.map((tip, index) => (
-                  <li key={index} className="text-foreground text-base" dangerouslySetInnerHTML={{
-                    __html: tip.replace(/(morning|evening|afternoon|peak hours|best times|engagement rates|content|hashtags|followers|likes|comments|reach)/gi, '<strong>$1</strong>')
-                  }} />
+                  <li 
+                    key={index} 
+                    className="text-foreground text-base" 
+                    dangerouslySetInnerHTML={{
+                      __html: highlightKeyPhrases(tip)
+                    }} 
+                  />
                 ))}
               </ul>
             </div>
