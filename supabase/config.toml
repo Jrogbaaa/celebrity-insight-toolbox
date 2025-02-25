@@ -43,3 +43,6 @@ verify_jwt = false
 
 [functions.analyze-content]
 verify_jwt = false
+
+[functions.video-analyze]
+verify_jwt = false

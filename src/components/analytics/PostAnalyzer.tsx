@@ -12,6 +12,7 @@ type AnalysisResult = {
   strengths: string[];
   improvements: string[];
   engagement_prediction: string;
+  raw_insights?: any;
 };
 
 interface PostAnalyzerProps {
@@ -29,7 +30,7 @@ export const PostAnalyzer = ({ onAnalysisComplete }: PostAnalyzerProps) => {
   const [isLargeFile, setIsLargeFile] = useState<boolean>(false);
   const { toast } = useToast();
   const fileInputRef = React.useRef<HTMLInputElement>(null);
-  const MAX_VIDEO_SIZE = 10 * 1024 * 1024; // 10MB
+  const MAX_VIDEO_SIZE = 20 * 1024 * 1024; // 20MB
 
   const analyzeContent = async (file: File): Promise<AnalysisResult> => {
     const formData = new FormData();
@@ -37,13 +38,19 @@ export const PostAnalyzer = ({ onAnalysisComplete }: PostAnalyzerProps) => {
 
     setProgressStatus("Preparing content for analysis...");
     
-    const { data, error } = await supabase.functions.invoke('analyze-content', {
+    // Use different endpoint based on file type
+    const isVideo = file.type.startsWith('video/');
+    const endpoint = isVideo ? 'video-analyze' : 'analyze-content';
+    
+    console.log(`Using ${endpoint} endpoint for ${isVideo ? 'video' : 'image'} analysis`);
+    
+    const { data, error } = await supabase.functions.invoke(endpoint, {
       body: formData,
     });
 
     if (error) {
-      console.error('Error analyzing content:', error);
-      throw new Error('Failed to analyze content');
+      console.error(`Error analyzing content with ${endpoint}:`, error);
+      throw new Error(`Failed to analyze content: ${error.message}`);
     }
 
     return data as AnalysisResult;
@@ -76,7 +83,7 @@ export const PostAnalyzer = ({ onAnalysisComplete }: PostAnalyzerProps) => {
     if (isVideo && file.size > MAX_VIDEO_SIZE) {
       toast({
         title: "Large Video File",
-        description: "Videos over 10MB may take longer to analyze or encounter processing issues.",
+        description: "Videos over 20MB may take longer to analyze. Please be patient.",
         variant: "default",
       });
     }
@@ -107,11 +114,16 @@ export const PostAnalyzer = ({ onAnalysisComplete }: PostAnalyzerProps) => {
         title: "Analysis Complete",
         description: "View your detailed post analysis.",
       });
+      
+      // Log raw insights if available for debugging
+      if (result.raw_insights) {
+        console.log('Raw analysis insights:', result.raw_insights);
+      }
     } catch (error) {
       console.error('Error analyzing content:', error);
       toast({
         title: "Error",
-        description: "Failed to analyze content. Please try again with a smaller file.",
+        description: `Failed to analyze content: ${error instanceof Error ? error.message : 'Unknown error'}`,
         variant: "destructive",
       });
     } finally {
@@ -194,6 +206,26 @@ export const PostAnalyzer = ({ onAnalysisComplete }: PostAnalyzerProps) => {
                   {analysisResult.engagement_prediction}
                 </p>
               </div>
+              
+              {analysisResult.raw_insights?.contentLabels?.length > 0 && (
+                <Card className="border-purple-200 bg-purple-50/50">
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2 text-purple-700">
+                      <Info className="h-5 w-5" />
+                      Detected Content
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <ul className="list-disc list-inside space-y-2">
+                      {analysisResult.raw_insights.contentLabels.map((label, index) => (
+                        <li key={index} className="text-purple-700">
+                          {label.description} {label.confidence ? `(${Math.round(label.confidence * 100)}% confidence)` : ''}
+                        </li>
+                      ))}
+                    </ul>
+                  </CardContent>
+                </Card>
+              )}
             </div>
           )}
         </DialogContent>
