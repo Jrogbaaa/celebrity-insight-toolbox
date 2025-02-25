@@ -34,8 +34,145 @@ serve(async (req) => {
       throw new Error('Uploaded file is not a video');
     }
     
-    // Extract video metadata - we'll use this for analysis instead of trying 
-    // to directly process the video content which causes stack overflow
+    // Extract video data for Google Cloud Video Intelligence API
+    const arrayBuffer = await file.arrayBuffer();
+    const base64Content = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
+    
+    // Try to use Google Cloud Video Intelligence API if API key is available
+    const gcpApiKey = Deno.env.get('GCP_API_KEY');
+    
+    if (gcpApiKey) {
+      try {
+        console.log("Using Google Cloud Video Intelligence API for analysis");
+        
+        const apiURL = `https://videointelligence.googleapis.com/v1/videos:annotate?key=${gcpApiKey}`;
+        
+        const apiResponse = await fetch(apiURL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            inputContent: base64Content,
+            features: [
+              "LABEL_DETECTION",
+              "SHOT_CHANGE_DETECTION",
+              "OBJECT_TRACKING"
+            ],
+            videoContext: {
+              labelDetectionConfig: {
+                frameConfidenceThreshold: 0.5,
+                labelDetectionMode: "SHOT_MODE"
+              }
+            }
+          })
+        });
+        
+        if (!apiResponse.ok) {
+          const errorText = await apiResponse.text();
+          console.error("GCP API Error:", errorText);
+          throw new Error(`GCP API Error: ${apiResponse.status}`);
+        }
+        
+        const responseData = await apiResponse.json();
+        console.log("Received operation name:", responseData.name);
+        
+        // Since this is an async operation, we need to poll for results
+        // Wait for a short time to give the API time to process
+        await new Promise(resolve => setTimeout(resolve, 5000));
+        
+        // Check operation status
+        const operationURL = `https://videointelligence.googleapis.com/v1/operations/${responseData.name}?key=${gcpApiKey}`;
+        const operationResponse = await fetch(operationURL);
+        
+        if (!operationResponse.ok) {
+          const operationError = await operationResponse.text();
+          console.error("Operation status check failed:", operationError);
+          throw new Error("Failed to check operation status");
+        }
+        
+        const operationData = await operationResponse.json();
+        console.log("Operation status:", operationData.done ? "Complete" : "In progress");
+        
+        // Process the results from the API
+        let contentLabels = [];
+        let shotChanges = 0;
+        let objects = [];
+        
+        if (operationData.done && operationData.response) {
+          const annotations = operationData.response.annotationResults[0];
+          
+          // Process label annotations
+          if (annotations.labelAnnotations) {
+            contentLabels = annotations.labelAnnotations.map(label => ({
+              description: label.entity?.description || "Unknown",
+              confidence: label.segments?.[0]?.confidence || 0
+            }));
+          }
+          
+          // Process shot annotations
+          if (annotations.shotAnnotations) {
+            shotChanges = annotations.shotAnnotations.length;
+          }
+          
+          // Process object annotations
+          if (annotations.objectAnnotations) {
+            objects = annotations.objectAnnotations.map(obj => ({
+              name: obj.entity?.description || "Unknown object",
+              confidence: obj.confidence || 0
+            }));
+          }
+        }
+        
+        // Generate insights based on the video analysis
+        const strengths = [
+          "Video content receives 2-3x more engagement than static images across platforms",
+          contentLabels.length > 0 
+            ? `Your content featuring ${contentLabels.slice(0, 2).map(l => l.description).join(', ')} resonates well with audiences`
+            : "Your video's subject matter has engagement potential",
+          shotChanges > 5 
+            ? "Your video's dynamic pacing with multiple scene changes helps maintain viewer attention" 
+            : "Your video has consistent pacing which builds viewer trust and attention"
+        ];
+        
+        const improvements = [
+          "Keep videos under 30 seconds for Instagram/TikTok (15 seconds is optimal for highest completion rates)",
+          shotChanges < 3 
+            ? "Consider adding more scene transitions to improve engagement and maintain viewer interest" 
+            : (shotChanges > 10 
+                ? "Your video has many scene changes - consider a slightly slower pace for key messages" 
+                : "Your scene pacing is well-balanced for engagement"),
+          "Add captions or text overlays - 85% of social media videos are watched without sound"
+        ];
+        
+        const engagementPrediction = `This video about ${contentLabels.slice(0, 2).map(l => l.description).join(', ') || 'your subject'} has strong engagement potential. Our analysis detected ${contentLabels.length} content elements and ${shotChanges} scene changes, suggesting ${shotChanges > 5 ? 'dynamic' : 'focused'} content that typically performs well on social platforms.`;
+        
+        return new Response(
+          JSON.stringify({
+            strengths,
+            improvements,
+            engagement_prediction: engagementPrediction,
+            raw_insights: {
+              contentLabels,
+              shotChanges,
+              objects,
+              apiUsed: "Google Cloud Video Intelligence API"
+            }
+          }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+        
+      } catch (gcpError) {
+        console.error("Error using Google Cloud Video Intelligence API:", gcpError);
+        console.log("Falling back to metadata-based analysis...");
+        // Continue with metadata-based analysis if GCP API fails
+      }
+    }
+    
+    // Fallback to metadata-based analysis if GCP API key is not available or if API call failed
+    console.log("Using metadata-based video analysis");
+    
+    // Extract video metadata for analysis
     const videoMetadata = {
       type: file.type,
       size: file.size,
@@ -46,9 +183,6 @@ serve(async (req) => {
     };
     
     console.log("Video metadata:", videoMetadata);
-    
-    // Instead of trying to use Google's API directly with the binary data
-    // which is causing stack overflow issues, we'll do smart metadata analysis
     
     // Build content labels based on video properties
     const contentLabels = [];
@@ -190,7 +324,8 @@ serve(async (req) => {
         raw_insights: {
           contentLabels: contentLabels,
           metadata: videoMetadata,
-          platformRecommendations: platformRecommendations
+          platformRecommendations: platformRecommendations,
+          apiUsed: "Metadata-based analysis (Google Cloud API not available or failed)"
         }
       }),
       { 
