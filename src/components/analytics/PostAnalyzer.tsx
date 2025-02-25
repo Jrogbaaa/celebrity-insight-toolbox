@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Upload, Loader2, ThumbsUp, AlertCircle, Info } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { Progress } from "@/components/ui/progress";
@@ -13,6 +13,7 @@ type AnalysisResult = {
   improvements: string[];
   engagement_prediction: string;
   raw_insights?: any;
+  error?: string;
 };
 
 interface PostAnalyzerProps {
@@ -44,16 +45,22 @@ export const PostAnalyzer = ({ onAnalysisComplete }: PostAnalyzerProps) => {
     
     console.log(`Using ${endpoint} endpoint for ${isVideo ? 'video' : 'image'} analysis`);
     
-    const { data, error } = await supabase.functions.invoke(endpoint, {
-      body: formData,
-    });
+    try {
+      const { data, error } = await supabase.functions.invoke(endpoint, {
+        body: formData,
+      });
 
-    if (error) {
-      console.error(`Error analyzing content with ${endpoint}:`, error);
-      throw new Error(`Failed to analyze content: ${error.message}`);
+      if (error) {
+        console.error(`Error analyzing content with ${endpoint}:`, error);
+        throw new Error(`Failed to analyze content: ${error.message}`);
+      }
+
+      console.log("Analysis result:", data);
+      return data as AnalysisResult;
+    } catch (error) {
+      console.error("Error in analyzeContent:", error);
+      throw error;
     }
-
-    return data as AnalysisResult;
   };
 
   const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -126,6 +133,29 @@ export const PostAnalyzer = ({ onAnalysisComplete }: PostAnalyzerProps) => {
         description: `Failed to analyze content: ${error instanceof Error ? error.message : 'Unknown error'}`,
         variant: "destructive",
       });
+      
+      // Create a basic analysis result with the error
+      const errorResult: AnalysisResult = {
+        strengths: [
+          "Video content generally receives higher engagement than images",
+          "Moving content captures audience attention more effectively",
+          "Videos allow for more storytelling and emotional connection"
+        ],
+        improvements: [
+          "Keep videos under 30 seconds for optimal engagement",
+          "Start with a hook in the first 3 seconds",
+          "Add captions for viewers who watch without sound"
+        ],
+        engagement_prediction: "Analysis error occurred - applying general video best practices.",
+        error: error instanceof Error ? error.message : 'Unknown error'
+      };
+      
+      setAnalysisResult(errorResult);
+      setShowAnalysis(true);
+      
+      if (onAnalysisComplete) {
+        onAnalysisComplete(errorResult);
+      }
     } finally {
       setLoading(false);
       setProgressStatus("");
@@ -141,6 +171,11 @@ export const PostAnalyzer = ({ onAnalysisComplete }: PostAnalyzerProps) => {
         <DialogContent className="max-w-[600px] h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Post Analysis Results</DialogTitle>
+            <DialogDescription>
+              {analysisResult?.error ? 
+                "Showing general recommendations due to analysis error" : 
+                "AI-powered insights for your content"}
+            </DialogDescription>
           </DialogHeader>
           {previewUrl && (
             <div className="mb-6 rounded-lg overflow-hidden bg-black/5 p-2">
@@ -159,6 +194,16 @@ export const PostAnalyzer = ({ onAnalysisComplete }: PostAnalyzerProps) => {
               )}
             </div>
           )}
+          
+          {analysisResult?.error && (
+            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md flex items-start gap-2">
+              <AlertCircle className="h-5 w-5 text-red-500 flex-shrink-0 mt-0.5" />
+              <p className="text-sm text-red-700">
+                {analysisResult.error}. Showing general recommendations instead.
+              </p>
+            </div>
+          )}
+          
           {isLargeFile && (
             <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-md flex items-start gap-2">
               <Info className="h-5 w-5 text-yellow-500 flex-shrink-0 mt-0.5" />
@@ -167,6 +212,7 @@ export const PostAnalyzer = ({ onAnalysisComplete }: PostAnalyzerProps) => {
               </p>
             </div>
           )}
+          
           {analysisResult && (
             <div className="space-y-6">
               <Card className="border-green-200 bg-green-50/50">
@@ -217,7 +263,7 @@ export const PostAnalyzer = ({ onAnalysisComplete }: PostAnalyzerProps) => {
                   </CardHeader>
                   <CardContent>
                     <ul className="list-disc list-inside space-y-2">
-                      {analysisResult.raw_insights.contentLabels.map((label, index) => (
+                      {analysisResult.raw_insights.contentLabels.map((label: {description: string, confidence: number}, index: number) => (
                         <li key={index} className="text-purple-700">
                           {label.description} {label.confidence ? `(${Math.round(label.confidence * 100)}% confidence)` : ''}
                         </li>
