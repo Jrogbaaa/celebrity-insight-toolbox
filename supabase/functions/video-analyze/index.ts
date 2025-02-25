@@ -34,16 +34,18 @@ serve(async (req) => {
       throw new Error('Uploaded file is not a video');
     }
     
-    // Extract video data for Google Cloud Video Intelligence API
-    const arrayBuffer = await file.arrayBuffer();
-    const base64Content = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
-    
     // Try to use Google Cloud Video Intelligence API if API key is available
     const gcpApiKey = Deno.env.get('GCP_API_KEY');
     
     if (gcpApiKey) {
       try {
         console.log("Using Google Cloud Video Intelligence API for analysis");
+        
+        // Read file as ArrayBuffer
+        const arrayBuffer = await file.arrayBuffer();
+        
+        // Convert to Base64 safely without recursion
+        const base64Content = arrayBufferToBase64(arrayBuffer);
         
         const apiURL = `https://videointelligence.googleapis.com/v1/videos:annotate?key=${gcpApiKey}`;
         
@@ -362,6 +364,26 @@ serve(async (req) => {
     );
   }
 });
+
+// Helper function to convert ArrayBuffer to Base64 safely without recursion
+function arrayBufferToBase64(buffer: ArrayBuffer): string {
+  // Convert ArrayBuffer to Uint8Array
+  const bytes = new Uint8Array(buffer);
+  
+  // Process in chunks to avoid maximum call stack errors
+  let binary = '';
+  const chunkSize = 1024;
+  
+  for (let i = 0; i < bytes.length; i += chunkSize) {
+    const chunk = bytes.slice(i, i + chunkSize);
+    for (let j = 0; j < chunk.length; j++) {
+      binary += String.fromCharCode(chunk[j]);
+    }
+  }
+  
+  // Use window.btoa in browser or global btoa in Deno
+  return btoa(binary);
+}
 
 // Helper to estimate video duration based on file size and type
 function estimateVideoDuration(size: number, type: string): number {
