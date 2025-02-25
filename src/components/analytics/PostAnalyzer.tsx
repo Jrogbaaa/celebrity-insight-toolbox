@@ -14,7 +14,11 @@ type AnalysisResult = {
   engagement_prediction: string;
 };
 
-export const PostAnalyzer = () => {
+interface PostAnalyzerProps {
+  onAnalysisComplete?: (result: AnalysisResult) => void;
+}
+
+export const PostAnalyzer = ({ onAnalysisComplete }: PostAnalyzerProps) => {
   const [loading, setLoading] = useState(false);
   const [showAnalysis, setShowAnalysis] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
@@ -93,6 +97,11 @@ export const PostAnalyzer = () => {
       const result = await analyzeContent(file);
       setAnalysisResult(result);
       setShowAnalysis(true);
+      
+      // Call the callback with the analysis results if provided
+      if (onAnalysisComplete) {
+        onAnalysisComplete(result);
+      }
 
       toast({
         title: "Analysis Complete",
