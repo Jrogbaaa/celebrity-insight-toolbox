@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { GoogleGenerativeAI } from "https://esm.sh/@google/generative-ai@^0.1.3";
@@ -30,38 +29,144 @@ serve(async (req) => {
 
     const isVideo = (file as File).type.startsWith('video/');
     
-    // For videos, provide specialized feedback based on video content patterns
+    // For videos, use Google Cloud Video Intelligence API
     if (isVideo) {
-      console.log("Video file detected, providing specialized analysis");
+      console.log("Video file detected, analyzing with Cloud Video Intelligence API");
       
-      // We'll skip Gemini API for videos to avoid Base64 encoding issues
-      // Instead, provide informed analysis based on video content best practices
+      // Get video data
+      const arrayBuffer = await (file as File).arrayBuffer();
+      const base64 = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
       
-      // Get video metadata
-      const videoSize = (file as File).size;
-      const videoType = (file as File).type;
-      console.log(`Video metadata: type=${videoType}, size=${videoSize} bytes`);
-      
-      // Provide detailed video-specific analysis
-      return new Response(
-        JSON.stringify({
-          strengths: [
-            "Video format detected - videos typically receive 2-3x more engagement than static images on most platforms",
-            "Motion content captures audience attention more effectively than static images, increasing retention time",
-            "Video allows you to convey personality, demonstrate products/services, and tell stories more effectively"
-          ],
-          improvements: [
-            "Keep videos under 30 seconds for Instagram/TikTok (15 seconds is optimal for highest completion rates)",
-            "Ensure your first 3 seconds grab attention - users decide whether to continue watching within this timeframe",
-            "Add captions or text overlays - 85% of social media videos are watched without sound"
-          ],
-          engagement_prediction: `This ${(videoSize > 5 * 1024 * 1024) ? 'longer' : 'short-form'} video content has high engagement potential. Videos typically receive 48% more engagement than static images across platforms, with an average of 1200% more shares than text and image content combined.`
-        }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      try {
+        // Call Google Cloud Video Intelligence API
+        const gcpApiKey = Deno.env.get('GCP_API_KEY') || '';
+        if (!gcpApiKey) {
+          throw new Error('GCP API key not configured');
+        }
+        
+        console.log('Sending video to Cloud Video Intelligence API...');
+        
+        // Prepare the API request
+        const apiUrl = `https://videointelligence.googleapis.com/v1/videos:annotate?key=${gcpApiKey}`;
+        const apiRequest = {
+          inputContent: base64,
+          features: ["LABEL_DETECTION", "SHOT_CHANGE_DETECTION", "EXPLICIT_CONTENT_DETECTION"],
+          videoContext: {
+            labelDetectionConfig: {
+              frameConfidenceThreshold: 0.5,
+              labelDetectionMode: "SHOT_MODE"
+            }
+          }
+        };
+        
+        // Make the API request
+        const response = await fetch(apiUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(apiRequest)
+        });
+        
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error(`Video Intelligence API error: ${response.status} - ${errorText}`);
+          throw new Error(`Video Intelligence API error: ${response.status}`);
+        }
+        
+        const responseData = await response.json();
+        console.log('Received operation name:', responseData.name);
+        
+        // Since this is an async operation, we'll need to poll for results
+        // For this demo, we'll use a simplified approach
+        
+        // Wait for a few seconds to give the API time to process
+        await new Promise(resolve => setTimeout(resolve, 5000));
+        
+        // Check operation status
+        const operationUrl = `https://videointelligence.googleapis.com/v1/operations/${responseData.name}?key=${gcpApiKey}`;
+        const operationResponse = await fetch(operationUrl);
+        const operationData = await operationResponse.json();
+        
+        console.log('Operation status:', operationData.done ? 'Complete' : 'In progress');
+        
+        // Extract insights from the API response
+        let videoInsights;
+        
+        if (operationData.done && operationData.response) {
+          const annotations = operationData.response.annotationResults;
+          
+          // Extract key content labels and insights
+          const contentLabels = annotations?.labelAnnotations?.map(label => label.entity.description) || [];
+          const shotChanges = annotations?.shotAnnotations?.length || 0;
+          const explicitContent = annotations?.explicitAnnotation?.frames || [];
+          
+          videoInsights = {
+            contentLabels,
+            shotChanges,
+            hasExplicitContent: explicitContent.some(frame => frame.pornographyLikelihood > 3)
+          };
+        } else {
+          // If operation not complete, provide some preliminary feedback
+          videoInsights = {
+            contentLabels: [],
+            shotChanges: 0,
+            hasExplicitContent: false,
+            processingStatus: 'incomplete'
+          };
+        }
+        
+        // Provide detailed video analysis based on insights
+        const strengths = [
+          "Video format detected - videos typically receive 2-3x more engagement than static images",
+          ...(videoInsights.contentLabels.length > 0 
+            ? [`Content featuring ${videoInsights.contentLabels.slice(0, 3).join(', ')} resonates well with audiences`] 
+            : []),
+          `Your video has ${videoInsights.shotChanges > 5 ? 'dynamic pacing with multiple shots' : 'a steady, focused approach'} which ${videoInsights.shotChanges > 5 ? 'helps maintain viewer attention' : 'builds viewer trust'}`
+        ];
+        
+        const improvements = [
+          "Keep videos under 30 seconds for Instagram/TikTok (15 seconds is optimal for highest completion rates)",
+          ...(videoInsights.shotChanges < 3 
+            ? ["Consider adding more scene transitions to improve engagement and maintain viewer interest"] 
+            : (videoInsights.shotChanges > 10 
+                ? ["Your video has many scene changes - consider a slightly slower pace for key messages"] 
+                : [])),
+          "Add captions or text overlays - 85% of social media videos are watched without sound"
+        ];
+        
+        return new Response(
+          JSON.stringify({
+            strengths: strengths.slice(0, 3),
+            improvements: improvements.slice(0, 3),
+            engagement_prediction: `This video about ${videoInsights.contentLabels.slice(0, 2).join(', ') || 'your subject'} has strong engagement potential. Videos typically receive 48% more engagement than static images across platforms.${videoInsights.processingStatus === 'incomplete' ? ' (Note: Full analysis still processing, refresh for complete results)' : ''}`
+          }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      } catch (videoApiError) {
+        console.error('Error analyzing video:', videoApiError);
+        
+        // Fallback to generic video analysis when API fails
+        return new Response(
+          JSON.stringify({
+            strengths: [
+              "Video format detected - videos typically receive 2-3x more engagement than static images on most platforms",
+              "Motion content captures audience attention more effectively than static images, increasing retention time",
+              "Video allows you to convey personality, demonstrate products/services, and tell stories more effectively"
+            ],
+            improvements: [
+              "Keep videos under 30 seconds for Instagram/TikTok (15 seconds is optimal for highest completion rates)",
+              "Ensure your first 3 seconds grab attention - users decide whether to continue watching within this timeframe",
+              "Add captions or text overlays - 85% of social media videos are watched without sound"
+            ],
+            engagement_prediction: `This video content has engagement potential, but we couldn't perform deep analysis (API error: ${videoApiError.message}). For better results, try uploading a shorter clip.`
+          }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
     }
 
-    // For images, use Gemini API for analysis
+    // For images, use Gemini API for analysis (keep existing image analysis code)
     const genAI = new GoogleGenerativeAI(Deno.env.get('GEMINI_API_KEY') || '');
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 

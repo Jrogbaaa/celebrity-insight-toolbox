@@ -40,3 +40,6 @@ verify_jwt = false
 
 [functions.vertex-image]
 verify_jwt = false
+
+[functions.analyze-content]
+verify_jwt = false
