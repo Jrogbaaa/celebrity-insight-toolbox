@@ -11,22 +11,33 @@ interface SponsorOpportunitiesProps {
 export const SponsorOpportunities: React.FC<SponsorOpportunitiesProps> = ({ selectedReport }) => {
   const highlightKeyPhrases = (text: string) => {
     const patterns = [
-      // Metrics and numbers
-      { pattern: /(\d+(?:\.\d+)?%(?:\s*increase)?)/g, replacement: '<strong>$1</strong>' },
+      // Product categories
+      { pattern: /(luxury|premium|high-end) (fashion|automotive|eyewear|beauty)/gi, replacement: '<strong>$1 $2</strong>' },
+      { pattern: /(fast fashion|athletic wear|streaming|e-commerce)/gi, replacement: '<strong>$1</strong>' },
+      
+      // Specific product types
+      { pattern: /(athletic brands|beauty line|eyewear|automotive)/gi, replacement: '<strong>$1</strong>' },
+      
+      // Marketing strategies and partnerships
+      { pattern: /(brand partnerships|collaborations|cross-promotion|cross-platform)/gi, replacement: '<strong>$1</strong>' },
+      { pattern: /(expand|leverage|potential for|opportunity for|strong potential)/gi, replacement: '<strong>$1</strong>' },
+      
+      // Audience and demographics
+      { pattern: /(audience overlap|demographics|market presence|target audience)/gi, replacement: '<strong>$1</strong>' },
+      
       // Performance indicators
-      { pattern: /(high|strong|excellent|outstanding) (engagement|performance|conversion|resonance)/gi, replacement: '<strong>$1 $2</strong>' },
-      // Opportunity phrases
-      { pattern: /(perfect match|ideal opportunity|proven success|strategic partnership)/gi, replacement: '<strong>$1</strong>' },
-      // Market and audience
-      { pattern: /(target audience|key demographic|market segment|niche market)/gi, replacement: '<strong>$1</strong>' },
-      // Growth and improvement
-      { pattern: /(significant|substantial|notable) (growth|increase|improvement|impact)/gi, replacement: '<strong>$1 $2</strong>' },
-      // Success metrics
-      { pattern: /(conversion rates|engagement metrics|ROI|brand awareness)/gi, replacement: '<strong>$1</strong>' },
-      // Brand alignment
-      { pattern: /(brand alignment|authentic connection|natural fit)/gi, replacement: '<strong>$1</strong>' },
-      // Value propositions
-      { pattern: /(valuable|effective|successful) (partnership|collaboration|promotion)/gi, replacement: '<strong>$1 $2</strong>' }
+      { pattern: /(strong|high) (engagement|influence|performance)/gi, replacement: '<strong>$1 $2</strong>' },
+      
+      // Brand names (don't bold these, they're specific examples)
+      
+      // Relationship descriptors
+      { pattern: /(existing|current|beyond|other) (partnership|relationship|collaboration)/gi, replacement: '<strong>$1 $2</strong>' },
+      
+      // Content types
+      { pattern: /(luxury content|fashion content|streaming content)/gi, replacement: '<strong>$1</strong>' },
+      
+      // Business growth terms
+      { pattern: /(expand|grow|increase|enhance) (presence|portfolio|line)/gi, replacement: '<strong>$1 $2</strong>' }
     ];
 
     let highlightedText = text;
@@ -34,13 +45,16 @@ export const SponsorOpportunities: React.FC<SponsorOpportunitiesProps> = ({ sele
       highlightedText = highlightedText.replace(pattern, replacement);
     });
 
-    // If no highlights were added, highlight the first important phrase
+    // If no highlights were added, try to bold key business terms
     if (!highlightedText.includes('<strong>')) {
+      // Additional fallback patterns for business terms
       const fallbackPatterns = [
-        /(opportunity|potential|advantage|benefit)/gi,
-        /(brand|product|service|campaign)/gi,
-        /(recommend|suggest|indicate|demonstrate)/gi,
-        /(successfully|effectively|significantly)/gi
+        // Product categories
+        /(fashion|beauty|automotive|eyewear|athletic|streaming|luxury)/gi,
+        // Marketing terms
+        /(partnership|collaboration|engagement|audience|market|demographic)/gi,
+        // Strategy terms
+        /(leverage|potential|opportunity|expand|strong|high)/gi
       ];
 
       for (const pattern of fallbackPatterns) {
