@@ -3,6 +3,36 @@ import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { CelebrityReport } from "@/types/reports";
 import { ReportsService } from "@/services/ReportsService";
+import { useQuery } from "@tanstack/react-query";
+
+// Function to fetch data from Social Blade API
+const fetchSocialBladeData = async (username: string, platform: string) => {
+  try {
+    console.log(`Fetching Social Blade data for ${username} on ${platform}...`);
+    
+    const response = await fetch(`https://supabase.functions.lovable.dev/${process.env.SUPABASE_PROJECT_ID}/social-blade-stats`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        username,
+        platform: platform.toLowerCase()
+      }),
+    });
+    
+    if (!response.ok) {
+      throw new Error(`Failed to fetch Social Blade data: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    console.log('Social Blade data received:', data);
+    return data;
+  } catch (error) {
+    console.error('Error fetching Social Blade data:', error);
+    throw error;
+  }
+};
 
 export const useReportsData = () => {
   const { toast } = useToast();
@@ -52,11 +82,35 @@ export const useReportsData = () => {
     fetchReports();
   }, []);
 
+  // Get Social Blade data using React Query when a report is selected
+  const { data: socialBladeData, isLoading: isSocialBladeLoading, error: socialBladeError } = useQuery({
+    queryKey: ['socialBlade', selectedReport?.username, selectedReport?.platform],
+    queryFn: () => selectedReport ? fetchSocialBladeData(selectedReport.username, selectedReport.platform) : null,
+    enabled: !!selectedReport,
+    staleTime: 1000 * 60 * 15, // 15 minutes
+    onError: (error) => {
+      console.error('Social Blade query error:', error);
+      toast({
+        title: "Social Blade Data Error",
+        description: error instanceof Error ? error.message : "Failed to fetch Social Blade data",
+        variant: "destructive",
+      });
+    }
+  });
+
+  // Merge Social Blade data with the selected report data
+  const enrichedSelectedReport = selectedReport && socialBladeData ? {
+    ...selectedReport,
+    social_blade_data: socialBladeData
+  } : selectedReport;
+
   return {
     reports,
-    selectedReport,
+    selectedReport: enrichedSelectedReport,
     setSelectedReport,
     fetchReports,
-    loading,
+    loading: loading || isSocialBladeLoading,
+    socialBladeLoading: isSocialBladeLoading,
+    socialBladeError
   };
 };

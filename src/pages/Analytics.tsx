@@ -13,10 +13,11 @@ import { PostingInsights } from "@/components/analytics/PostingInsights";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { ChatContainer } from "@/components/chat/ChatContainer";
-import { MessageCircle } from "lucide-react";
+import { MessageCircle, AlertCircle } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
 const Analytics = () => {
-  const { reports, selectedReport, setSelectedReport, fetchReports } = useReportsData();
+  const { reports, selectedReport, setSelectedReport, fetchReports, socialBladeLoading, socialBladeError } = useReportsData();
 
   const getUniquePlatforms = () => {
     if (!selectedReport) return [];
@@ -27,6 +28,9 @@ const Analytics = () => {
 
   const platforms = getUniquePlatforms();
   const currentPlatform = selectedReport?.platform || platforms[0];
+  
+  // Check if Social Blade data is available
+  const hasSocialBladeData = selectedReport && 'social_blade_data' in selectedReport && selectedReport.social_blade_data;
 
   return (
     <div className="container animate-fade-in relative min-h-screen pb-24">
@@ -51,8 +55,20 @@ const Analytics = () => {
       {selectedReport && <Alert className="mb-8">
           <AlertDescription>
             Viewing analytics for {selectedReport.celebrity_name} ({selectedReport.username}) on {selectedReport.platform}
+            {hasSocialBladeData && (
+              <Badge variant="secondary" className="ml-2">Social Blade Enhanced</Badge>
+            )}
           </AlertDescription>
         </Alert>}
+
+      {socialBladeError && (
+        <Alert variant="destructive" className="mb-4">
+          <AlertCircle className="h-4 w-4 mr-2" />
+          <AlertDescription>
+            Could not fetch Social Blade data. Using local analytics only.
+          </AlertDescription>
+        </Alert>
+      )}
 
       {selectedReport && platforms.length > 0 && <PlatformTabs platforms={platforms} currentPlatform={currentPlatform} reports={reports} selectedReport={selectedReport} setSelectedReport={setSelectedReport} />}
 
@@ -64,6 +80,19 @@ const Analytics = () => {
         {selectedReport?.report_data.sponsor_opportunities && <SponsorOpportunities selectedReport={selectedReport} />}
 
         {selectedReport?.report_data.demographics && <DemographicsDisplay demographics={selectedReport.report_data.demographics} />}
+        
+        {/* Social Blade Data Display would go here */}
+        {hasSocialBladeData && (
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+            <h2 className="text-2xl font-bold mb-4">Social Blade Analytics</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {/* This is a simple display - expand based on the actual data structure */}
+              <pre className="bg-gray-100 dark:bg-gray-900 p-4 rounded text-xs overflow-auto max-h-[300px]">
+                {JSON.stringify(selectedReport.social_blade_data, null, 2)}
+              </pre>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Chat button and dialog */}
