@@ -1,16 +1,6 @@
 
 import { supabase } from "@/integrations/supabase/client";
 
-const getAuthSession = async () => {
-  const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-  
-  if (sessionError || !session) {
-    throw new Error('Please sign in to view your Instagram analytics');
-  }
-  
-  return session;
-};
-
 const fetchFromRapidAPI = async (username: string) => {
   try {
     console.log('Fetching Instagram data from RapidAPI for:', username);
@@ -35,9 +25,6 @@ const fetchFromRapidAPI = async (username: string) => {
 export const scrapeInstagramProfile = async (username: string) => {
   try {
     console.log('Fetching Instagram profile data for:', username);
-    
-    // Check if user is authenticated
-    await getAuthSession();
     
     // Fetch data from RapidAPI
     return await fetchFromRapidAPI(username);
