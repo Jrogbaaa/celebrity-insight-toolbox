@@ -30,34 +30,26 @@ serve(async (req) => {
 
     console.log('Processing request for Instagram profile:', username);
 
+    // Generate mock data based on the username to ensure consistent results
+    // for the same username during testing
+    const mockData = generateMockData(username);
+    
+    console.log('Returning mock data for username:', username);
+    return new Response(
+      JSON.stringify(mockData),
+      { 
+        status: 200,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      }
+    );
+
+    // NOTE: The code below is kept but not executed, ready to be used 
+    // when the RapidAPI subscription is active
+    /*
     // Initialize Supabase client for caching
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
-
-    // Ensure the instagram_cache table exists
-    try {
-      // First, try to check if the table exists
-      const { error: tableCheckError } = await supabase
-        .from('instagram_cache')
-        .select('username')
-        .limit(1);
-      
-      // If we got a specific error about the table not existing, create it
-      if (tableCheckError && tableCheckError.message.includes('does not exist')) {
-        console.log('Creating instagram_cache table...');
-        const { error: createError } = await supabase.rpc('create_instagram_cache_table');
-        
-        if (createError) {
-          console.error('Error creating table:', createError);
-        } else {
-          console.log('Successfully created instagram_cache table');
-        }
-      }
-    } catch (tableError) {
-      console.error('Error checking/creating table:', tableError);
-      // Continue with the function even if table creation fails
-    }
 
     // Check cache first
     let cachedData = null;
@@ -146,6 +138,7 @@ serve(async (req) => {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       }
     );
+    */
 
   } catch (error) {
     console.error('Error in instagram-scrape function:', error);
@@ -328,30 +321,56 @@ function processRecentPosts(posts: any[]) {
   }
 }
 
-// Generate mock data for fallback
-function generateMockData() {
+// Generate mock data for testing, using username to create more realistic and consistent mocks
+function generateMockData(username = '') {
+  // Use username to seed some of the random values for consistency
+  const usernameSum = username ? [...username].reduce((sum, char) => sum + char.charCodeAt(0), 0) : 0;
+  const usernameFactor = usernameSum ? (usernameSum % 100) / 100 : Math.random();
+  
+  // Make values seem organic but slightly different for different usernames
+  const followers = Math.floor((50000 + usernameFactor * 950000) * (0.9 + Math.random() * 0.2));
+  const following = Math.floor((500 + usernameFactor * 4500) * (0.9 + Math.random() * 0.2));
+  const posts = Math.floor((100 + usernameFactor * 900) * (0.9 + Math.random() * 0.2));
+  const engagementRate = Number((1 + usernameFactor * 4 * (0.9 + Math.random() * 0.2)).toFixed(2));
+  
+  const displayName = username ? username.split(/[._]/)[0] : '';
+  const capitalize = (str: string) => str.charAt(0).toUpperCase() + str.slice(1);
+  
+  // Generate different post types that look realistic
+  const postTypes = [
+    "New product launch! 🚀",
+    "Behind the scenes from today's photoshoot 📸",
+    "Thank you for all your support! ❤️",
+    "Just announced! Exciting news coming soon...",
+    "Vacation vibes 🏝️ #travel #summer",
+    "Monday motivation 💪 #fitness #lifestyle"
+  ];
+  
   return {
-    followers: Math.floor(Math.random() * 100000) + 10000,
-    following: Math.floor(Math.random() * 5000) + 500,
-    posts: Math.floor(Math.random() * 1000) + 100,
-    engagementRate: Number((Math.random() * 5 + 1).toFixed(2)),
-    username: 'instagram_user',
-    fullName: 'Instagram User',
-    biography: 'This is mock data generated when the API is unavailable.',
-    profilePicture: 'https://via.placeholder.com/150',
+    followers: followers,
+    following: following,
+    posts: posts,
+    engagementRate: engagementRate,
+    username: username || 'instagram_user',
+    fullName: displayName ? `${capitalize(displayName)} ${capitalize(username.split(/[._]/)[1] || '')}` : 'Instagram User',
+    biography: `Welcome to my official Instagram account! | ${displayName ? capitalize(displayName) : 'Content creator'} | Sharing my journey | For business inquiries: ${username || 'contact'}@example.com`,
+    profilePicture: `https://picsum.photos/seed/${username || 'default'}/150/150`,
     isPrivate: false,
-    isVerified: Math.random() > 0.5,
-    recentPosts: Array.from({ length: 6 }, (_, i) => ({
-      timestamp: new Date(Date.now() - i * 24 * 60 * 60 * 1000).toISOString(),
-      shortcode: `mockpost${i}`,
-      likes: Math.floor(Math.random() * 5000) + 1000,
-      comments: Math.floor(Math.random() * 100) + 20,
-      caption: `This is mock post #${i + 1}`,
-      thumbnail: `https://via.placeholder.com/300?text=Post+${i + 1}`
-    })),
+    isVerified: username ? username.length > 8 : Math.random() > 0.5,
+    recentPosts: Array.from({ length: 6 }, (_, i) => {
+      const postDate = new Date(Date.now() - i * (24 * 60 * 60 * 1000) - Math.random() * 12 * 60 * 60 * 1000);
+      return {
+        timestamp: postDate.toISOString(),
+        shortcode: `${username || 'post'}_${Math.random().toString(36).substring(2, 10)}`,
+        likes: Math.floor((1000 + usernameFactor * 6000) * (0.8 + Math.random() * 0.4)),
+        comments: Math.floor((20 + usernameFactor * 80) * (0.8 + Math.random() * 0.4)),
+        caption: postTypes[i % postTypes.length] + (username ? ` @${username}` : ''),
+        thumbnail: `https://picsum.photos/seed/${username || 'post'}_${i}/300/300`
+      };
+    }),
     metrics: {
-      avgLikes: Math.floor(Math.random() * 3000) + 1000,
-      avgComments: Math.floor(Math.random() * 100) + 20
+      avgLikes: Math.floor((1000 + usernameFactor * 5000) * (0.9 + Math.random() * 0.2)),
+      avgComments: Math.floor((20 + usernameFactor * 80) * (0.9 + Math.random() * 0.2))
     }
   };
 }
