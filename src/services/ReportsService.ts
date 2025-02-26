@@ -21,14 +21,28 @@ export class ReportsService {
       if (data && data.length > 0) {
         console.log('Found reports in Supabase:', data.length);
         // Properly cast the data to CelebrityReport[] type
-        return data.map(item => ({
-          id: item.id,
-          celebrity_name: item.celebrity_name,
-          username: item.username,
-          platform: item.platform,
-          report_data: item.report_data as CelebrityReport['report_data'],
-          report_date: item.report_date
-        }));
+        return data.map(item => {
+          // Ensure report_data structure is complete
+          const report_data = item.report_data || {};
+          
+          // Make sure all required properties exist
+          if (!report_data.followers) report_data.followers = { total: 0 };
+          if (!report_data.following) report_data.following = { total: 0 };
+          if (!report_data.media_uploads) report_data.media_uploads = { total: 0 };
+          if (!report_data.posting_insights) report_data.posting_insights = { 
+            peak_engagement_times: [],
+            posting_tips: []
+          };
+          
+          return {
+            id: item.id,
+            celebrity_name: item.celebrity_name,
+            username: item.username,
+            platform: item.platform,
+            report_data: report_data as CelebrityReport['report_data'],
+            report_date: item.report_date
+          };
+        });
       }
       
       // Return empty array instead of mock data
