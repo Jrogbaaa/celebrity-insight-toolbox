@@ -17,8 +17,9 @@ const Generation = () => {
   return (
     <TooltipProvider>
       <div className="max-w-7xl mx-auto px-0 md:px-4">
-        <div className="px-4 md:px-0 md:-mt-10 mb-0 flex justify-end items-center">
-          <div>
+        <div className="px-4 md:px-0 flex flex-col md:flex-row justify-between items-center mb-4">
+          <h1 className="text-2xl font-bold text-primary hidden md:block">Creative Studio AI</h1>
+          <div className="md:mr-8">
             <PostAnalyzer onAnalysisComplete={handleAnalyticsResult} />
           </div>
         </div>
