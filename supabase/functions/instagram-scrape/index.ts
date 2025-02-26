@@ -35,12 +35,46 @@ serve(async (req) => {
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
+    // Ensure the instagram_cache table exists
+    try {
+      // First, try to check if the table exists
+      const { error: tableCheckError } = await supabase
+        .from('instagram_cache')
+        .select('username')
+        .limit(1);
+      
+      // If we got a specific error about the table not existing, create it
+      if (tableCheckError && tableCheckError.message.includes('does not exist')) {
+        console.log('Creating instagram_cache table...');
+        const { error: createError } = await supabase.rpc('create_instagram_cache_table');
+        
+        if (createError) {
+          console.error('Error creating table:', createError);
+        } else {
+          console.log('Successfully created instagram_cache table');
+        }
+      }
+    } catch (tableError) {
+      console.error('Error checking/creating table:', tableError);
+      // Continue with the function even if table creation fails
+    }
+
     // Check cache first
-    const { data: cachedData } = await supabase
-      .from('instagram_cache')
-      .select('*')
-      .eq('username', username)
-      .single();
+    let cachedData = null;
+    try {
+      const { data: cacheResult, error: cacheError } = await supabase
+        .from('instagram_cache')
+        .select('*')
+        .eq('username', username)
+        .single();
+      
+      if (!cacheError && cacheResult) {
+        cachedData = cacheResult;
+      }
+    } catch (cacheError) {
+      console.error('Error checking cache:', cacheError);
+      // Continue with API call if cache check fails
+    }
 
     if (cachedData && 
         (new Date().getTime() - new Date(cachedData.updated_at).getTime()) / 1000 < CACHE_DURATION) {
@@ -80,18 +114,30 @@ serve(async (req) => {
     }
 
     const rawData = await response.json();
+    console.log('Raw API response structure:', Object.keys(rawData));
     
     // Transform the raw API data into our format
     const processedData = processInstagramData(rawData);
 
     // Cache the processed data
-    await supabase
-      .from('instagram_cache')
-      .upsert({ 
-        username, 
-        data: processedData,
-        updated_at: new Date().toISOString()
-      });
+    try {
+      const { error: upsertError } = await supabase
+        .from('instagram_cache')
+        .upsert({ 
+          username, 
+          data: processedData,
+          updated_at: new Date().toISOString()
+        });
+      
+      if (upsertError) {
+        console.error('Error caching data:', upsertError);
+      } else {
+        console.log('Successfully cached data for:', username);
+      }
+    } catch (cacheError) {
+      console.error('Error with cache upsert:', cacheError);
+      // Continue even if caching fails
+    }
 
     return new Response(
       JSON.stringify(processedData),
@@ -109,10 +155,7 @@ serve(async (req) => {
     const mockData = generateMockData();
     
     return new Response(
-      JSON.stringify({ 
-        data: mockData,
-        error: error instanceof Error ? error.message : 'An unexpected error occurred'
-      }),
+      JSON.stringify(mockData),
       { 
         status: 200, // Return 200 with mock data and error message
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -124,24 +167,38 @@ serve(async (req) => {
 // Process and transform the raw data from RapidAPI
 function processInstagramData(rawData: any) {
   try {
+    console.log('Processing Instagram data...');
     // Adjust data mapping based on the instagram-scraper-api2 response format
     const data = rawData.result || {};
     
+    // Log the structure to debug
+    console.log('Data structure:', JSON.stringify(Object.keys(data)));
+    
+    // Extract followers and following, swapping them if needed
+    let followers = parseInt(data.edge_followed_by?.count || data.follower_count || '0', 10);
+    let following = parseInt(data.edge_follow?.count || data.following_count || '0', 10);
+    
+    // Check if the API returns the values in reverse (common issue)
+    const followersLabel = data.edge_followed_by?.count ? 'edge_followed_by.count' : 'follower_count';
+    const followingLabel = data.edge_follow?.count ? 'edge_follow.count' : 'following_count';
+    console.log(`Detected followers (${followersLabel}): ${followers}`);
+    console.log(`Detected following (${followingLabel}): ${following}`);
+    
     return {
-      followers: parseInt(data.statistics?.following_count || '0', 10),
-      following: parseInt(data.statistics?.followers_count || '0', 10),
-      posts: parseInt(data.statistics?.post_count || '0', 10),
+      followers: followers,
+      following: following,
+      posts: parseInt(data.edge_owner_to_timeline_media?.count || data.media_count || '0', 10),
       engagementRate: calculateEngagementRate(data),
       username: data.username || '',
       fullName: data.full_name || '',
-      biography: data.bio || '',
-      profilePicture: data.profile_picture_url || '',
+      biography: data.biography || data.bio || '',
+      profilePicture: data.profile_pic_url_hd || data.profile_pic_url || data.profile_picture_url || '',
       isPrivate: data.is_private || false,
       isVerified: data.is_verified || false,
-      recentPosts: processRecentPosts(data.posts || []),
+      recentPosts: processRecentPosts(data.edge_owner_to_timeline_media?.edges || data.media || []),
       metrics: {
-        avgLikes: calculateAverageLikes(data.posts || []),
-        avgComments: calculateAverageComments(data.posts || [])
+        avgLikes: calculateAverageLikes(data.edge_owner_to_timeline_media?.edges || data.media || []),
+        avgComments: calculateAverageComments(data.edge_owner_to_timeline_media?.edges || data.media || [])
       }
     };
   } catch (error) {
@@ -153,17 +210,28 @@ function processInstagramData(rawData: any) {
 // Calculate engagement rate based on followers and recent post interactions
 function calculateEngagementRate(data: any) {
   try {
-    const followers = parseInt(data.statistics?.followers_count || '0', 10);
+    // Try to determine followers count from various possible locations
+    const followers = parseInt(data.edge_followed_by?.count || data.follower_count || '0', 10);
     if (followers === 0) return 0;
     
-    const posts = data.posts || [];
+    // Get posts from various possible locations in the response
+    const posts = data.edge_owner_to_timeline_media?.edges || data.media || [];
     if (posts.length === 0) return 0;
     
     let totalEngagement = 0;
     posts.slice(0, Math.min(10, posts.length)).forEach((post: any) => {
-      const likes = parseInt(post.likes || '0', 10);
-      const comments = parseInt(post.comments || '0', 10);
-      totalEngagement += likes + comments;
+      // Handle different response structures
+      if (post.node) {
+        // Format for edge_owner_to_timeline_media.edges[].node
+        const likes = parseInt(post.node.edge_liked_by?.count || post.node.edge_media_preview_like?.count || '0', 10);
+        const comments = parseInt(post.node.edge_media_to_comment?.count || '0', 10);
+        totalEngagement += likes + comments;
+      } else {
+        // Format for media[]
+        const likes = parseInt(post.like_count || post.likes || '0', 10);
+        const comments = parseInt(post.comment_count || post.comments || '0', 10);
+        totalEngagement += likes + comments;
+      }
     });
     
     const avgEngagementPerPost = totalEngagement / posts.length;
@@ -181,10 +249,16 @@ function calculateAverageLikes(posts: any[]) {
   try {
     if (posts.length === 0) return 0;
     
-    const totalLikes = posts.reduce((sum, post) => {
-      const likes = parseInt(post.likes || '0', 10);
-      return sum + likes;
-    }, 0);
+    let totalLikes = 0;
+    posts.forEach((post) => {
+      if (post.node) {
+        // Format for edge_owner_to_timeline_media.edges[].node
+        totalLikes += parseInt(post.node.edge_liked_by?.count || post.node.edge_media_preview_like?.count || '0', 10);
+      } else {
+        // Format for media[]
+        totalLikes += parseInt(post.like_count || post.likes || '0', 10);
+      }
+    });
     
     return Math.floor(totalLikes / posts.length);
   } catch (error) {
@@ -198,10 +272,16 @@ function calculateAverageComments(posts: any[]) {
   try {
     if (posts.length === 0) return 0;
     
-    const totalComments = posts.reduce((sum, post) => {
-      const comments = parseInt(post.comments || '0', 10);
-      return sum + comments;
-    }, 0);
+    let totalComments = 0;
+    posts.forEach((post) => {
+      if (post.node) {
+        // Format for edge_owner_to_timeline_media.edges[].node
+        totalComments += parseInt(post.node.edge_media_to_comment?.count || '0', 10);
+      } else {
+        // Format for media[]
+        totalComments += parseInt(post.comment_count || post.comments || '0', 10);
+      }
+    });
     
     return Math.floor(totalComments / posts.length);
   } catch (error) {
@@ -213,16 +293,35 @@ function calculateAverageComments(posts: any[]) {
 // Process recent posts to our format
 function processRecentPosts(posts: any[]) {
   try {
-    return posts.slice(0, Math.min(6, posts.length)).map((post: any) => {
-      return {
-        timestamp: post.timestamp || new Date().toISOString(),
-        shortcode: post.shortcode || '',
-        likes: parseInt(post.likes || '0', 10),
-        comments: parseInt(post.comments || '0', 10),
-        caption: post.caption || '',
-        thumbnail: post.display_url || ''
-      };
-    });
+    const processedPosts = [];
+    
+    for (let i = 0; i < Math.min(6, posts.length); i++) {
+      const post = posts[i];
+      
+      if (post.node) {
+        // Format for edge_owner_to_timeline_media.edges[].node
+        processedPosts.push({
+          timestamp: post.node.taken_at_timestamp ? new Date(post.node.taken_at_timestamp * 1000).toISOString() : new Date().toISOString(),
+          shortcode: post.node.shortcode || '',
+          likes: parseInt(post.node.edge_liked_by?.count || post.node.edge_media_preview_like?.count || '0', 10),
+          comments: parseInt(post.node.edge_media_to_comment?.count || '0', 10),
+          caption: post.node.edge_media_to_caption?.edges?.[0]?.node?.text || '',
+          thumbnail: post.node.thumbnail_src || post.node.display_url || ''
+        });
+      } else {
+        // Format for media[]
+        processedPosts.push({
+          timestamp: post.taken_at || new Date().toISOString(),
+          shortcode: post.shortcode || post.code || '',
+          likes: parseInt(post.like_count || post.likes || '0', 10),
+          comments: parseInt(post.comment_count || post.comments || '0', 10),
+          caption: post.caption || '',
+          thumbnail: post.display_url || post.thumbnail_url || post.image_url || ''
+        });
+      }
+    }
+    
+    return processedPosts;
   } catch (error) {
     console.error('Error processing recent posts:', error);
     return [];

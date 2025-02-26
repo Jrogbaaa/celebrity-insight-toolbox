@@ -14,6 +14,8 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { ChatContainer } from "@/components/chat/ChatContainer";
 import { MessageCircle } from "lucide-react";
+import { InstagramScrapeTest } from "@/components/analytics/InstagramScrapeTest";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const Analytics = () => {
   const { 
@@ -50,27 +52,42 @@ const Analytics = () => {
         </div>
       </div>
 
-      {selectedReport && <div className="mb-8">
-          <UpdateReminder selectedReport={selectedReport} />
-        </div>}
-
-      {selectedReport && <Alert className="mb-8">
-          <AlertDescription>
-            Viewing analytics for {selectedReport.celebrity_name} ({selectedReport.username}) on {selectedReport.platform}
-          </AlertDescription>
-        </Alert>}
-
-      {selectedReport && platforms.length > 0 && <PlatformTabs platforms={platforms} currentPlatform={currentPlatform} reports={reports} selectedReport={selectedReport} setSelectedReport={setSelectedReport} />}
-
-      <div className="space-y-8 mt-8">
-        <AIActionItems selectedReport={selectedReport} />
+      <Tabs defaultValue="analytics" className="mb-8">
+        <TabsList className="grid w-full md:w-[400px] grid-cols-2">
+          <TabsTrigger value="analytics">Analytics Data</TabsTrigger>
+          <TabsTrigger value="tools">API Tools</TabsTrigger>
+        </TabsList>
         
-        {selectedReport?.report_data.posting_insights && <PostingInsights insights={selectedReport.report_data.posting_insights} />}
+        <TabsContent value="analytics" className="space-y-8">
+          {selectedReport && <div className="mb-8">
+              <UpdateReminder selectedReport={selectedReport} />
+            </div>}
 
-        {selectedReport?.report_data.sponsor_opportunities && <SponsorOpportunities selectedReport={selectedReport} />}
+          {selectedReport && <Alert className="mb-8">
+              <AlertDescription>
+                Viewing analytics for {selectedReport.celebrity_name} ({selectedReport.username}) on {selectedReport.platform}
+              </AlertDescription>
+            </Alert>}
 
-        {selectedReport?.report_data.demographics && <DemographicsDisplay demographics={selectedReport.report_data.demographics} />}
-      </div>
+          {selectedReport && platforms.length > 0 && <PlatformTabs platforms={platforms} currentPlatform={currentPlatform} reports={reports} selectedReport={selectedReport} setSelectedReport={setSelectedReport} />}
+
+          <div className="space-y-8 mt-8">
+            <AIActionItems selectedReport={selectedReport} />
+            
+            {selectedReport?.report_data.posting_insights && <PostingInsights insights={selectedReport.report_data.posting_insights} />}
+
+            {selectedReport?.report_data.sponsor_opportunities && <SponsorOpportunities selectedReport={selectedReport} />}
+
+            {selectedReport?.report_data.demographics && <DemographicsDisplay demographics={selectedReport.report_data.demographics} />}
+          </div>
+        </TabsContent>
+        
+        <TabsContent value="tools">
+          <div className="space-y-8">
+            <InstagramScrapeTest />
+          </div>
+        </TabsContent>
+      </Tabs>
 
       {/* Chat button and dialog */}
       <Dialog>
