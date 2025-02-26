@@ -20,7 +20,15 @@ export class ReportsService {
       
       if (data && data.length > 0) {
         console.log('Found reports in Supabase:', data.length);
-        return data as CelebrityReport[];
+        // Properly cast the data to CelebrityReport[] type
+        return data.map(item => ({
+          id: item.id,
+          celebrity_name: item.celebrity_name,
+          username: item.username,
+          platform: item.platform,
+          report_data: item.report_data as CelebrityReport['report_data'],
+          report_date: item.report_date
+        }));
       }
       
       // Fallback to mock data if no data in Supabase
