@@ -21,20 +21,25 @@ export const uploadPdfToStorage = async (file: File, timestamp: number) => {
 
 export const extractCelebrityNameFromPdf = async (file: File): Promise<string> => {
   try {
-    // For a real implementation, this would send the PDF to a service that extracts text
-    // Since we can't actually read the PDF content in the browser directly, 
-    // we'll extract a name from the filename or use default values
+    // Get the filename without extension
+    let filename = file.name.replace(/\.[^/.]+$/, "");
     
-    // Remove extension and special characters from filename
-    let name = file.name.replace(/\.[^/.]+$/, "").replace(/[^a-zA-Z0-9\s]/g, " ");
+    // Replace underscores and hyphens with spaces
+    filename = filename.replace(/[_-]/g, " ");
     
-    // If the filename is not suitable for a name, use a default
-    if (!name || name.length < 3) {
-      name = `Celebrity ${Math.floor(Math.random() * 1000)}`;
+    // Remove special characters and digits
+    filename = filename.replace(/[^a-zA-Z\s]/g, "");
+    
+    // Trim any excess whitespace
+    filename = filename.trim();
+    
+    // If no valid name is extracted, use a default
+    if (!filename || filename.length < 2) {
+      return `Celebrity ${Math.floor(Math.random() * 1000)}`;
     }
     
     // Properly format the name (capitalize first letter of each word)
-    return name.split(" ")
+    return filename.split(" ")
       .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
       .join(" ");
   } catch (error) {
@@ -159,9 +164,18 @@ export const createReportData = async (file: File, publicUrl: string): Promise<R
 };
 
 export const saveReportToDatabase = async (reportData: ReportData) => {
-  const { error } = await supabase
+  console.log('Saving to database:', reportData.celebrity_name);
+  
+  const { data, error } = await supabase
     .from('celebrity_reports')
-    .insert([reportData]);
+    .insert([reportData])
+    .select();
 
-  if (error) throw error;
+  if (error) {
+    console.error('Error saving to Supabase:', error);
+    throw error;
+  }
+  
+  console.log('Successfully saved to database, response:', data);
+  return data;
 };

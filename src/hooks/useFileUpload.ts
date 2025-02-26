@@ -66,7 +66,10 @@ export const useFileUpload = (onUploadSuccess: () => Promise<void>) => {
             })
             .eq('id', existingReport?.id);
 
-          if (updateError) throw updateError;
+          if (updateError) {
+            console.error("Error updating report:", updateError);
+            throw updateError;
+          }
           
           toast({
             title: "Report Updated",
@@ -85,7 +88,8 @@ export const useFileUpload = (onUploadSuccess: () => Promise<void>) => {
       } else {
         // New celebrity, create new report
         console.log("Creating new celebrity:", reportData.celebrity_name);
-        await saveReportToDatabase(reportData);
+        const savedData = await saveReportToDatabase(reportData);
+        console.log("New celebrity saved data:", savedData);
         
         toast({
           title: "New Celebrity Added",
@@ -98,7 +102,9 @@ export const useFileUpload = (onUploadSuccess: () => Promise<void>) => {
       }
 
       // Refresh the reports list to include the new or updated report
+      console.log("Refreshing reports after save...");
       await onUploadSuccess();
+      console.log("Reports refreshed.");
       
       // Additional success toast to confirm everything worked
       toast({
