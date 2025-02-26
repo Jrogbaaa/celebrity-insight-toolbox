@@ -47,7 +47,10 @@ serve(async (req: Request) => {
     // Check if API key is set
     if (!RAPID_API_KEY) {
       console.error("RAPID_API_KEY is not set");
-      return new Response(JSON.stringify({ error: "Social Blade API key is not configured" }), {
+      return new Response(JSON.stringify({ 
+        error: "Social Blade API key is not configured", 
+        details: "You need to set a RapidAPI key, not a Social Blade client ID. Please sign up on RapidAPI and subscribe to the Social Blade API."
+      }), {
         status: 500,
         headers: {
           "Content-Type": "application/json",
@@ -85,6 +88,20 @@ serve(async (req: Request) => {
 
     console.log(`Fetching Social Blade data for ${username} on ${normalizedPlatform}`);
     console.log(`Using API key: ${RAPID_API_KEY ? "Set (hidden)" : "Not set"}`);
+    
+    // Add mock/demo data for testing purposes
+    if (Deno.env.get("ENVIRONMENT") === "development" || !RAPID_API_KEY) {
+      console.log("Using mock data for testing (no API key or in development mode)");
+      const mockData = getMockData(username, normalizedPlatform);
+      
+      return new Response(JSON.stringify(mockData), {
+        status: 200,
+        headers: {
+          "Content-Type": "application/json",
+          ...corsHeaders,
+        },
+      });
+    }
     
     // Try to fetch from cache first
     const { data: cachedData } = await supabase
@@ -190,4 +207,57 @@ function normalizePlatform(platform: string): string | null {
   };
   
   return platformMap[platform.toLowerCase()] || null;
+}
+
+// Function to generate mock data for testing
+function getMockData(username: string, platform: string) {
+  // Mock data for Instagram
+  if (platform === 'instagram') {
+    return {
+      username: username,
+      fullname: username === 'cristipedroche' ? 'Cristina Pedroche' : 'Instagram User',
+      followers: 2950000,
+      following: 1254,
+      uploads: 1876,
+      engagement_rate: 4.2,
+      average_likes: 124500,
+      average_comments: 3200,
+      growth: {
+        weekly: 12500,
+        monthly: 48700,
+        yearly: 547000
+      },
+      most_popular_posts: [
+        {
+          url: "https://instagram.com/p/example1",
+          likes: 254000,
+          comments: 5400,
+          posted_date: "2023-12-15"
+        },
+        {
+          url: "https://instagram.com/p/example2",
+          likes: 212000,
+          comments: 4300,
+          posted_date: "2023-11-20"
+        }
+      ],
+      estimated_earnings: {
+        low: "$5,400",
+        high: "$9,100",
+        per_post: "$3,200"
+      },
+      _note: "This is mock data for testing purposes only"
+    };
+  }
+  
+  // Mock data for other platforms (generic)
+  return {
+    username: username,
+    platform: platform,
+    followers: 1250000,
+    following: 850,
+    engagement_rate: 3.8,
+    estimated_yearly_earnings: "$45,000 - $120,000",
+    _note: "This is mock data for testing purposes only"
+  };
 }
