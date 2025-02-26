@@ -1,3 +1,4 @@
+
 import { useState, useRef } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { uploadPdfToStorage, createReportData, saveReportToDatabase } from "@/utils/reportUpload";
@@ -25,7 +26,7 @@ export const useFileUpload = (onUploadSuccess: () => Promise<void>) => {
     try {
       const timestamp = new Date().getTime();
       const publicUrl = await uploadPdfToStorage(file, timestamp);
-      const reportData = createReportData(publicUrl);
+      const reportData = await createReportData(file, publicUrl);
 
       // Check if celebrity already exists
       const { data: existingReports } = await supabase
@@ -54,19 +55,29 @@ export const useFileUpload = (onUploadSuccess: () => Promise<void>) => {
             .eq('id', existingReport?.id);
 
           if (updateError) throw updateError;
+          
+          toast({
+            title: "Report Updated",
+            description: `Updated report for ${reportData.celebrity_name} on ${reportData.platform}`,
+          });
         } else {
           // Add new platform report
           await saveReportToDatabase(reportData);
+          
+          toast({
+            title: "New Platform Added",
+            description: `Added ${reportData.platform} report for ${reportData.celebrity_name}`,
+          });
         }
       } else {
         // New celebrity, create new report
         await saveReportToDatabase(reportData);
+        
+        toast({
+          title: "New Celebrity Added",
+          description: `Created report for ${reportData.celebrity_name} on ${reportData.platform}`,
+        });
       }
-
-      toast({
-        title: "Success",
-        description: "Report uploaded successfully!",
-      });
 
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
