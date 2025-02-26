@@ -10,7 +10,7 @@ const fetchSocialBladeData = async (username: string, platform: string) => {
   try {
     console.log(`Fetching Social Blade data for ${username} on ${platform}...`);
     
-    const response = await fetch(`https://supabase.functions.lovable.dev/${process.env.SUPABASE_PROJECT_ID}/social-blade-stats`, {
+    const response = await fetch(`https://supabase.functions.lovable.dev/ygweyscocelwjcqinkth/social-blade-stats`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -88,13 +88,15 @@ export const useReportsData = () => {
     queryFn: () => selectedReport ? fetchSocialBladeData(selectedReport.username, selectedReport.platform) : null,
     enabled: !!selectedReport,
     staleTime: 1000 * 60 * 15, // 15 minutes
-    onError: (error) => {
-      console.error('Social Blade query error:', error);
-      toast({
-        title: "Social Blade Data Error",
-        description: error instanceof Error ? error.message : "Failed to fetch Social Blade data",
-        variant: "destructive",
-      });
+    meta: {
+      onError: (error: Error) => {
+        console.error('Social Blade query error:', error);
+        toast({
+          title: "Social Blade Data Error",
+          description: error.message || "Failed to fetch Social Blade data",
+          variant: "destructive",
+        });
+      }
     }
   });
 
