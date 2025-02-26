@@ -62,6 +62,18 @@ export const createReportData = async (file: File, publicUrl: string): Promise<R
   const avgLikes = Math.floor(followers * (parseFloat(engagementRate) / 100));
   const avgComments = Math.floor(avgLikes * 0.02);
   
+  // Generate demographic data
+  const femalePercentage = 55 + Math.floor(Math.random() * 10);
+  const malePercentage = 100 - femalePercentage;
+  
+  const age1824 = 20 + Math.floor(Math.random() * 10);
+  const age2534 = 35 + Math.floor(Math.random() * 10);
+  const age3544 = 25 + Math.floor(Math.random() * 10);
+  const age4554 = 15 + Math.floor(Math.random() * 5);
+  const age55plus = 5 + Math.floor(Math.random() * 5);
+  
+  const topLocations = ["Madrid, ES", "Barcelona, ES", "New York, US", "London, UK", "Mexico City, MX"];
+  
   return {
     celebrity_name: celebrityName,
     username: username,
@@ -93,17 +105,17 @@ export const createReportData = async (file: File, publicUrl: string): Promise<R
           `Engagement rate of ${engagementRate}% indicates good audience connection`
         ],
         demographic_data: {
-          top_locations: ["Madrid, ES", "Barcelona, ES", "New York, US", "London, UK", "Mexico City, MX"],
+          top_locations: topLocations,
           gender_split: {
-            female: 55 + Math.floor(Math.random() * 10),
-            male: 45 - Math.floor(Math.random() * 10)
+            female: femalePercentage,
+            male: malePercentage
           },
           age_ranges: {
-            "18-24": 20 + Math.floor(Math.random() * 10),
-            "25-34": 35 + Math.floor(Math.random() * 10),
-            "35-44": 25 + Math.floor(Math.random() * 10),
-            "45-54": 15 + Math.floor(Math.random() * 5),
-            "55+": 5 + Math.floor(Math.random() * 5)
+            "18-24": age1824,
+            "25-34": age2534,
+            "35-44": age3544,
+            "45-54": age4554,
+            "55+": age55plus
           }
         },
         sponsored_content: {
@@ -121,17 +133,17 @@ export const createReportData = async (file: File, publicUrl: string): Promise<R
       },
       demographics: {
         age_groups: {
-          "18-24": `${20 + Math.floor(Math.random() * 10)}%`,
-          "25-34": `${35 + Math.floor(Math.random() * 10)}%`,
-          "35-44": `${25 + Math.floor(Math.random() * 10)}%`,
-          "45-54": `${15 + Math.floor(Math.random() * 5)}%`,
-          "55+": `${5 + Math.floor(Math.random() * 5)}%`
+          "18-24": `${age1824}%`,
+          "25-34": `${age2534}%`,
+          "35-44": `${age3544}%`,
+          "45-54": `${age4554}%`,
+          "55+": `${age55plus}%`
         },
         gender: {
-          "Female": `${55 + Math.floor(Math.random() * 10)}%`,
-          "Male": `${45 - Math.floor(Math.random() * 10)}%`
+          "Female": `${femalePercentage}%`,
+          "Male": `${malePercentage}%`
         },
-        top_locations: ["Madrid, ES", "Barcelona, ES", "New York, US", "London, UK", "Mexico City, MX"]
+        top_locations: topLocations
       },
       sponsor_opportunities: [
         "Fashion Collaborations",

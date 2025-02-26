@@ -37,6 +37,12 @@ export interface ReportData {
         recent_brands: string[];
       };
     };
+    demographics?: {
+      age_groups: { [key: string]: string };
+      gender: { [key: string]: string };
+      top_locations: string[];
+    };
+    sponsor_opportunities?: string[];
   };
   report_date: string;
 }
