@@ -24,15 +24,26 @@ export const useFileUpload = (onUploadSuccess: () => Promise<void>) => {
 
     setLoading(true);
     try {
+      // Show initial toast to indicate processing
+      toast({
+        title: "Processing PDF",
+        description: "Extracting data from your PDF and creating profile...",
+      });
+      
       const timestamp = new Date().getTime();
       const publicUrl = await uploadPdfToStorage(file, timestamp);
+      console.log("PDF uploaded successfully, URL:", publicUrl);
+      
       const reportData = await createReportData(file, publicUrl);
+      console.log("Created report data:", reportData.celebrity_name);
 
       // Check if celebrity already exists
       const { data: existingReports } = await supabase
         .from('celebrity_reports')
         .select('*')
         .eq('celebrity_name', reportData.celebrity_name);
+
+      console.log("Existing reports check:", existingReports);
 
       if (existingReports && existingReports.length > 0) {
         // If celebrity exists but platform is different, add new report
@@ -46,6 +57,7 @@ export const useFileUpload = (onUploadSuccess: () => Promise<void>) => {
             report => report.platform === reportData.platform
           );
           
+          console.log("Updating existing report for", reportData.celebrity_name);
           const { error: updateError } = await supabase
             .from('celebrity_reports')
             .update({
@@ -62,6 +74,7 @@ export const useFileUpload = (onUploadSuccess: () => Promise<void>) => {
           });
         } else {
           // Add new platform report
+          console.log("Adding new platform for", reportData.celebrity_name);
           await saveReportToDatabase(reportData);
           
           toast({
@@ -71,6 +84,7 @@ export const useFileUpload = (onUploadSuccess: () => Promise<void>) => {
         }
       } else {
         // New celebrity, create new report
+        console.log("Creating new celebrity:", reportData.celebrity_name);
         await saveReportToDatabase(reportData);
         
         toast({
@@ -83,7 +97,15 @@ export const useFileUpload = (onUploadSuccess: () => Promise<void>) => {
         fileInputRef.current.value = '';
       }
 
+      // Refresh the reports list to include the new or updated report
       await onUploadSuccess();
+      
+      // Additional success toast to confirm everything worked
+      toast({
+        title: "Success",
+        description: "Profile now available in the dropdown menu",
+      });
+      
     } catch (error) {
       console.error('Error uploading report:', error);
       toast({
