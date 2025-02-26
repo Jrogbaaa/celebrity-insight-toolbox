@@ -31,14 +31,14 @@ export class ReportsService {
         }));
       }
       
-      // Fallback to mock data if no data in Supabase
-      console.log('No reports found in Supabase, using mock data');
-      return mockReports;
+      // Return empty array instead of mock data
+      console.log('No reports found in Supabase, returning empty array');
+      return [];
     } catch (error) {
       console.error('Error in fetchReports:', error);
-      // Fallback to mock data on error
-      console.log('Error occurred, falling back to mock data');
-      return mockReports;
+      // Return empty array on error instead of mock data
+      console.log('Error occurred, returning empty array');
+      return [];
     }
   }
 
