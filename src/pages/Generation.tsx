@@ -17,17 +17,17 @@ const Generation = () => {
   return (
     <TooltipProvider>
       <div className="max-w-7xl mx-auto px-0 md:px-4">
-        <div className="px-4 md:px-0 flex flex-col md:flex-row justify-between items-center mb-4">
+        <div className="px-4 md:px-0 flex flex-col md:flex-row justify-between items-center mb-2">
           <h1 className="text-2xl font-bold text-primary hidden md:block">Creative Studio AI</h1>
           <div className="md:mr-8">
             <PostAnalyzer onAnalysisComplete={handleAnalyticsResult} />
           </div>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-[3fr_2fr] gap-6">
-          <div className="h-[calc(100vh-3rem)]">
+        <div className="grid grid-cols-1 md:grid-cols-[3fr_2fr] gap-4 mt-0">
+          <div className="h-[calc(100vh-2.5rem)]">
             <ChatContainer />
           </div>
-          <div className="h-[calc(100vh-3rem)] overflow-y-auto flex flex-col gap-6">
+          <div className="h-[calc(100vh-2.5rem)] overflow-y-auto flex flex-col gap-4">
             <ImageGenerator />
             {analyticsData && (
               <PostingInsights 
