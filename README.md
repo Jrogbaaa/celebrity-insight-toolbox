@@ -1,22 +1,48 @@
-# Welcome to your Lovable project
 
-## Project info
+# Look After You - Social Media Analytics & Content Hub
 
-**URL**: https://lovable.dev/projects/b7ef9762-75f5-4f7b-8406-6beeef658060
+## Project Overview
 
-## How can I edit this code?
+Look After You is a comprehensive social media management platform that helps content creators and social media managers analyze their performance across platforms, generate content, and get AI-powered recommendations for growth.
 
-There are several ways of editing your application.
+## Key Features
 
-**Use Lovable**
+### Analytics Hub
+- Import and view social media analytics reports
+- Cross-platform analytics from Instagram, TikTok, and other platforms
+- Demographics breakdown of your audience
+- Posting insights and optimal timing recommendations
+- Sponsorship opportunity analysis
+- Instagram profile scraping tool
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/b7ef9762-75f5-4f7b-8406-6beeef658060) and start prompting.
+### Creative Studio
+- AI-powered content generation
+- Post scheduler and recommendation engine
+- Content analysis for optimal engagement
+- Hashtag and caption recommendations
 
-Changes made via Lovable will be committed automatically to this repo.
+### AI Social Expert
+- Chat with an AI assistant that understands your social media data
+- Get personalized recommendations based on your analytics
+- Ask questions about your audience, content performance, and growth strategies
+
+## Technical Details
+
+This project is built with:
+
+- Vite
+- TypeScript
+- React
+- shadcn-ui components
+- Tailwind CSS
+- Supabase for backend services
+- Tanstack React Query for data fetching
+
+## Development
 
 **Use your preferred IDE**
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+If you want to work locally using your own IDE, you can clone this repo and push changes.
 
 The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
 
@@ -36,34 +62,35 @@ npm i
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+## Changelog
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+### v1.0.0 (August 2023)
+- Initial release with basic analytics dashboard
+- User authentication system
+- Report upload functionality
 
-**Use GitHub Codespaces**
+### v1.1.0 (October 2023)
+- Added demographics display
+- Improved report analysis
+- Added AI action items
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+### v1.2.0 (December 2023)
+- Added creative content studio
+- AI chat assistant integration
+- Multi-platform support
 
-## What technologies are used for this project?
+### v2.0.0 (March 2024)
+- Complete UI redesign
+- Added Instagram API integration
+- Improved content analysis features
+- Enhanced AI recommendations
 
-This project is built with .
+### v2.1.0 (May 2024)
+- Added Instagram profile scraping tool
+- API tools section in Analytics Hub
+- Enhanced user interface
+- Improved mobile responsiveness
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## License
 
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/b7ef9762-75f5-4f7b-8406-6beeef658060) and click on Share -> Publish.
-
-## I want to use a custom domain - is that possible?
-
-We don't support custom domains (yet). If you want to deploy your project under your own domain then we recommend using Netlify. Visit our docs for more details: [Custom domains](https://docs.lovable.dev/tips-tricks/custom-domain/)
+This project is proprietary and confidential. Unauthorized copying or distribution is prohibited.
