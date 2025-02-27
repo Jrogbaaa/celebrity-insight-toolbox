@@ -46,3 +46,6 @@ verify_jwt = false
 
 [functions.video-analyze]
 verify_jwt = false
+
+[functions.replicate-image]
+verify_jwt = false

@@ -16,42 +16,60 @@ serve(async (req) => {
     const requestBody = await req.json();
     console.log('Received request body:', requestBody);
 
-    const { prompt } = requestBody;
+    const { prompt, modelType } = requestBody;
     if (!prompt) {
       throw new Error('Prompt is required');
     }
 
+    // Get the Gemini API key from environment variables
     const geminiApiKey = Deno.env.get('GEMINI_API_KEY');
     if (!geminiApiKey) {
       throw new Error('GEMINI_API_KEY is not set');
     }
 
-    console.log('Calling Imagen API with prompt:', prompt);
+    console.log('Calling Gemini API for image generation with prompt:', prompt);
+    console.log('Using model type:', modelType);
 
-    const response = await fetch('https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent', {
+    // Set model parameters based on the selected model type
+    let temperature = 0.4;
+    let enhancedPrompt = prompt;
+
+    if (modelType === 'creative') {
+      temperature = 0.9;
+      enhancedPrompt = `Create a creative and artistic image of: ${prompt}. Use vibrant colors and artistic style.`;
+    } else {
+      // Standard model
+      enhancedPrompt = `Create a photorealistic, high-quality image of: ${prompt}. Make it look professional and polished.`;
+    }
+
+    // Call Gemini 1.5 Pro to generate an image
+    const response = await fetch('https://generativelanguage.googleapis.com/v1/models/gemini-1.5-pro:generateContent', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'x-goog-api-key': geminiApiKey
       },
       body: JSON.stringify({
-        contents: [{
-          parts: [{
-            text: prompt
-          }]
-        }],
+        contents: [
+          {
+            parts: [
+              {
+                text: enhancedPrompt
+              }
+            ]
+          }
+        ],
         generationConfig: {
-          temperature: 0.4,
+          temperature: temperature,
           topK: 32,
           topP: 1,
-          maxOutputTokens: 2048,
+          maxOutputTokens: 4096,
         },
       }),
     });
 
     console.log('Response status:', response.status);
-    console.log('Response headers:', Object.fromEntries(response.headers.entries()));
-
+    
     if (!response.ok) {
       const errorText = await response.text();
       console.error('API Error Response:', errorText);
@@ -59,19 +77,32 @@ serve(async (req) => {
     }
 
     const responseData = await response.json();
-    console.log('API Response Data:', JSON.stringify(responseData, null, 2));
+    console.log('API Response Data Structure:', Object.keys(responseData));
 
-    if (!responseData.candidates?.[0]?.content?.parts?.[0]?.text) {
-      throw new Error('Unexpected response format from API');
+    // Extract the image part from the response
+    let imagePart = null;
+    if (responseData.candidates && responseData.candidates.length > 0) {
+      const parts = responseData.candidates[0].content?.parts;
+      if (parts && parts.length > 0) {
+        imagePart = parts.find(part => part.inlineData?.mimeType?.startsWith('image/'));
+      }
     }
 
+    if (!imagePart || !imagePart.inlineData) {
+      console.error('No image data found in the response');
+      throw new Error('No image was generated. Please try with a different prompt.');
+    }
+
+    console.log('Successfully extracted image data from response');
+    
     // Get the base64 image data
-    const base64Image = responseData.candidates[0].content.parts[0].text;
+    const base64Image = imagePart.inlineData.data;
     
     if (!base64Image) {
       throw new Error('No image data in response');
     }
 
+    // Get Supabase credentials
     const supabaseUrl = Deno.env.get('SUPABASE_URL');
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
     if (!supabaseUrl || !supabaseKey) {

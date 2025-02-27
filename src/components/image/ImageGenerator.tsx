@@ -1,4 +1,5 @@
-import { useState, useRef, useEffect } from "react";
+
+import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -14,7 +15,6 @@ export const ImageGenerator = () => {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [selectedModel, setSelectedModel] = useState("standard");
   const { toast } = useToast();
-  const [showImage, setShowImage] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,33 +31,27 @@ export const ImageGenerator = () => {
     setImageUrl(null);
 
     try {
-      console.log('Sending request to replicate-image with prompt:', prompt, 'model:', selectedModel);
-      const { data, error } = await supabase.functions.invoke('replicate-image', {
+      console.log('Sending request to gemini-image with prompt:', prompt, 'model:', selectedModel);
+      const { data, error } = await supabase.functions.invoke('gemini-image', {
         body: { 
           prompt,
           modelType: selectedModel
         }
       });
 
-      console.log('Response from replicate-image:', { data, error });
+      console.log('Response from gemini-image:', { data, error });
 
       if (error) {
         console.error('Supabase function error:', error);
         throw error;
       }
 
-      if (!data?.output) {
+      if (!data?.response) {
         console.error('No output data received:', data);
         throw new Error('No image data received');
       }
 
-      const imageData = Array.isArray(data.output) ? data.output[0] : data.output;
-      if (!imageData) {
-        console.error('No image URL in output:', data.output);
-        throw new Error('No image URL received');
-      }
-
-      setImageUrl(imageData);
+      setImageUrl(data.response);
     } catch (error) {
       console.error('Error generating image:', error);
       toast({
@@ -79,7 +73,7 @@ export const ImageGenerator = () => {
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `generated-image-${Date.now()}.webp`;
+      a.download = `generated-image-${Date.now()}.png`;
       document.body.appendChild(a);
       a.click();
       window.URL.revokeObjectURL(url);
@@ -107,14 +101,14 @@ export const ImageGenerator = () => {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="standard">Standard Image Generator</SelectItem>
-              <SelectItem value="jaime">Jaime Lorente Generator</SelectItem>
+              <SelectItem value="creative">Creative Style Generator</SelectItem>
             </SelectContent>
           </Select>
           
           <Textarea
             placeholder={`First select a model, then describe the image you want to generate... ${
-              selectedModel === "jaime" 
-                ? "(e.g., 'A portrait of Jaime in a modern suit')"
+              selectedModel === "creative" 
+                ? "(e.g., 'An abstract painting with vibrant colors')"
                 : "(e.g., 'A professional Instagram photo of a coffee shop with warm lighting and modern decor')"
             }`}
             value={prompt}
