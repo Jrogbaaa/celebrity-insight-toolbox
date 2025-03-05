@@ -3,11 +3,6 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { GoogleGenerativeAI } from "https://esm.sh/@google/generative-ai@0.1.3";
 
-const genAI = new GoogleGenerativeAI(Deno.env.get('GEMINI_API_KEY') || '');
-const supabaseUrl = Deno.env.get('SUPABASE_URL') || '';
-const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || '';
-const supabase = createClient(supabaseUrl, supabaseKey);
-
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
@@ -20,7 +15,27 @@ serve(async (req) => {
 
   try {
     const { prompt, context, celebrityData, userId } = await req.json();
+    
+    console.log('Processing Gemini chat request:', prompt ? prompt.substring(0, 50) + '...' : 'No prompt');
+    
+    if (!prompt || typeof prompt !== 'string') {
+      console.error('Invalid prompt:', prompt);
+      return new Response(
+        JSON.stringify({ error: 'Invalid or missing prompt' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
+      );
+    }
 
+    // Initialize Gemini
+    const genAI = new GoogleGenerativeAI(Deno.env.get('GEMINI_API_KEY') || '');
+    if (!Deno.env.get('GEMINI_API_KEY')) {
+      console.error('GEMINI_API_KEY is not set');
+      return new Response(
+        JSON.stringify({ error: 'API key is not configured' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
+      );
+    }
+    
     const model = genAI.getGenerativeModel({ model: "gemini-pro" });
 
     // Extract specific data points from celebrity data
@@ -88,32 +103,52 @@ serve(async (req) => {
     4. Mention optimal posting times when discussing content strategy`;
 
     const prompt_with_context = `${systemPrompt}\n\nUser: ${prompt}`;
-    const result = await model.generateContent(prompt_with_context);
-    const response = result.response;
-    const text = response.text();
+    console.log('Sending prompt to Gemini');
+    
+    try {
+      const result = await model.generateContent(prompt_with_context);
+      const response = result.response;
+      const text = response.text();
+      console.log('Received response from Gemini of length:', text.length);
 
-    // Store the conversation for future context
-    await supabase
-      .from('chat_conversations')
-      .insert({
-        user_id: userId,
-        messages: [{
-          role: 'user',
-          content: prompt,
-          timestamp: new Date().toISOString(),
-        }, {
-          role: 'assistant',
-          content: text,
-          timestamp: new Date().toISOString(),
-        }]
-      });
+      // Optional: store the conversation for future context
+      if (userId) {
+        const supabaseUrl = Deno.env.get('SUPABASE_URL') || '';
+        const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || '';
+        
+        if (supabaseUrl && supabaseKey) {
+          const supabase = createClient(supabaseUrl, supabaseKey);
+          await supabase
+            .from('chat_conversations')
+            .insert({
+              user_id: userId,
+              messages: [{
+                role: 'user',
+                content: prompt,
+                timestamp: new Date().toISOString(),
+              }, {
+                role: 'assistant',
+                content: text,
+                timestamp: new Date().toISOString(),
+              }]
+            })
+            .catch(error => console.error('Error storing conversation:', error));
+        }
+      }
 
-    return new Response(
-      JSON.stringify({ response: text }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
-    );
+      return new Response(
+        JSON.stringify({ response: text }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+      );
+    } catch (genAIError) {
+      console.error('Gemini API error:', genAIError);
+      return new Response(
+        JSON.stringify({ error: 'AI service error', details: genAIError.message }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 },
+      );
+    }
   } catch (error) {
-    console.error('Error:', error);
+    console.error('Error in gemini-chat function:', error);
     return new Response(
       JSON.stringify({ error: error.message }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },

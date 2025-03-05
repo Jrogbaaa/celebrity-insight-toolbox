@@ -14,22 +14,38 @@ serve(async (req) => {
   }
 
   try {
+    const { messages } = await req.json()
+    
+    if (!messages || !Array.isArray(messages) || messages.length === 0) {
+      console.error('Invalid messages format:', messages)
+      return new Response(
+        JSON.stringify({ error: 'Invalid messages format. Expected non-empty array' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
+      )
+    }
+
+    console.log('Processing chat with messages:', messages.length)
+
+    // Initialize Supabase client
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     )
 
-    const { messages } = await req.json()
-
     // Get celebrity data from AI configuration
-    const { data: aiConfig } = await supabase
+    const { data: aiConfig, error: configError } = await supabase
       .from('ai_configuration')
       .select('configuration')
       .eq('provider', 'gemini')
       .eq('model_name', 'gemini-pro')
       .single()
 
+    if (configError) {
+      console.error('Error fetching AI configuration:', configError)
+    }
+
     const celebrityData = aiConfig?.configuration?.celebrity_data || {}
+    console.log('Retrieved celebrity data config:', Object.keys(celebrityData).length, 'celebrities')
 
     // Create context from celebrity data
     const celebrityContext = Object.entries(celebrityData)
@@ -39,9 +55,13 @@ serve(async (req) => {
       })
       .join('\n\n')
 
+    console.log('Generated celebrity context of length:', celebrityContext.length)
+
+    // Initialize Gemini
     const genAI = new GoogleGenerativeAI(Deno.env.get('GEMINI_API_KEY') ?? '')
     const model = genAI.getGenerativeModel({ model: "gemini-pro" })
 
+    // Create chat session with context
     const chat = model.startChat({
       history: [
         {
@@ -55,16 +75,21 @@ serve(async (req) => {
       ],
     })
 
+    console.log('Sending message to Gemini:', messages[messages.length - 1].content.substring(0, 100) + '...')
+    
+    // Send the latest message to Gemini
     const result = await chat.sendMessage(messages[messages.length - 1].content)
     const response = await result.response
     const text = response.text()
+
+    console.log('Received response from Gemini of length:', text.length)
 
     return new Response(
       JSON.stringify({ generatedText: text }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
   } catch (error) {
-    console.error('Error:', error)
+    console.error('Error in celebrity-aware-chat function:', error)
     return new Response(
       JSON.stringify({ error: 'Failed to process request', details: error.message }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }

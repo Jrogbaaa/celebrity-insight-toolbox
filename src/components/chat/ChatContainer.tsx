@@ -5,14 +5,17 @@ import { ChatInput } from "@/components/chat/ChatInput";
 import { useChat } from "@/hooks/useChat";
 import { CelebrityReport } from "@/types/reports";
 import { Button } from "@/components/ui/button";
-import { Loader2, MessageSquare, Send } from "lucide-react";
+import { Loader2, MessageSquare, Send, AlertCircle } from "lucide-react";
+import { useState } from "react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface ChatContainerProps {
   selectedReport?: CelebrityReport | null;
 }
 
 export const ChatContainer = ({ selectedReport }: ChatContainerProps) => {
-  const { messages, prompt, loading, setPrompt, handleSubmit } = useChat(selectedReport);
+  const { messages, prompt, loading, error, setPrompt, handleSubmit } = useChat(selectedReport);
+  const [showError, setShowError] = useState(false);
 
   const suggestedPrompts = selectedReport ? [
     `What actions should ${selectedReport.celebrity_name} take to improve engagement?`,
@@ -28,7 +31,11 @@ export const ChatContainer = ({ selectedReport }: ChatContainerProps) => {
 
   const handlePromptClick = async (promptText: string) => {
     await setPrompt(promptText);
-    handleSubmit(promptText);
+    const result = await handleSubmit(promptText);
+    if (!result.success) {
+      setShowError(true);
+      setTimeout(() => setShowError(false), 5000);
+    }
   };
 
   return (
@@ -40,6 +47,16 @@ export const ChatContainer = ({ selectedReport }: ChatContainerProps) => {
         </CardTitle>
       </CardHeader>
       <CardContent className="flex-1 p-0 flex flex-col h-[calc(100%-60px)] overflow-hidden">
+        {showError && error && (
+          <Alert variant="destructive" className="m-2">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>
+              {error.includes("insufficient") ? 
+                "The AI service is currently unavailable. Please try again later." : 
+                error}
+            </AlertDescription>
+          </Alert>
+        )}
         <div className="flex-1 overflow-y-auto relative">
           <ChatMessages messages={messages} loading={loading} />
         </div>

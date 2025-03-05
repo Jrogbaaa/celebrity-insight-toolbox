@@ -1,3 +1,4 @@
+
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
@@ -17,7 +18,15 @@ serve(async (req) => {
   try {
     const { messages } = await req.json();
 
-    console.log('Received messages:', messages);
+    if (!messages || !Array.isArray(messages)) {
+      console.error('Invalid messages format:', messages);
+      return new Response(
+        JSON.stringify({ error: 'Invalid messages format' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
+      );
+    }
+
+    console.log('Processing chat with messages:', messages.length);
 
     // Updated system message to focus on social media expertise
     const apiMessages = [
@@ -40,6 +49,16 @@ serve(async (req) => {
       ...messages
     ];
 
+    console.log('Sending request to DeepSeek API');
+
+    if (!deepseekApiKey) {
+      console.error('DeepSeek API key is not set');
+      return new Response(
+        JSON.stringify({ error: 'API key is not configured' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
+      );
+    }
+
     const response = await fetch('https://api.deepseek.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -57,25 +76,11 @@ serve(async (req) => {
       }),
     });
 
-    const data = await response.json();
-    console.log('DeepSeek API response:', data);
-
     if (!response.ok) {
-      console.error('DeepSeek API error:', data);
+      const errorText = await response.text();
+      console.error('DeepSeek API error:', response.status, errorText);
       
-      if (data.error?.message?.includes('insufficient') || data.error?.message?.includes('balance')) {
-        return new Response(
-          JSON.stringify({
-            error: "Insufficient Balance",
-            details: "The AI service is currently unavailable due to insufficient credits. Please try again later or contact support."
-          }), {
-            status: 402,
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          }
-        );
-      }
-
-      if (data.error?.message?.includes('rate limit')) {
+      if (response.status === 429) {
         return new Response(
           JSON.stringify({
             error: "Rate Limit Exceeded",
@@ -86,9 +91,15 @@ serve(async (req) => {
           }
         );
       }
-
-      throw new Error(data.error?.message || 'Failed to generate content');
+      
+      return new Response(
+        JSON.stringify({ error: 'External API error', details: errorText }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: response.status }
+      );
     }
+
+    const data = await response.json();
+    console.log('DeepSeek API response received');
 
     const generatedText = data.choices[0].message.content;
 
@@ -97,18 +108,6 @@ serve(async (req) => {
     });
   } catch (error) {
     console.error('Error in deepseek-chat function:', error);
-    
-    if (error.message?.includes('insufficient') || error.message?.includes('balance')) {
-      return new Response(
-        JSON.stringify({
-          error: "Insufficient Balance",
-          details: "The AI service is currently unavailable due to insufficient credits. Please try again later or contact support."
-        }), {
-          status: 402,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        }
-      );
-    }
     
     return new Response(
       JSON.stringify({
