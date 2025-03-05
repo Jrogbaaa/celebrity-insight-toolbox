@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -23,7 +24,7 @@ const Layout = ({
         <div className="container p-0">
           <div className="flex items-center justify-between px-2 py-2">
             <Link to="/" className="flex-1 flex items-center">
-              <img src="/lovable-uploads/e7bef072-8d1a-4444-a41f-6dca6ff42c63.png" alt="Look After You" className="h-24 w-auto object-contain" />
+              <img src="/lovable-uploads/e7bef072-8d1a-4444-a41f-6dca6ff42c63.png" alt="Look After You" className="h-32 w-auto object-contain" />
             </Link>
             <div className="flex items-center gap-2 justify-center flex-shrink-0">
               <Button variant={location.pathname === "/analytics" ? "default" : "ghost"} size="icon" className="w-10 h-10" asChild>
@@ -46,7 +47,7 @@ const Layout = ({
         <div className="container py-4">
           <div className="flex items-center justify-between mb-8 animate-fade-in">
             <Link to="/">
-              <img src="/lovable-uploads/e7bef072-8d1a-4444-a41f-6dca6ff42c63.png" alt="Look After You" className="h-40 w-auto object-contain transition-all duration-300 hover:scale-105 cursor-pointer" />
+              <img src="/lovable-uploads/e7bef072-8d1a-4444-a41f-6dca6ff42c63.png" alt="Look After You" className="h-56 w-auto object-contain transition-all duration-300 hover:scale-105 cursor-pointer" />
             </Link>
             <div className="flex gap-4">
               <Button variant={location.pathname === "/analytics" ? "default" : "outline"} size="lg" className="shadow-md hover:shadow-lg transition-all duration-300" asChild>
@@ -65,7 +66,7 @@ const Layout = ({
       </div>
 
       {/* Content with mobile padding for fixed header */}
-      <div className="container md:py-4 mt-[96px] md:mt-0 px-0 md:px-4">
+      <div className="container md:py-4 mt-[112px] md:mt-0 px-0 md:px-4">
         {children}
       </div>
     </div>;

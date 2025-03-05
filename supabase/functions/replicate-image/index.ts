@@ -14,13 +14,13 @@ serve(async (req) => {
   }
 
   try {
-    const REPLICATE_API_KEY = Deno.env.get('REPLICATE_API_KEY')
-    if (!REPLICATE_API_KEY) {
-      throw new Error('REPLICATE_API_KEY is not set')
+    const REPLICATE_API_TOKEN = Deno.env.get('REPLICATE_API_TOKEN') || Deno.env.get('REPLICATE_API_KEY');
+    if (!REPLICATE_API_TOKEN) {
+      throw new Error('REPLICATE_API_TOKEN (or REPLICATE_API_KEY) is not set')
     }
 
     // Remove any 'export' or other command prefixes if present
-    const cleanApiKey = REPLICATE_API_KEY.replace(/^export\s+REPLICATE_API_TOKEN=/, '').trim();
+    const cleanApiKey = REPLICATE_API_TOKEN.replace(/^export\s+REPLICATE_API_TOKEN=/, '').trim();
 
     const replicate = new Replicate({
       auth: cleanApiKey,
