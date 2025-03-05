@@ -33,7 +33,7 @@ export const ImageGenerator = () => {
     try {
       console.log('Sending request with prompt:', prompt, 'model:', selectedModel);
       
-      // Always use replicate-image function for all model types
+      // Directly call the replicate-image function for both model types
       const { data, error } = await supabase.functions.invoke('replicate-image', {
         body: { 
           prompt,

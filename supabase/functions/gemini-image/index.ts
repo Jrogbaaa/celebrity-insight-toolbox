@@ -21,7 +21,7 @@ serve(async (req) => {
       throw new Error('Prompt is required');
     }
 
-    // Forward all requests to the replicate-image function, as Gemini isn't working reliably
+    // Forward all requests to the replicate-image function
     console.log('Forwarding request to replicate-image function');
     
     const supabaseUrl = Deno.env.get('SUPABASE_URL');
@@ -33,7 +33,7 @@ serve(async (req) => {
     const supabase = createClient(supabaseUrl, supabaseKey);
     
     // Use the modelType from the request or default to "flux"
-    const replicateModelType = modelType === "creative" ? "flux" : (modelType || "flux");
+    const replicateModelType = modelType || "flux";
     
     const { data: replicateResponse, error: replicateError } = await supabase.functions.invoke('replicate-image', {
       body: { prompt, modelType: replicateModelType }

@@ -14,16 +14,20 @@ serve(async (req) => {
   }
 
   try {
-    const REPLICATE_API_TOKEN = Deno.env.get('REPLICATE_API_TOKEN') || Deno.env.get('REPLICATE_API_KEY');
+    // Check for the API token in both possible environment variables
+    let REPLICATE_API_TOKEN = Deno.env.get('REPLICATE_API_TOKEN');
     if (!REPLICATE_API_TOKEN) {
-      throw new Error('REPLICATE_API_TOKEN (or REPLICATE_API_KEY) is not set')
+      // Try the alternative key name
+      REPLICATE_API_TOKEN = Deno.env.get('REPLICATE_API_KEY');
+    }
+    
+    if (!REPLICATE_API_TOKEN) {
+      throw new Error('REPLICATE_API_TOKEN or REPLICATE_API_KEY is not set')
     }
 
-    // Remove any 'export' or other command prefixes if present
-    const cleanApiKey = REPLICATE_API_TOKEN.replace(/^export\s+REPLICATE_API_TOKEN=/, '').trim();
-
+    // Create a new Replicate client with the proper authentication
     const replicate = new Replicate({
-      auth: cleanApiKey,
+      auth: REPLICATE_API_TOKEN,
     });
 
     const body = await req.json()
@@ -100,7 +104,27 @@ serve(async (req) => {
     })
   } catch (error) {
     console.error("Error in replicate function:", error)
-    return new Response(JSON.stringify({ error: error.message }), {
+    // Add more detailed error information in the response
+    const errorDetails = {
+      message: error.message,
+      name: error.name,
+      stack: error.stack,
+      // Include request/response details if they exist
+      request: error.request ? {
+        url: error.request.url,
+        method: error.request.method,
+        headers: Object.fromEntries(error.request.headers.entries())
+      } : undefined,
+      response: error.response ? {
+        status: error.response.status,
+        statusText: error.response.statusText,
+      } : undefined
+    };
+    
+    return new Response(JSON.stringify({ 
+      error: error.message,
+      details: errorDetails
+    }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       status: 500,
     })
