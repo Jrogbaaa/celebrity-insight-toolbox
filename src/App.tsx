@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -47,7 +46,7 @@ const Layout = ({
           </div>
         </div>
       </div>
-
+      
       {/* Desktop Header */}
       <div className="hidden md:block">
         <div className="container py-4">

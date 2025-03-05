@@ -35,24 +35,24 @@ const AnimatedLines: React.FC = () => {
     resizeCanvas();
 
     // Enhanced line configuration
-    const lineCount = 75; // More lines for better visibility
+    const lineCount = 50;
     const lines: Line[] = [];
     
-    // Enhanced color palette with more opacity for better visibility
+    // Brand-appropriate color palette
     const colors = [
-      "rgba(79, 70, 229, 0.3)", // Primary indigo - increased opacity
-      "rgba(67, 56, 202, 0.25)", // Indigo 700 - increased opacity
-      "rgba(99, 102, 241, 0.3)", // Indigo 500 - increased opacity
-      "rgba(45, 27, 105, 0.35)", // Original purple/indigo - increased opacity
-      "rgba(55, 48, 163, 0.28)", // Indigo 800 - increased opacity
+      "rgba(45, 27, 105, 0.15)", // Primary indigo
+      "rgba(79, 70, 229, 0.12)", // Indigo 600
+      "rgba(139, 92, 246, 0.08)", // Violet/Purple
+      "rgba(67, 56, 202, 0.10)", // Indigo 700
+      "rgba(99, 102, 241, 0.07)", // Indigo 500
     ];
     
-    // Create lines with enhanced properties
+    // Create initial set of lines
     for (let i = 0; i < lineCount; i++) {
       const startX = Math.random() * canvas.width;
       const startY = Math.random() * canvas.height;
       const angle = Math.random() * Math.PI * 2;
-      const length = 250 + Math.random() * 700; // Longer lines for better visibility
+      const length = 100 + Math.random() * 300;
       
       lines.push({
         start: { x: startX, y: startY },
@@ -60,22 +60,31 @@ const AnimatedLines: React.FC = () => {
           x: startX + Math.cos(angle) * length, 
           y: startY + Math.sin(angle) * length 
         },
-        speed: 0.001 + Math.random() * 0.004, // Varied speeds
+        speed: 0.0005 + Math.random() * 0.001, // Slower for subtlety
         progress: Math.random(),
         direction: Math.random() > 0.5 ? 1 : -1,
         color: colors[Math.floor(Math.random() * colors.length)],
-        width: 1.5 + Math.random() * 2.5, // Thicker lines for better visibility
+        width: 0.5 + Math.random() * 1.5, // Thinner lines for elegance
       });
     }
 
-    // Animation with improved visuals
-    const animate = () => {
-      // Apply a more subtle fade effect
-      ctx.fillStyle = "rgba(255, 255, 255, 0.01)";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+    let animationFrameId: number;
+    let lastFrameTime = 0;
+    const targetFPS = 30; // Lower FPS for performance
+    const frameInterval = 1000 / targetFPS;
+
+    const animate = (currentTime: number) => {
+      animationFrameId = requestAnimationFrame(animate);
       
-      // Update and draw lines
-      lines.forEach((line, index) => {
+      // Throttle frame rate for performance
+      if (currentTime - lastFrameTime < frameInterval) return;
+      lastFrameTime = currentTime;
+      
+      // Clear canvas with very subtle fade
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      // Draw lines
+      lines.forEach(line => {
         // Update progress
         line.progress += line.speed * line.direction;
         
@@ -88,19 +97,31 @@ const AnimatedLines: React.FC = () => {
         const currentX = line.start.x + (line.end.x - line.start.x) * line.progress;
         const currentY = line.start.y + (line.end.y - line.start.y) * line.progress;
         
-        // Draw line from start to current position
+        // Draw line from start to current position with gradient
+        const gradient = ctx.createLinearGradient(
+          line.start.x, 
+          line.start.y, 
+          currentX, 
+          currentY
+        );
+        
+        gradient.addColorStop(0, "rgba(45, 27, 105, 0.01)"); // Almost transparent at start
+        gradient.addColorStop(0.5, line.color);
+        gradient.addColorStop(1, "rgba(45, 27, 105, 0.01)"); // Almost transparent at end
+        
         ctx.beginPath();
         ctx.moveTo(line.start.x, line.start.y);
         ctx.lineTo(currentX, currentY);
         
-        ctx.strokeStyle = line.color;
+        ctx.strokeStyle = gradient;
         ctx.lineWidth = line.width;
         ctx.stroke();
         
-        // Create new lines occasionally for more dynamic animation
-        if (Math.random() < 0.002) {
+        // Occasionally change line properties
+        if (Math.random() < 0.001) {
           const angle = Math.random() * Math.PI * 2;
-          const length = 250 + Math.random() * 700;
+          const length = 100 + Math.random() * 300;
+          
           line.start = { x: Math.random() * canvas.width, y: Math.random() * canvas.height };
           line.end = {
             x: line.start.x + Math.cos(angle) * length,
@@ -108,17 +129,41 @@ const AnimatedLines: React.FC = () => {
           };
           line.progress = Math.random();
           line.color = colors[Math.floor(Math.random() * colors.length)];
-          line.width = 1.5 + Math.random() * 2.5;
         }
       });
       
-      requestAnimationFrame(animate);
+      // Occasionally add new lines
+      if (Math.random() < 0.05 && lines.length < 80) {
+        const startX = Math.random() * canvas.width;
+        const startY = Math.random() * canvas.height;
+        const angle = Math.random() * Math.PI * 2;
+        const length = 100 + Math.random() * 300;
+        
+        lines.push({
+          start: { x: startX, y: startY },
+          end: { 
+            x: startX + Math.cos(angle) * length, 
+            y: startY + Math.sin(angle) * length 
+          },
+          speed: 0.0005 + Math.random() * 0.001,
+          progress: Math.random(),
+          direction: Math.random() > 0.5 ? 1 : -1,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          width: 0.5 + Math.random() * 1.5,
+        });
+      }
+      
+      // Remove excess lines to maintain performance
+      if (lines.length > 120) {
+        lines.splice(0, 20);
+      }
     };
 
-    animate();
+    animationFrameId = requestAnimationFrame(animate);
 
     return () => {
       window.removeEventListener("resize", resizeCanvas);
+      cancelAnimationFrame(animationFrameId);
     };
   }, []);
 
