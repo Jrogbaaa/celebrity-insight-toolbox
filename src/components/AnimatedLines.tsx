@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef } from "react";
 
 interface Point {
@@ -33,17 +34,17 @@ const AnimatedLines: React.FC = () => {
     window.addEventListener("resize", resizeCanvas);
     resizeCanvas();
 
-    // Improved line configuration
-    const lineCount = 50; // Increased line count for more visual interest
+    // Enhanced line configuration
+    const lineCount = 75; // More lines for better visibility
     const lines: Line[] = [];
     
-    // Color palette (keeping with the existing color scheme)
+    // Enhanced color palette with more opacity for better visibility
     const colors = [
-      "rgba(79, 70, 229, 0.2)", // Primary indigo
-      "rgba(67, 56, 202, 0.15)", // Indigo 700
-      "rgba(99, 102, 241, 0.2)", // Indigo 500
-      "rgba(45, 27, 105, 0.25)", // Original purple/indigo
-      "rgba(55, 48, 163, 0.18)", // Indigo 800
+      "rgba(79, 70, 229, 0.3)", // Primary indigo - increased opacity
+      "rgba(67, 56, 202, 0.25)", // Indigo 700 - increased opacity
+      "rgba(99, 102, 241, 0.3)", // Indigo 500 - increased opacity
+      "rgba(45, 27, 105, 0.35)", // Original purple/indigo - increased opacity
+      "rgba(55, 48, 163, 0.28)", // Indigo 800 - increased opacity
     ];
     
     // Create lines with enhanced properties
@@ -51,7 +52,7 @@ const AnimatedLines: React.FC = () => {
       const startX = Math.random() * canvas.width;
       const startY = Math.random() * canvas.height;
       const angle = Math.random() * Math.PI * 2;
-      const length = 200 + Math.random() * 600; // Increased max length
+      const length = 250 + Math.random() * 700; // Longer lines for better visibility
       
       lines.push({
         start: { x: startX, y: startY },
@@ -59,18 +60,18 @@ const AnimatedLines: React.FC = () => {
           x: startX + Math.cos(angle) * length, 
           y: startY + Math.sin(angle) * length 
         },
-        speed: 0.001 + Math.random() * 0.003, // Varied speeds
+        speed: 0.001 + Math.random() * 0.004, // Varied speeds
         progress: Math.random(),
         direction: Math.random() > 0.5 ? 1 : -1,
         color: colors[Math.floor(Math.random() * colors.length)],
-        width: 1 + Math.random() * 2, // Varied line widths
+        width: 1.5 + Math.random() * 2.5, // Thicker lines for better visibility
       });
     }
 
     // Animation with improved visuals
     const animate = () => {
-      // Apply a subtle fade effect instead of clearing completely
-      ctx.fillStyle = "rgba(255, 255, 255, 0.03)";
+      // Apply a more subtle fade effect
+      ctx.fillStyle = "rgba(255, 255, 255, 0.01)";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       
       // Update and draw lines
@@ -99,7 +100,7 @@ const AnimatedLines: React.FC = () => {
         // Create new lines occasionally for more dynamic animation
         if (Math.random() < 0.002) {
           const angle = Math.random() * Math.PI * 2;
-          const length = 200 + Math.random() * 600;
+          const length = 250 + Math.random() * 700;
           line.start = { x: Math.random() * canvas.width, y: Math.random() * canvas.height };
           line.end = {
             x: line.start.x + Math.cos(angle) * length,
@@ -107,7 +108,7 @@ const AnimatedLines: React.FC = () => {
           };
           line.progress = Math.random();
           line.color = colors[Math.floor(Math.random() * colors.length)];
-          line.width = 1 + Math.random() * 2;
+          line.width = 1.5 + Math.random() * 2.5;
         }
       });
       
@@ -125,6 +126,7 @@ const AnimatedLines: React.FC = () => {
     <canvas
       ref={canvasRef}
       className="absolute inset-0 w-full h-full -z-10"
+      style={{ pointerEvents: 'none' }}
     />
   );
 };

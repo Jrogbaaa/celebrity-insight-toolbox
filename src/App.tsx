@@ -21,7 +21,8 @@ const Layout = ({
   showAnimatedBackground?: boolean;
 }) => {
   const location = useLocation();
-  return <div className="min-h-screen bg-background relative overflow-hidden">
+  return (
+    <div className="min-h-screen bg-background relative overflow-hidden">
       {showAnimatedBackground && <AnimatedLines />}
       
       {/* Mobile Header - Fixed */}
@@ -74,10 +75,12 @@ const Layout = ({
       <div className="container md:py-4 mt-[88px] md:mt-0 px-0 md:px-4">
         {children}
       </div>
-    </div>;
+    </div>
+  );
 };
 
-const WelcomePage = () => <div className="flex flex-col items-center justify-center min-h-[80vh] animate-fade-in px-4 md:px-0 relative z-10">
+const WelcomePage = () => (
+  <div className="flex flex-col items-center justify-center min-h-[80vh] animate-fade-in px-4 md:px-0 relative z-10">
     <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-primary mb-6 text-center leading-tight">
       Social Media <br className="md:hidden" />Command Center
     </h1>
@@ -90,11 +93,13 @@ const WelcomePage = () => <div className="flex flex-col items-center justify-cen
         <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
       </Link>
     </Button>
-  </div>;
+  </div>
+);
 
 const queryClient = new QueryClient();
 
-const App = () => <React.StrictMode>
+const App = () => (
+  <React.StrictMode>
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <Toaster />
@@ -110,6 +115,7 @@ const App = () => <React.StrictMode>
         </BrowserRouter>
       </TooltipProvider>
     </QueryClientProvider>
-  </React.StrictMode>;
+  </React.StrictMode>
+);
 
 export default App;
