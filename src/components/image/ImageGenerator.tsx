@@ -13,7 +13,7 @@ export const ImageGenerator = () => {
   const [prompt, setPrompt] = useState("");
   const [loading, setLoading] = useState(false);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
-  const [selectedModel, setSelectedModel] = useState("standard");
+  const [selectedModel, setSelectedModel] = useState("flux");
   const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -33,8 +33,8 @@ export const ImageGenerator = () => {
     try {
       console.log('Sending request with prompt:', prompt, 'model:', selectedModel);
       
-      // Use gemini-image for all model types (including jaime which will be forwarded)
-      const { data, error } = await supabase.functions.invoke('gemini-image', {
+      // Use replicate-image for all model types
+      const { data, error } = await supabase.functions.invoke('replicate-image', {
         body: { 
           prompt,
           modelType: selectedModel
@@ -48,24 +48,11 @@ export const ImageGenerator = () => {
         throw error;
       }
 
-      // Handle different API response formats
-      let finalImageUrl;
-      if (selectedModel === "jaime") {
-        if (data?.output && data.output.length > 0) {
-          finalImageUrl = data.output[0];
-        } else {
-          throw new Error('No image URL received from Jaime model');
-        }
+      if (data?.output && data.output.length > 0) {
+        setImageUrl(data.output[0]);
       } else {
-        // Standard Gemini flow
-        if (!data?.response) {
-          console.error('No output data received:', data);
-          throw new Error('No image data received');
-        }
-        finalImageUrl = data.response;
+        throw new Error('No image URL received from model');
       }
-
-      setImageUrl(finalImageUrl);
     } catch (error) {
       console.error('Error generating image:', error);
       toast({
@@ -114,19 +101,16 @@ export const ImageGenerator = () => {
               <SelectValue placeholder="Select a model" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="standard">Standard Image Generator</SelectItem>
-              <SelectItem value="creative">Creative Style Generator</SelectItem>
-              <SelectItem value="jaime">Jaime Creator (Realistic)</SelectItem>
+              <SelectItem value="flux">Flux (Fast Generation)</SelectItem>
+              <SelectItem value="jaime">Jaime Creator (Realistic People)</SelectItem>
             </SelectContent>
           </Select>
           
           <Textarea
-            placeholder={`First select a model, then describe the image you want to generate... ${
-              selectedModel === "creative" 
+            placeholder={`Describe the image you want to generate... ${
+              selectedModel === "flux" 
                 ? "(e.g., 'An abstract painting with vibrant colors')"
-                : selectedModel === "jaime"
-                ? "(e.g., 'A professional photo of a woman with blonde hair in a red dress')"
-                : "(e.g., 'A professional Instagram photo of a coffee shop with warm lighting and modern decor')"
+                : "(e.g., 'A professional photo of a woman with blonde hair in a red dress')"
             }`}
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}

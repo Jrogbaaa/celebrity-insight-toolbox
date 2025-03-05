@@ -10,6 +10,7 @@ import TermsOfService from "./pages/TermsOfService";
 import TikTokCallback from "./pages/TikTokCallback";
 import { Button } from "@/components/ui/button";
 import { FileText, Pencil } from "lucide-react";
+
 const Layout = ({
   children
 }: {
@@ -22,7 +23,7 @@ const Layout = ({
         <div className="container p-0">
           <div className="flex items-center justify-between px-2 py-2">
             <Link to="/" className="flex-1 flex items-center">
-              <img src="/lovable-uploads/e7bef072-8d1a-4444-a41f-6dca6ff42c63.png" alt="Look After You" className="h-20 w-auto object-contain" />
+              <img src="/lovable-uploads/e7bef072-8d1a-4444-a41f-6dca6ff42c63.png" alt="Look After You" className="h-24 w-auto object-contain" />
             </Link>
             <div className="flex items-center gap-2 justify-center flex-shrink-0">
               <Button variant={location.pathname === "/analytics" ? "default" : "ghost"} size="icon" className="w-10 h-10" asChild>
@@ -45,7 +46,7 @@ const Layout = ({
         <div className="container py-4">
           <div className="flex items-center justify-between mb-8 animate-fade-in">
             <Link to="/">
-              <img src="/lovable-uploads/e7bef072-8d1a-4444-a41f-6dca6ff42c63.png" alt="Look After You" className="h-32 w-auto object-contain transition-all duration-300 hover:scale-105 cursor-pointer" />
+              <img src="/lovable-uploads/e7bef072-8d1a-4444-a41f-6dca6ff42c63.png" alt="Look After You" className="h-40 w-auto object-contain transition-all duration-300 hover:scale-105 cursor-pointer" />
             </Link>
             <div className="flex gap-4">
               <Button variant={location.pathname === "/analytics" ? "default" : "outline"} size="lg" className="shadow-md hover:shadow-lg transition-all duration-300" asChild>
@@ -69,6 +70,7 @@ const Layout = ({
       </div>
     </div>;
 };
+
 const WelcomePage = () => <div className="flex flex-col items-center justify-center min-h-[60vh] animate-fade-in px-4 md:px-0">
     <h1 className="text-3xl md:text-4xl font-bold text-primary mb-6 text-center">
       Welcome to Your Social Media Command Center
@@ -85,7 +87,9 @@ const WelcomePage = () => <div className="flex flex-col items-center justify-cen
       </Button>
     </div>
   </div>;
+
 const queryClient = new QueryClient();
+
 const App = () => <React.StrictMode>
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
@@ -103,4 +107,5 @@ const App = () => <React.StrictMode>
       </TooltipProvider>
     </QueryClientProvider>
   </React.StrictMode>;
+
 export default App;

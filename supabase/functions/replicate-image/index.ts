@@ -75,6 +75,7 @@ serve(async (req) => {
         }
       );
     } else {
+      // Default to flux model
       output = await replicate.run(
         "black-forest-labs/flux-schnell",
         {
