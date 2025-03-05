@@ -16,13 +16,13 @@ serve(async (req) => {
     const requestBody = await req.json();
     console.log('Received request body:', requestBody);
 
-    const { prompt, modelType } = requestBody;
+    const { prompt } = requestBody;
     if (!prompt) {
       throw new Error('Prompt is required');
     }
 
-    // Forward all requests to the replicate-image function
-    console.log('Forwarding request to replicate-image function');
+    // Forward request to the vertex-image function
+    console.log('Forwarding request to vertex-image function');
     
     const supabaseUrl = Deno.env.get('SUPABASE_URL');
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
@@ -32,21 +32,18 @@ serve(async (req) => {
 
     const supabase = createClient(supabaseUrl, supabaseKey);
     
-    // Use the modelType from the request or default to "flux"
-    const replicateModelType = modelType || "flux";
-    
-    const { data: replicateResponse, error: replicateError } = await supabase.functions.invoke('replicate-image', {
-      body: { prompt, modelType: replicateModelType }
+    const { data: vertexResponse, error: vertexError } = await supabase.functions.invoke('vertex-image', {
+      body: { prompt }
     });
     
-    if (replicateError) {
-      console.error('Replicate function error:', replicateError);
-      throw new Error(`Replicate API error: ${replicateError.message}`);
+    if (vertexError) {
+      console.error('Vertex AI function error:', vertexError);
+      throw new Error(`Vertex AI API error: ${vertexError.message}`);
     }
     
-    console.log('Replicate response:', replicateResponse);
+    console.log('Vertex AI response:', vertexResponse);
     return new Response(
-      JSON.stringify(replicateResponse),
+      JSON.stringify(vertexResponse),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   } catch (error) {

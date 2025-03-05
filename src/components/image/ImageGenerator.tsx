@@ -6,14 +6,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { Loader2, Image as ImageIcon, Download, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 
 export const ImageGenerator = () => {
   const [prompt, setPrompt] = useState("");
   const [loading, setLoading] = useState(false);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
-  const [selectedModel, setSelectedModel] = useState("flux");
   const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -31,14 +29,11 @@ export const ImageGenerator = () => {
     setImageUrl(null);
 
     try {
-      console.log('Sending request with prompt:', prompt, 'model:', selectedModel);
+      console.log('Sending request with prompt:', prompt);
       
-      // Directly call the replicate-image function for both model types
-      const { data, error } = await supabase.functions.invoke('replicate-image', {
-        body: { 
-          prompt,
-          modelType: selectedModel
-        }
+      // Call the vertex-image function for image generation
+      const { data, error } = await supabase.functions.invoke('vertex-image', {
+        body: { prompt }
       });
 
       console.log('Response from image generation:', { data, error });
@@ -48,10 +43,12 @@ export const ImageGenerator = () => {
         throw error;
       }
 
-      if (data?.output && data.output.length > 0) {
-        setImageUrl(data.output[0]);
+      if (data?.predictions?.[0]?.bytesBase64) {
+        const base64Image = data.predictions[0].bytesBase64;
+        const imageUrl = `data:image/png;base64,${base64Image}`;
+        setImageUrl(imageUrl);
       } else {
-        throw new Error('No image URL received from model');
+        throw new Error('No image data received from model');
       }
     } catch (error) {
       console.error('Error generating image:', error);
@@ -69,15 +66,12 @@ export const ImageGenerator = () => {
     if (!imageUrl) return;
     
     try {
-      const response = await fetch(imageUrl);
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
-      a.href = url;
+      a.href = imageUrl;
       a.download = `generated-image-${Date.now()}.png`;
       document.body.appendChild(a);
       a.click();
-      window.URL.revokeObjectURL(url);
+      window.URL.revokeObjectURL(imageUrl);
       document.body.removeChild(a);
     } catch (error) {
       console.error('Error downloading image:', error);
@@ -93,25 +87,8 @@ export const ImageGenerator = () => {
     <Card className="h-full flex flex-col p-4">
       <form onSubmit={handleSubmit} className="flex flex-col h-full">
         <div className="flex-1 space-y-4 overflow-y-auto">
-          <Select
-            value={selectedModel}
-            onValueChange={setSelectedModel}
-          >
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder="Select a model" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="flux">Flux (Fast Generation)</SelectItem>
-              <SelectItem value="jaime">Jaime Creator (Realistic People)</SelectItem>
-            </SelectContent>
-          </Select>
-          
           <Textarea
-            placeholder={`Describe the image you want to generate... ${
-              selectedModel === "flux" 
-                ? "(e.g., 'An abstract painting with vibrant colors')"
-                : "(e.g., 'A professional photo of a woman with blonde hair in a red dress')"
-            }`}
+            placeholder="Describe the image you want to generate... (e.g., 'A sunset over mountains with a lake')"
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
             className="flex-1 resize-none min-h-[150px]"

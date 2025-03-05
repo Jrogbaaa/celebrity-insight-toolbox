@@ -23,11 +23,11 @@ const Layout = ({
         <div className="container p-0">
           <div className="flex items-center justify-between px-2 py-2">
             <Link to="/" className="flex-1 flex items-center">
-              <img src="/lovable-uploads/e7bef072-8d1a-4444-a41f-6dca6ff42c63.png" alt="Look After You" className="h-40 w-auto object-contain" />
+              <img src="/lovable-uploads/e7bef072-8d1a-4444-a41f-6dca6ff42c63.png" alt="Look After You" className="h-44 w-auto object-contain" />
             </Link>
             <div className="flex items-center gap-2 justify-center flex-shrink-0">
               <Button variant={location.pathname === "/analytics" ? "default" : "ghost"} size="icon" className="w-10 h-10" asChild>
-                <Link to="/analytics" className="chage this button with ">
+                <Link to="/analytics">
                   <FileText className="h-5 w-5" />
                 </Link>
               </Button>
@@ -46,7 +46,7 @@ const Layout = ({
         <div className="container py-4">
           <div className="flex items-center justify-between mb-8 animate-fade-in">
             <Link to="/">
-              <img src="/lovable-uploads/e7bef072-8d1a-4444-a41f-6dca6ff42c63.png" alt="Look After You" className="h-64 w-auto object-contain transition-all duration-300 hover:scale-105 cursor-pointer" />
+              <img src="/lovable-uploads/e7bef072-8d1a-4444-a41f-6dca6ff42c63.png" alt="Look After You" className="h-80 w-auto object-contain transition-all duration-300 hover:scale-105 cursor-pointer" />
             </Link>
             <div className="flex gap-4">
               <Button variant={location.pathname === "/analytics" ? "default" : "outline"} size="lg" className="shadow-md hover:shadow-lg transition-all duration-300" asChild>
