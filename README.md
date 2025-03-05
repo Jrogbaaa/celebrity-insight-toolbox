@@ -16,27 +16,36 @@ Look After You is a comprehensive social media management platform that helps co
 - Instagram profile scraping tool
 
 ### Creative Studio
-- AI-powered content generation
-- Post scheduler and recommendation engine
+- AI-powered content generation using:
+  - Text generation via DeepSeek/Gemini models
+  - Image generation via Gemini API (standard and creative modes)
 - Content analysis for optimal engagement
-- Hashtag and caption recommendations
+- Post recommendations based on analysis
+- Hashtag and caption suggestions
 
 ### AI Social Expert
 - Chat with an AI assistant that understands your social media data
 - Get personalized recommendations based on your analytics
 - Ask questions about your audience, content performance, and growth strategies
 
-## Technical Details
+## Technical Architecture
 
 This project is built with:
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui components
-- Tailwind CSS
-- Supabase for backend services
+- Vite & React for the frontend
+- TypeScript for type safety
+- Tailwind CSS & shadcn-ui for UI components
+- Supabase for backend services:
+  - Edge functions for API integrations
+  - Database for storing reports and user data
 - Tanstack React Query for data fetching
+
+## Feature Dependencies
+
+- **Image Generation**: Requires Gemini API key properly configured in Supabase
+- **Content Analysis**: Uses analyze-content edge function
+- **Instagram Scraping**: Uses instagram-scrape edge function
+- **Chat Functionality**: Uses deepseek-chat edge function
 
 ## Development
 
@@ -61,6 +70,15 @@ npm i
 # Step 4: Start the development server with auto-reloading and an instant preview.
 npm run dev
 ```
+
+## Troubleshooting
+
+If you encounter issues after adding new features:
+
+1. Check that all required Supabase edge functions are properly configured
+2. Verify API keys are correctly set in Supabase secrets
+3. Look for console errors that might indicate specific component failures
+4. Ensure imports and dependencies are properly updated when modifying components
 
 ## Changelog
 
@@ -91,6 +109,13 @@ npm run dev
 - Enhanced user interface
 - Improved mobile responsiveness
 
+### v2.2.0 (July 2024)
+- Integrated Gemini API for image generation
+- Added standard and creative image generation modes
+- Improved Creative Studio UI and workflow
+- Enhanced error handling in AI features
+
 ## License
 
 This project is proprietary and confidential. Unauthorized copying or distribution is prohibited.
+
