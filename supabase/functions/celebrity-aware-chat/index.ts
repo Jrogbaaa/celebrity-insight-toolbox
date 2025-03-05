@@ -1,7 +1,7 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-import { GoogleGenerativeAI } from "https://esm.sh/@google/generative-ai@0.1.3"
+import { GoogleGenerativeAI } from "https://esm.sh/@google/generative-ai@0.2.0"
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -57,9 +57,15 @@ serve(async (req) => {
 
     console.log('Generated celebrity context of length:', celebrityContext.length)
 
-    // Initialize Gemini
-    const genAI = new GoogleGenerativeAI(Deno.env.get('GEMINI_API_KEY') ?? '')
-    const model = genAI.getGenerativeModel({ model: "gemini-pro" })
+    // Initialize Gemini with updated API
+    const apiKey = Deno.env.get('GEMINI_API_KEY') ?? '';
+    if (!apiKey) {
+      throw new Error('GEMINI_API_KEY environment variable is not set');
+    }
+    
+    const genAI = new GoogleGenerativeAI(apiKey);
+    // Updated to use the latest model ID format
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
 
     // Create chat session with context
     const chat = model.startChat({
@@ -73,25 +79,41 @@ serve(async (req) => {
           parts: "I understand that I am a social media analytics expert with access to detailed data about specific celebrities. I will use this information to provide insights and answer questions about their social media performance, engagement rates, and growth trends.",
         },
       ],
-    })
+    });
 
     console.log('Sending message to Gemini:', messages[messages.length - 1].content.substring(0, 100) + '...')
     
-    // Send the latest message to Gemini
-    const result = await chat.sendMessage(messages[messages.length - 1].content)
-    const response = await result.response
-    const text = response.text()
+    try {
+      // Send the latest message to Gemini
+      const result = await chat.sendMessage(messages[messages.length - 1].content)
+      const response = await result.response
+      const text = response.text()
 
-    console.log('Received response from Gemini of length:', text.length)
+      console.log('Received response from Gemini of length:', text.length)
 
-    return new Response(
-      JSON.stringify({ generatedText: text }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    )
+      return new Response(
+        JSON.stringify({ generatedText: text }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    } catch (chatError) {
+      console.error('Error in chat generation:', chatError)
+      // Fallback to a simple response when the AI fails
+      return new Response(
+        JSON.stringify({ 
+          generatedText: "I'm sorry, but I couldn't process your request at this time. The AI service is experiencing technical difficulties. Please try again later.",
+          error: chatError.message
+        }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
   } catch (error) {
     console.error('Error in celebrity-aware-chat function:', error)
     return new Response(
-      JSON.stringify({ error: 'Failed to process request', details: error.message }),
+      JSON.stringify({ 
+        error: 'Failed to process request', 
+        details: error.message,
+        generatedText: "I apologize, but I'm having trouble processing your request. Please try again later."
+      }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
     )
   }

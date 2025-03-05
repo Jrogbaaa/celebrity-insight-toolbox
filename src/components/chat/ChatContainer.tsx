@@ -5,9 +5,10 @@ import { ChatInput } from "@/components/chat/ChatInput";
 import { useChat } from "@/hooks/useChat";
 import { CelebrityReport } from "@/types/reports";
 import { Button } from "@/components/ui/button";
-import { Loader2, MessageSquare, Send, AlertCircle } from "lucide-react";
+import { Loader2, MessageSquare, AlertCircle } from "lucide-react";
 import { useState } from "react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useToast } from "@/hooks/use-toast";
 
 interface ChatContainerProps {
   selectedReport?: CelebrityReport | null;
@@ -16,6 +17,7 @@ interface ChatContainerProps {
 export const ChatContainer = ({ selectedReport }: ChatContainerProps) => {
   const { messages, prompt, loading, error, setPrompt, handleSubmit } = useChat(selectedReport);
   const [showError, setShowError] = useState(false);
+  const { toast } = useToast();
 
   const suggestedPrompts = selectedReport ? [
     `What actions should ${selectedReport.celebrity_name} take to improve engagement?`,
@@ -31,8 +33,20 @@ export const ChatContainer = ({ selectedReport }: ChatContainerProps) => {
 
   const handlePromptClick = async (promptText: string) => {
     await setPrompt(promptText);
-    const result = await handleSubmit(promptText);
-    if (!result.success) {
+    try {
+      const result = await handleSubmit(promptText);
+      if (!result.success) {
+        setShowError(true);
+        setTimeout(() => setShowError(false), 5000);
+        
+        toast({
+          title: "Chat Error",
+          description: "The AI service is temporarily unavailable. Please try again later.",
+          variant: "destructive",
+        });
+      }
+    } catch (err) {
+      console.error("Error handling prompt:", err);
       setShowError(true);
       setTimeout(() => setShowError(false), 5000);
     }
@@ -51,7 +65,7 @@ export const ChatContainer = ({ selectedReport }: ChatContainerProps) => {
           <Alert variant="destructive" className="m-2">
             <AlertCircle className="h-4 w-4" />
             <AlertDescription>
-              {error.includes("insufficient") ? 
+              {error.includes("insufficient") || error.includes("API") ? 
                 "The AI service is currently unavailable. Please try again later." : 
                 error}
             </AlertDescription>

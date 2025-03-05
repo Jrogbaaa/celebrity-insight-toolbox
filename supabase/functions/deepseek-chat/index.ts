@@ -21,7 +21,10 @@ serve(async (req) => {
     if (!messages || !Array.isArray(messages)) {
       console.error('Invalid messages format:', messages);
       return new Response(
-        JSON.stringify({ error: 'Invalid messages format' }),
+        JSON.stringify({ 
+          error: 'Invalid messages format',
+          generatedText: "I couldn't process your request due to an invalid message format. Please try again with a proper message structure."
+        }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
       );
     }
@@ -54,65 +57,87 @@ serve(async (req) => {
     if (!deepseekApiKey) {
       console.error('DeepSeek API key is not set');
       return new Response(
-        JSON.stringify({ error: 'API key is not configured' }),
+        JSON.stringify({ 
+          error: 'API key is not configured',
+          generatedText: "I'm sorry, but our AI service is not properly configured at the moment. Please try again later."
+        }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
       );
     }
 
-    const response = await fetch('https://api.deepseek.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${deepseekApiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'deepseek-chat',
-        messages: apiMessages,
-        temperature: 0.7,
-        max_tokens: 1000,
-        top_p: 0.95,
-        frequency_penalty: 0.0,
-        presence_penalty: 0.0,
-      }),
-    });
+    try {
+      const response = await fetch('https://api.deepseek.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${deepseekApiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'deepseek-chat',
+          messages: apiMessages,
+          temperature: 0.7,
+          max_tokens: 1000,
+          top_p: 0.95,
+          frequency_penalty: 0.0,
+          presence_penalty: 0.0,
+        }),
+      });
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('DeepSeek API error:', response.status, errorText);
-      
-      if (response.status === 429) {
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('DeepSeek API error:', response.status, errorText);
+        
+        if (response.status === 429) {
+          return new Response(
+            JSON.stringify({
+              error: "Rate Limit Exceeded",
+              details: "The API is currently rate limited. Please try again in a few minutes.",
+              generatedText: "I'm sorry, but our AI service is currently experiencing high demand. Please try again in a few minutes."
+            }), {
+              status: 429,
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            }
+          );
+        }
+        
         return new Response(
-          JSON.stringify({
-            error: "Rate Limit Exceeded",
-            details: "The API is currently rate limited. Please try again in a few minutes."
-          }), {
-            status: 429,
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          }
+          JSON.stringify({ 
+            error: 'External API error', 
+            details: errorText,
+            generatedText: "I apologize, but there was an issue connecting to our AI service. Please try again later."
+          }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: response.status }
         );
       }
-      
+
+      const data = await response.json();
+      console.log('DeepSeek API response received');
+
+      const generatedText = data.choices[0].message.content;
+
+      return new Response(JSON.stringify({ generatedText }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    } catch (apiError) {
+      console.error('Error calling DeepSeek API:', apiError);
       return new Response(
-        JSON.stringify({ error: 'External API error', details: errorText }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: response.status }
+        JSON.stringify({
+          error: apiError instanceof Error ? apiError.message : 'Error calling AI service',
+          generatedText: "I apologize, but I'm having trouble connecting to my knowledge service. Please try again later."
+        }), {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        }
       );
     }
-
-    const data = await response.json();
-    console.log('DeepSeek API response received');
-
-    const generatedText = data.choices[0].message.content;
-
-    return new Response(JSON.stringify({ generatedText }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
   } catch (error) {
     console.error('Error in deepseek-chat function:', error);
     
     return new Response(
       JSON.stringify({
         error: error instanceof Error ? error.message : 'An unexpected error occurred',
-        details: error instanceof Error ? error.stack : 'Unknown error'
+        details: error instanceof Error ? error.stack : 'Unknown error',
+        generatedText: "I apologize for the inconvenience, but I encountered an unexpected error. Please try again later."
       }), {
         status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
