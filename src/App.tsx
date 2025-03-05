@@ -86,7 +86,7 @@ const WelcomePage = () => <div className="flex flex-col items-center justify-cen
     </p>
     <Button size="lg" className="shadow-lg hover:shadow-xl transition-all group gap-2 text-base px-8 py-6" asChild>
       <Link to="/analytics">
-        Discover Excellence
+        Elevate Your Brand
         <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
       </Link>
     </Button>
