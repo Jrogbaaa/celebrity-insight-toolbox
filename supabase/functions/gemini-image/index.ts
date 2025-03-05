@@ -21,6 +21,34 @@ serve(async (req) => {
       throw new Error('Prompt is required');
     }
 
+    // If modelType is "jaime", forward the request to the replicate-image function
+    if (modelType === "jaime") {
+      console.log('Forwarding request to replicate-image function for Jaime model');
+      
+      const supabaseUrl = Deno.env.get('SUPABASE_URL');
+      const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+      if (!supabaseUrl || !supabaseKey) {
+        throw new Error('Missing Supabase configuration');
+      }
+
+      const supabase = createClient(supabaseUrl, supabaseKey);
+      
+      const { data: replicateResponse, error: replicateError } = await supabase.functions.invoke('replicate-image', {
+        body: { prompt, modelType: "jaime" }
+      });
+      
+      if (replicateError) {
+        console.error('Replicate function error:', replicateError);
+        throw new Error(`Replicate API error: ${replicateError.message}`);
+      }
+      
+      console.log('Replicate response:', replicateResponse);
+      return new Response(
+        JSON.stringify(replicateResponse),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     // Get the Gemini API key from environment variables
     const geminiApiKey = Deno.env.get('GEMINI_API_KEY');
     if (!geminiApiKey) {
@@ -42,7 +70,7 @@ serve(async (req) => {
       enhancedPrompt = `Create a photorealistic, high-quality image of: ${prompt}. Make it look professional and polished.`;
     }
 
-    // Call Gemini 1.5 Pro to generate an image
+    // Use the beta API endpoint for Gemini 1.5 Pro with the 'latest' version
     const response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro-latest:generateContent', {
       method: 'POST',
       headers: {
@@ -63,7 +91,7 @@ serve(async (req) => {
           temperature: temperature,
           topK: 32,
           topP: 1,
-          maxOutputTokens: 4096,
+          maxOutputTokens: 8192, // Increased token limit
         },
       }),
     });
@@ -89,7 +117,7 @@ serve(async (req) => {
     }
 
     if (!imagePart || !imagePart.inlineData) {
-      console.error('No image data found in the response');
+      console.error('No image data found in the response:', JSON.stringify(responseData, null, 2));
       throw new Error('No image was generated. Please try with a different prompt.');
     }
 

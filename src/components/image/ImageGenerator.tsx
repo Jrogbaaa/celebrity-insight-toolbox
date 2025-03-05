@@ -31,7 +31,9 @@ export const ImageGenerator = () => {
     setImageUrl(null);
 
     try {
-      console.log('Sending request to gemini-image with prompt:', prompt, 'model:', selectedModel);
+      console.log('Sending request with prompt:', prompt, 'model:', selectedModel);
+      
+      // Use gemini-image for all model types (including jaime which will be forwarded)
       const { data, error } = await supabase.functions.invoke('gemini-image', {
         body: { 
           prompt,
@@ -39,19 +41,31 @@ export const ImageGenerator = () => {
         }
       });
 
-      console.log('Response from gemini-image:', { data, error });
+      console.log('Response from image generation:', { data, error });
 
       if (error) {
         console.error('Supabase function error:', error);
         throw error;
       }
 
-      if (!data?.response) {
-        console.error('No output data received:', data);
-        throw new Error('No image data received');
+      // Handle different API response formats
+      let finalImageUrl;
+      if (selectedModel === "jaime") {
+        if (data?.output && data.output.length > 0) {
+          finalImageUrl = data.output[0];
+        } else {
+          throw new Error('No image URL received from Jaime model');
+        }
+      } else {
+        // Standard Gemini flow
+        if (!data?.response) {
+          console.error('No output data received:', data);
+          throw new Error('No image data received');
+        }
+        finalImageUrl = data.response;
       }
 
-      setImageUrl(data.response);
+      setImageUrl(finalImageUrl);
     } catch (error) {
       console.error('Error generating image:', error);
       toast({
@@ -102,6 +116,7 @@ export const ImageGenerator = () => {
             <SelectContent>
               <SelectItem value="standard">Standard Image Generator</SelectItem>
               <SelectItem value="creative">Creative Style Generator</SelectItem>
+              <SelectItem value="jaime">Jaime Creator (Realistic)</SelectItem>
             </SelectContent>
           </Select>
           
@@ -109,6 +124,8 @@ export const ImageGenerator = () => {
             placeholder={`First select a model, then describe the image you want to generate... ${
               selectedModel === "creative" 
                 ? "(e.g., 'An abstract painting with vibrant colors')"
+                : selectedModel === "jaime"
+                ? "(e.g., 'A professional photo of a woman with blonde hair in a red dress')"
                 : "(e.g., 'A professional Instagram photo of a coffee shop with warm lighting and modern decor')"
             }`}
             value={prompt}
