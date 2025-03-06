@@ -16,115 +16,151 @@ interface Line {
   width: number;
 }
 
-const AnimatedLines: React.FC = () => {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+// Dedicated animation controller
+const animationController = {
+  lines: [] as Line[],
+  ctx: null as CanvasRenderingContext2D | null,
+  canvas: null as HTMLCanvasElement | null,
+  animationFrameId: 0,
+  lastTime: 0,
+  colors: [
+    "rgba(45, 27, 105, 0.4)", // Primary indigo with higher opacity
+    "rgba(79, 70, 229, 0.35)", // Indigo 600 with higher opacity
+    "rgba(139, 92, 246, 0.3)", // Violet/Purple with higher opacity
+    "rgba(67, 56, 202, 0.35)", // Indigo 700 with higher opacity
+    "rgba(99, 102, 241, 0.3)", // Indigo 500 with higher opacity
+  ],
 
-  useEffect(() => {
-    const canvas = canvasRef.current;
+  init(canvas: HTMLCanvasElement) {
     if (!canvas) return;
-
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    const resizeCanvas = () => {
-      const scale = window.devicePixelRatio || 1;
-      canvas.width = window.innerWidth * scale;
-      canvas.height = window.innerHeight * scale;
-      canvas.style.width = `${window.innerWidth}px`;
-      canvas.style.height = `${window.innerHeight}px`;
-      ctx.scale(scale, scale);
-    };
-
-    window.addEventListener("resize", resizeCanvas);
-    resizeCanvas();
-
-    // Enhanced line configuration
-    const lineCount = 60; // Increased line count for better visibility
-    const lines: Line[] = [];
     
-    // Brand-appropriate color palette with increased opacity
-    const colors = [
-      "rgba(45, 27, 105, 0.3)", // Primary indigo with higher opacity
-      "rgba(79, 70, 229, 0.25)", // Indigo 600 with higher opacity
-      "rgba(139, 92, 246, 0.2)", // Violet/Purple with higher opacity
-      "rgba(67, 56, 202, 0.25)", // Indigo 700 with higher opacity
-      "rgba(99, 102, 241, 0.2)", // Indigo 500 with higher opacity
-    ];
+    this.canvas = canvas;
+    this.ctx = canvas.getContext("2d");
+    if (!this.ctx) return;
     
-    // Create initial set of lines with better distribution
+    this.setupCanvas();
+    this.createLines();
+    this.startAnimation();
+    
+    window.addEventListener("resize", this.handleResize);
+  },
+
+  setupCanvas() {
+    if (!this.canvas || !this.ctx) return;
+    
+    const scale = window.devicePixelRatio || 1;
+    this.canvas.width = window.innerWidth * scale;
+    this.canvas.height = window.innerHeight * scale;
+    this.canvas.style.width = `${window.innerWidth}px`;
+    this.canvas.style.height = `${window.innerHeight}px`;
+    this.ctx.scale(scale, scale);
+  },
+
+  handleResize = () => {
+    this.setupCanvas();
+    this.createLines(); // Recreate lines on resize
+  },
+
+  createLines() {
+    const lineCount = 80; // Increased line count for better visibility
+    this.lines = [];
+    
     for (let i = 0; i < lineCount; i++) {
       const startX = Math.random() * window.innerWidth;
       const startY = Math.random() * window.innerHeight;
       const angle = Math.random() * Math.PI * 2;
-      const length = 100 + Math.random() * 350; // Longer lines for better visibility
+      const length = 150 + Math.random() * 350; // Longer lines for better visibility
       
-      lines.push({
+      this.lines.push({
         start: { x: startX, y: startY },
         end: { 
           x: startX + Math.cos(angle) * length, 
           y: startY + Math.sin(angle) * length 
         },
-        speed: 0.001 + Math.random() * 0.002, // Slightly faster animation
+        speed: 0.001 + Math.random() * 0.003, // Slightly faster animation
         progress: Math.random(),
         direction: Math.random() > 0.5 ? 1 : -1,
-        color: colors[Math.floor(Math.random() * colors.length)],
-        width: 1 + Math.random() * 2, // Slightly thicker lines
+        color: this.colors[Math.floor(Math.random() * this.colors.length)],
+        width: 1.5 + Math.random() * 3, // Thicker lines for better visibility
       });
     }
+  },
 
-    let animationFrameId: number;
-    let lastTime = 0;
+  startAnimation() {
+    this.lastTime = performance.now();
+    this.animationFrameId = requestAnimationFrame(this.animate);
+  },
+
+  animate = (time: number) => {
+    if (!this.ctx || !this.canvas) return;
     
-    const animate = (time: number) => {
-      animationFrameId = requestAnimationFrame(animate);
+    this.animationFrameId = requestAnimationFrame(this.animate);
+    
+    // Calculate delta time to ensure smooth animation regardless of frame rate
+    const deltaTime = time - this.lastTime;
+    this.lastTime = time;
+    
+    // Clear canvas
+    this.ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+    
+    // Draw each line
+    this.lines.forEach(line => {
+      // Scale the speed by delta time for consistent movement
+      const speedFactor = deltaTime / 16; // normalize to 60fps
+      line.progress += line.speed * line.direction * speedFactor;
       
-      // Calculate delta time to ensure smooth animation regardless of frame rate
-      const deltaTime = time - lastTime;
-      lastTime = time;
+      if (line.progress >= 1 || line.progress <= 0) {
+        line.direction *= -1;
+      }
       
-      // Only update every frame
-      ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+      const currentX = line.start.x + (line.end.x - line.start.x) * line.progress;
+      const currentY = line.start.y + (line.end.y - line.start.y) * line.progress;
       
-      lines.forEach(line => {
-        // Scale the speed by delta time for consistent movement
-        const speedFactor = deltaTime / 16; // normalize to 60fps
-        line.progress += line.speed * line.direction * speedFactor;
-        
-        if (line.progress >= 1 || line.progress <= 0) {
-          line.direction *= -1;
-        }
-        
-        const currentX = line.start.x + (line.end.x - line.start.x) * line.progress;
-        const currentY = line.start.y + (line.end.y - line.start.y) * line.progress;
-        
-        const gradient = ctx.createLinearGradient(
-          line.start.x, 
-          line.start.y, 
-          currentX, 
-          currentY
-        );
-        
-        gradient.addColorStop(0, "rgba(45, 27, 105, 0.05)");
-        gradient.addColorStop(0.5, line.color);
-        gradient.addColorStop(1, "rgba(45, 27, 105, 0.05)");
-        
-        ctx.beginPath();
-        ctx.moveTo(line.start.x, line.start.y);
-        ctx.lineTo(currentX, currentY);
-        
-        ctx.strokeStyle = gradient;
-        ctx.lineWidth = line.width;
-        ctx.lineCap = "round"; // Rounded line caps for smoother appearance
-        ctx.stroke();
-      });
-    };
+      const gradient = this.ctx.createLinearGradient(
+        line.start.x, 
+        line.start.y, 
+        currentX, 
+        currentY
+      );
+      
+      gradient.addColorStop(0, "rgba(45, 27, 105, 0.1)");
+      gradient.addColorStop(0.5, line.color);
+      gradient.addColorStop(1, "rgba(45, 27, 105, 0.1)");
+      
+      this.ctx.beginPath();
+      this.ctx.moveTo(line.start.x, line.start.y);
+      this.ctx.lineTo(currentX, currentY);
+      
+      this.ctx.strokeStyle = gradient;
+      this.ctx.lineWidth = line.width;
+      this.ctx.lineCap = "round"; // Rounded line caps for smoother appearance
+      this.ctx.stroke();
+    });
+  },
 
-    // Start the animation with timestamp
-    animationFrameId = requestAnimationFrame(animate);
+  cleanup() {
+    if (this.animationFrameId) {
+      cancelAnimationFrame(this.animationFrameId);
+    }
+    window.removeEventListener("resize", this.handleResize);
+    this.lines = [];
+    this.ctx = null;
+    this.canvas = null;
+  }
+};
 
+const AnimatedLines: React.FC = () => {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    if (canvasRef.current) {
+      // Initialize the animation controller
+      animationController.init(canvasRef.current);
+    }
+
+    // Cleanup function for unmounting
     return () => {
-      window.removeEventListener("resize", resizeCanvas);
-      cancelAnimationFrame(animationFrameId);
+      animationController.cleanup();
     };
   }, []);
 
