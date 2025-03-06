@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -80,7 +81,7 @@ const Layout = ({
 
 const WelcomePage = () => (
   <div className="flex flex-col items-center justify-center min-h-[80vh] animate-fade-in px-4 md:px-0 relative z-10">
-    <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-primary mb-6 text-center leading-tight">
+    <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold text-primary mb-6 text-center leading-tight">
       Social Media <br className="md:hidden" />Command Center
     </h1>
     <p className="text-lg md:text-xl text-muted-foreground mb-10 text-center max-w-2xl px-2">

@@ -17,7 +17,7 @@ Look After You is a comprehensive social media management platform that helps co
 
 ### Creative Studio
 - AI-powered content generation using:
-  - Text generation via DeepSeek/Gemini models
+  - Text generation via Gemini AI models
   - Image generation via Gemini API (standard and creative modes)
 - Content analysis for optimal engagement
 - Post recommendations based on analysis
@@ -42,10 +42,30 @@ This project is built with:
 
 ## Feature Dependencies
 
+- **Chat Functionality**: Uses gemini-chat edge function with Gemini 1.5 Pro model
 - **Image Generation**: Requires Gemini API key properly configured in Supabase
 - **Content Analysis**: Uses analyze-content edge function
 - **Instagram Scraping**: Uses instagram-scrape edge function
-- **Chat Functionality**: Uses deepseek-chat edge function
+
+## Troubleshooting
+
+If you encounter issues with the application:
+
+1. **Animation not displaying**: The animation should be visible on the homepage. If not showing, try refreshing the page or clearing browser cache.
+
+2. **Edge function errors (non-2xx status codes)**:
+   - Ensure all necessary API keys are properly set in Supabase environment variables
+   - Check that CORS is properly configured in the Supabase functions
+   - Verify the Gemini API key is valid and has sufficient quota
+
+3. **Styling issues**:
+   - The application is fully responsive and should work on all device sizes
+   - If text appears too large or small, try adjusting browser zoom settings
+
+4. **General errors**:
+   - Check browser console for specific error messages
+   - Verify that all dependencies are properly installed
+   - Try clearing browser cache and reloading the application
 
 ## Development
 
@@ -71,43 +91,14 @@ npm i
 npm run dev
 ```
 
-## Troubleshooting
-
-If you encounter issues after adding new features:
-
-1. Check that all required Supabase edge functions are properly configured
-2. Verify API keys are correctly set in Supabase secrets
-3. Look for console errors that might indicate specific component failures
-4. Ensure imports and dependencies are properly updated when modifying components
-
 ## Changelog
 
-### v1.0.0 (August 2023)
-- Initial release with basic analytics dashboard
-- User authentication system
-- Report upload functionality
-
-### v1.1.0 (October 2023)
-- Added demographics display
-- Improved report analysis
-- Added AI action items
-
-### v1.2.0 (December 2023)
-- Added creative content studio
-- AI chat assistant integration
-- Multi-platform support
-
-### v2.0.0 (March 2024)
-- Complete UI redesign
-- Added Instagram API integration
-- Improved content analysis features
-- Enhanced AI recommendations
-
-### v2.1.0 (May 2024)
-- Added Instagram profile scraping tool
-- API tools section in Analytics Hub
-- Enhanced user interface
-- Improved mobile responsiveness
+### v2.2.1 (August 2024)
+- Fixed animation rendering issues on homepage
+- Updated Gemini API to version 1.5 Pro for improved chat responses
+- Enhanced error handling in edge functions
+- Improved mobile responsiveness and UI adjustments
+- Updated documentation and troubleshooting guides
 
 ### v2.2.0 (July 2024)
 - Integrated Gemini API for image generation
@@ -115,7 +106,33 @@ If you encounter issues after adding new features:
 - Improved Creative Studio UI and workflow
 - Enhanced error handling in AI features
 
+### v2.1.0 (May 2024)
+- Added Instagram profile scraping tool
+- API tools section in Analytics Hub
+- Enhanced user interface
+- Improved mobile responsiveness
+
+### v2.0.0 (March 2024)
+- Complete UI redesign
+- Added Instagram API integration
+- Improved content analysis features
+- Enhanced AI recommendations
+
+### v1.2.0 (December 2023)
+- Added creative content studio
+- AI chat assistant integration
+- Multi-platform support
+
+### v1.1.0 (October 2023)
+- Added demographics display
+- Improved report analysis
+- Added AI action items
+
+### v1.0.0 (August 2023)
+- Initial release with basic analytics dashboard
+- User authentication system
+- Report upload functionality
+
 ## License
 
 This project is proprietary and confidential. Unauthorized copying or distribution is prohibited.
-
