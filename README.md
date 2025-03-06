@@ -51,7 +51,12 @@ This project is built with:
 
 If you encounter issues with the application:
 
-1. **Animation not displaying**: The animation should be visible on the homepage. If not showing, try refreshing the page or clearing browser cache.
+1. **Animation not displaying**: 
+   - The animated lines should be visible on the homepage background
+   - If not showing, try refreshing the page or clearing browser cache
+   - Check if there are console errors related to canvas rendering
+   - Ensure your browser supports HTML5 Canvas
+   - Try disabling any browser extensions that might interfere with animations
 
 2. **Edge function errors (non-2xx status codes)**:
    - Ensure all necessary API keys are properly set in Supabase environment variables
@@ -61,11 +66,13 @@ If you encounter issues with the application:
 3. **Styling issues**:
    - The application is fully responsive and should work on all device sizes
    - If text appears too large or small, try adjusting browser zoom settings
+   - Ensure you're using a modern browser that supports all CSS features
 
 4. **General errors**:
    - Check browser console for specific error messages
    - Verify that all dependencies are properly installed
    - Try clearing browser cache and reloading the application
+   - If issues persist, try using a different browser
 
 ## Development
 
@@ -92,6 +99,13 @@ npm run dev
 ```
 
 ## Changelog
+
+### v2.2.2 (August 2024)
+- Fixed animation component with proper TypeScript typing
+- Improved animation performance with delta-time based frame rate independence
+- Optimized canvas rendering for better visual effects
+- Enhanced error handling in all components
+- Added detailed troubleshooting steps to documentation
 
 ### v2.2.1 (August 2024)
 - Fixed animation rendering issues on homepage

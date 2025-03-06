@@ -56,12 +56,15 @@ const animationController = {
     this.ctx.scale(scale, scale);
   },
 
-  handleResize = () => {
+  handleResize: function() {
+    if (!this.canvas || !this.ctx) return;
     this.setupCanvas();
     this.createLines(); // Recreate lines on resize
   },
 
   createLines() {
+    if (!this.canvas || !this.ctx) return;
+    
     const lineCount = 80; // Increased line count for better visibility
     this.lines = [];
     
@@ -91,7 +94,7 @@ const animationController = {
     this.animationFrameId = requestAnimationFrame(this.animate);
   },
 
-  animate = (time: number) => {
+  animate: function(time: number) {
     if (!this.ctx || !this.canvas) return;
     
     this.animationFrameId = requestAnimationFrame(this.animate);
@@ -116,25 +119,29 @@ const animationController = {
       const currentX = line.start.x + (line.end.x - line.start.x) * line.progress;
       const currentY = line.start.y + (line.end.y - line.start.y) * line.progress;
       
-      const gradient = this.ctx.createLinearGradient(
+      const gradient = this.ctx?.createLinearGradient(
         line.start.x, 
         line.start.y, 
         currentX, 
         currentY
       );
       
-      gradient.addColorStop(0, "rgba(45, 27, 105, 0.1)");
-      gradient.addColorStop(0.5, line.color);
-      gradient.addColorStop(1, "rgba(45, 27, 105, 0.1)");
-      
-      this.ctx.beginPath();
-      this.ctx.moveTo(line.start.x, line.start.y);
-      this.ctx.lineTo(currentX, currentY);
-      
-      this.ctx.strokeStyle = gradient;
-      this.ctx.lineWidth = line.width;
-      this.ctx.lineCap = "round"; // Rounded line caps for smoother appearance
-      this.ctx.stroke();
+      if (gradient) {
+        gradient.addColorStop(0, "rgba(45, 27, 105, 0.1)");
+        gradient.addColorStop(0.5, line.color);
+        gradient.addColorStop(1, "rgba(45, 27, 105, 0.1)");
+        
+        if (this.ctx) {
+          this.ctx.beginPath();
+          this.ctx.moveTo(line.start.x, line.start.y);
+          this.ctx.lineTo(currentX, currentY);
+          
+          this.ctx.strokeStyle = gradient;
+          this.ctx.lineWidth = line.width;
+          this.ctx.lineCap = "round"; // Rounded line caps for smoother appearance
+          this.ctx.stroke();
+        }
+      }
     });
   },
 

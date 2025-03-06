@@ -80,7 +80,7 @@ const Layout = ({
 
 const WelcomePage = () => (
   <div className="flex flex-col items-center justify-center min-h-[80vh] animate-fade-in px-4 md:px-0 relative z-10">
-    <h1 className="text-2xl md:text-4xl lg:text-5xl font-bold text-primary mb-6 text-center leading-tight">
+    <h1 className="text-xl md:text-3xl lg:text-4xl font-bold text-primary mb-6 text-center leading-tight">
       Social Media <br className="md:hidden" />Command Center
     </h1>
     <p className="text-lg md:text-xl text-muted-foreground mb-10 text-center max-w-2xl px-2">
