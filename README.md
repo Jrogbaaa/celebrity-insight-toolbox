@@ -1,3 +1,4 @@
+
 # Look After You - Social Media Analytics & Content Hub
 
 ## Project Overview
@@ -17,7 +18,9 @@ Look After You is a comprehensive social media management platform that helps co
 ### Creative Studio
 - AI-powered content generation using:
   - Text generation via Gemini AI models
-  - Image generation via Gemini API (standard and creative modes)
+  - Image generation via Replicate API:
+    - Flux model for fast, high-quality image generation
+    - JaimeCreator model for creative, artistic outputs
 - Content analysis for optimal engagement
 - Post recommendations based on analysis
 - Hashtag and caption suggestions
@@ -42,7 +45,7 @@ This project is built with:
 ## Feature Dependencies
 
 - **Chat Functionality**: Uses gemini-chat edge function with Gemini 1.5 Pro model
-- **Image Generation**: Requires Gemini API key properly configured in Supabase
+- **Image Generation**: Requires Replicate API key properly configured in Supabase
 - **Content Analysis**: Uses analyze-content edge function
 - **Instagram Scraping**: Uses instagram-scrape edge function
 
@@ -123,8 +126,8 @@ npm run dev
 - Updated documentation and troubleshooting guides
 
 ### v2.2.0 (July 2024)
-- Integrated Gemini API for image generation
-- Added standard and creative image generation modes
+- Integrated Replicate API for image generation
+- Added standard (Flux) and creative (JaimeCreator) image generation modes
 - Improved Creative Studio UI and workflow
 - Enhanced error handling in AI features
 
