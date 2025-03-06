@@ -1,4 +1,3 @@
-
 # Look After You - Social Media Analytics & Content Hub
 
 ## Project Overview
@@ -51,12 +50,14 @@ This project is built with:
 
 If you encounter issues with the application:
 
-1. **Animation not displaying**: 
-   - The animated lines should be visible on the homepage background
-   - If not showing, try refreshing the page or clearing browser cache
-   - Check if there are console errors related to canvas rendering
-   - Ensure your browser supports HTML5 Canvas
-   - Try disabling any browser extensions that might interfere with animations
+1. **Background Animation not displaying**: 
+   - The flowing particle animation should be visible on the homepage background
+   - If not showing, check that your browser supports HTML5 Canvas
+   - Try refreshing the page or clearing browser cache
+   - Check for console errors related to canvas rendering
+   - Ensure JavaScript is enabled in your browser settings
+   - Try disabling any browser extensions that might interfere with canvas animations
+   - The animation is intentionally subtle - view in a well-lit environment
 
 2. **Edge function errors (non-2xx status codes)**:
    - Ensure all necessary API keys are properly set in Supabase environment variables
@@ -99,6 +100,13 @@ npm run dev
 ```
 
 ## Changelog
+
+### v2.3.0 (Current)
+- Added flowing particle background animation to homepage
+- Improved animation performance with delta-time calculation
+- Enhanced mobile responsiveness with adaptive particle count
+- Optimized canvas rendering for better performance
+- Added subtle connection lines between particles for visual interest
 
 ### v2.2.2 (August 2024)
 - Fixed animation component with proper TypeScript typing

@@ -6,32 +6,34 @@ interface Point {
   y: number;
 }
 
-interface Line {
-  start: Point;
-  end: Point;
-  speed: number;
-  progress: number;
-  direction: number;
+interface Particle {
+  x: number;
+  y: number;
+  size: number;
+  speedX: number;
+  speedY: number;
   color: string;
-  width: number;
+  opacity: number;
 }
 
-// Dedicated animation controller
+// Dedicated animation controller with proper typing and binding
 const animationController = {
-  lines: [] as Line[],
+  particles: [] as Particle[],
   ctx: null as CanvasRenderingContext2D | null,
   canvas: null as HTMLCanvasElement | null,
   animationFrameId: 0,
   lastTime: 0,
+  
+  // Theme-aligned colors with varying opacities
   colors: [
-    "rgba(45, 27, 105, 0.4)", // Primary indigo with higher opacity
-    "rgba(79, 70, 229, 0.35)", // Indigo 600 with higher opacity
-    "rgba(139, 92, 246, 0.3)", // Violet/Purple with higher opacity
-    "rgba(67, 56, 202, 0.35)", // Indigo 700 with higher opacity
-    "rgba(99, 102, 241, 0.3)", // Indigo 500 with higher opacity
+    "rgba(45, 27, 105, 0.4)",  // Primary indigo
+    "rgba(79, 70, 229, 0.35)", // Indigo 600
+    "rgba(139, 92, 246, 0.3)", // Violet/Purple
+    "rgba(67, 56, 202, 0.35)", // Indigo 700
+    "rgba(99, 102, 241, 0.3)", // Indigo 500
   ],
 
-  init(canvas: HTMLCanvasElement) {
+  init: function(canvas: HTMLCanvasElement) {
     if (!canvas) return;
     
     this.canvas = canvas;
@@ -39,15 +41,17 @@ const animationController = {
     if (!this.ctx) return;
     
     this.setupCanvas();
-    this.createLines();
+    this.createParticles();
     this.startAnimation();
     
-    window.addEventListener("resize", this.handleResize);
+    // Ensure we properly bind this method to maintain context
+    window.addEventListener("resize", this.handleResize.bind(this));
   },
 
-  setupCanvas() {
+  setupCanvas: function() {
     if (!this.canvas || !this.ctx) return;
     
+    // Handle high DPI displays for crisp rendering
     const scale = window.devicePixelRatio || 1;
     this.canvas.width = window.innerWidth * scale;
     this.canvas.height = window.innerHeight * scale;
@@ -59,98 +63,107 @@ const animationController = {
   handleResize: function() {
     if (!this.canvas || !this.ctx) return;
     this.setupCanvas();
-    this.createLines(); // Recreate lines on resize
+    this.createParticles(); // Recreate particles on resize
   },
 
-  createLines() {
+  createParticles: function() {
     if (!this.canvas || !this.ctx) return;
     
-    const lineCount = 80; // Increased line count for better visibility
-    this.lines = [];
+    const particleCount = Math.min(100, Math.floor(window.innerWidth / 15)); // Responsive particle count
+    this.particles = [];
     
-    for (let i = 0; i < lineCount; i++) {
-      const startX = Math.random() * window.innerWidth;
-      const startY = Math.random() * window.innerHeight;
-      const angle = Math.random() * Math.PI * 2;
-      const length = 150 + Math.random() * 350; // Longer lines for better visibility
+    for (let i = 0; i < particleCount; i++) {
+      // Start particles at random positions across the left half of the screen
+      const x = Math.random() * (window.innerWidth * 0.3);
+      const y = Math.random() * window.innerHeight;
       
-      this.lines.push({
-        start: { x: startX, y: startY },
-        end: { 
-          x: startX + Math.cos(angle) * length, 
-          y: startY + Math.sin(angle) * length 
-        },
-        speed: 0.001 + Math.random() * 0.003, // Slightly faster animation
-        progress: Math.random(),
-        direction: Math.random() > 0.5 ? 1 : -1,
+      this.particles.push({
+        x,
+        y,
+        size: 1 + Math.random() * 4, // Varied sizes for depth
+        speedX: 0.2 + Math.random() * 0.6, // Consistent rightward flow with slight variation
+        speedY: Math.random() * 0.2 - 0.1, // Subtle vertical drift
         color: this.colors[Math.floor(Math.random() * this.colors.length)],
-        width: 1.5 + Math.random() * 3, // Thicker lines for better visibility
+        opacity: 0.1 + Math.random() * 0.4 // Subtle opacity variations
       });
     }
   },
 
-  startAnimation() {
+  startAnimation: function() {
     this.lastTime = performance.now();
-    this.animationFrameId = requestAnimationFrame(this.animate);
+    this.animationFrameId = requestAnimationFrame(this.animate.bind(this));
   },
 
   animate: function(time: number) {
     if (!this.ctx || !this.canvas) return;
     
-    this.animationFrameId = requestAnimationFrame(this.animate);
+    this.animationFrameId = requestAnimationFrame(this.animate.bind(this));
     
-    // Calculate delta time to ensure smooth animation regardless of frame rate
+    // Calculate delta time for smooth animation regardless of frame rate
     const deltaTime = time - this.lastTime;
     this.lastTime = time;
     
-    // Clear canvas
-    this.ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+    // Clear canvas with full clear for best performance
+    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     
-    // Draw each line
-    this.lines.forEach(line => {
-      // Scale the speed by delta time for consistent movement
-      const speedFactor = deltaTime / 16; // normalize to 60fps
-      line.progress += line.speed * line.direction * speedFactor;
+    // Update and draw each particle
+    for (let i = 0; i < this.particles.length; i++) {
+      const p = this.particles[i];
       
-      if (line.progress >= 1 || line.progress <= 0) {
-        line.direction *= -1;
+      // Update position based on delta time
+      const speedFactor = deltaTime / 16; // normalize to 60fps
+      p.x += p.speedX * speedFactor;
+      p.y += p.speedY * speedFactor;
+      
+      // Reset particles that move off-screen to the left
+      if (p.x > window.innerWidth) {
+        p.x = -p.size;
+        p.y = Math.random() * window.innerHeight;
       }
       
-      const currentX = line.start.x + (line.end.x - line.start.x) * line.progress;
-      const currentY = line.start.y + (line.end.y - line.start.y) * line.progress;
-      
-      const gradient = this.ctx?.createLinearGradient(
-        line.start.x, 
-        line.start.y, 
-        currentX, 
-        currentY
-      );
-      
-      if (gradient) {
-        gradient.addColorStop(0, "rgba(45, 27, 105, 0.1)");
-        gradient.addColorStop(0.5, line.color);
-        gradient.addColorStop(1, "rgba(45, 27, 105, 0.1)");
+      // Draw with smooth gradient glow
+      if (this.ctx) {
+        // Create a radial gradient for each particle
+        const gradient = this.ctx.createRadialGradient(
+          p.x, p.y, 0,
+          p.x, p.y, p.size * 2
+        );
         
-        if (this.ctx) {
-          this.ctx.beginPath();
-          this.ctx.moveTo(line.start.x, line.start.y);
-          this.ctx.lineTo(currentX, currentY);
+        gradient.addColorStop(0, p.color);
+        gradient.addColorStop(1, 'rgba(45, 27, 105, 0)');
+        
+        this.ctx.beginPath();
+        this.ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        this.ctx.fillStyle = gradient;
+        this.ctx.fill();
+        
+        // Add a subtle connection line between some particles for a flowing effect
+        if (i > 0 && i % 3 === 0 && this.particles[i - 1]) {
+          const prev = this.particles[i - 1];
+          const distance = Math.sqrt(Math.pow(p.x - prev.x, 2) + Math.pow(p.y - prev.y, 2));
           
-          this.ctx.strokeStyle = gradient;
-          this.ctx.lineWidth = line.width;
-          this.ctx.lineCap = "round"; // Rounded line caps for smoother appearance
-          this.ctx.stroke();
+          if (distance < 100) { // Only connect nearby particles
+            this.ctx.beginPath();
+            this.ctx.moveTo(p.x, p.y);
+            this.ctx.lineTo(prev.x, prev.y);
+            
+            // Gradient line with variable opacity based on distance
+            const lineOpacity = 0.05 * (1 - (distance / 100));
+            this.ctx.strokeStyle = `rgba(79, 70, 229, ${lineOpacity})`;
+            this.ctx.lineWidth = 0.5;
+            this.ctx.stroke();
+          }
         }
       }
-    });
+    }
   },
 
-  cleanup() {
+  cleanup: function() {
     if (this.animationFrameId) {
       cancelAnimationFrame(this.animationFrameId);
     }
-    window.removeEventListener("resize", this.handleResize);
-    this.lines = [];
+    window.removeEventListener("resize", this.handleResize.bind(this));
+    this.particles = [];
     this.ctx = null;
     this.canvas = null;
   }
