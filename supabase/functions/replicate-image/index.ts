@@ -57,7 +57,24 @@ serve(async (req) => {
     console.log("Generating image with prompt:", body.prompt, "model type:", body.modelType)
     
     let output;
-    if (body.modelType === "jaime") {
+    if (body.modelType === "cristina") {
+      // Use the Cristina model
+      output = await replicate.run(
+        "jrogbaaa/cristina",
+        {
+          input: {
+            prompt: body.prompt,
+            negative_prompt: body.negativePrompt || "",
+            width: 768,
+            height: 768,
+            num_outputs: 1,
+            scheduler: "K_EULER_ANCESTRAL",
+            num_inference_steps: 20,
+            guidance_scale: 5
+          }
+        }
+      );
+    } else if (body.modelType === "jaime") {
       output = await replicate.run(
         "jrogbaaa/jaimecreator:25698e8acc5ade340967890a27752f4432f0baaf10c8d58ded9e21d77ec66a09",
         {

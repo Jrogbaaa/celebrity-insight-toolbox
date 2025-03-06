@@ -7,11 +7,42 @@ import { Loader2, Image as ImageIcon, Download, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+
+type ModelType = "flux" | "jaime" | "cristina";
+
+interface ModelOption {
+  id: ModelType;
+  name: string;
+  description: string;
+}
+
+const modelOptions: ModelOption[] = [
+  {
+    id: "flux",
+    name: "Flux",
+    description: "Fast, high-quality image generation"
+  },
+  {
+    id: "jaime",
+    name: "JaimeCreator",
+    description: "Creative, artistic outputs"
+  },
+  {
+    id: "cristina", 
+    name: "Cristina",
+    description: "Advanced creative model with high detail"
+  }
+];
 
 export const ImageGenerator = () => {
   const [prompt, setPrompt] = useState("");
+  const [negativePrompt, setNegativePrompt] = useState("");
   const [loading, setLoading] = useState(false);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const [selectedModel, setSelectedModel] = useState<ModelType>("flux");
   const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -29,11 +60,15 @@ export const ImageGenerator = () => {
     setImageUrl(null);
 
     try {
-      console.log('Sending request with prompt:', prompt);
+      console.log('Sending request with prompt:', prompt, 'model:', selectedModel);
       
-      // Call the vertex-image function for image generation
-      const { data, error } = await supabase.functions.invoke('vertex-image', {
-        body: { prompt }
+      // Call the replicate-image function
+      const { data, error } = await supabase.functions.invoke('replicate-image', {
+        body: { 
+          prompt,
+          negativePrompt: selectedModel === "cristina" ? negativePrompt : undefined,
+          modelType: selectedModel
+        }
       });
 
       console.log('Response from image generation:', { data, error });
@@ -43,10 +78,10 @@ export const ImageGenerator = () => {
         throw error;
       }
 
-      if (data?.predictions?.[0]?.bytesBase64) {
-        const base64Image = data.predictions[0].bytesBase64;
-        const imageUrl = `data:image/png;base64,${base64Image}`;
-        setImageUrl(imageUrl);
+      if (data?.output) {
+        // Handle different output formats
+        const image = Array.isArray(data.output) ? data.output[0] : data.output;
+        setImageUrl(image);
       } else {
         throw new Error('No image data received from model');
       }
@@ -66,12 +101,16 @@ export const ImageGenerator = () => {
     if (!imageUrl) return;
     
     try {
+      const response = await fetch(imageUrl);
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      
       const a = document.createElement('a');
-      a.href = imageUrl;
+      a.href = url;
       a.download = `generated-image-${Date.now()}.png`;
       document.body.appendChild(a);
       a.click();
-      window.URL.revokeObjectURL(imageUrl);
+      window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
     } catch (error) {
       console.error('Error downloading image:', error);
@@ -86,13 +125,45 @@ export const ImageGenerator = () => {
   return (
     <Card className="h-full flex flex-col p-4">
       <form onSubmit={handleSubmit} className="flex flex-col h-full">
+        <Tabs defaultValue="flux" onValueChange={(value) => setSelectedModel(value as ModelType)} className="mb-4">
+          <TabsList className="w-full grid grid-cols-3">
+            {modelOptions.map((option) => (
+              <TabsTrigger key={option.id} value={option.id} className="text-xs md:text-sm">
+                {option.name}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+          
+          {modelOptions.map((option) => (
+            <TabsContent key={option.id} value={option.id} className="mt-2">
+              <p className="text-sm text-muted-foreground mb-4">{option.description}</p>
+            </TabsContent>
+          ))}
+        </Tabs>
+
         <div className="flex-1 space-y-4 overflow-y-auto">
-          <Textarea
-            placeholder="Describe the image you want to generate... (e.g., 'A sunset over mountains with a lake')"
-            value={prompt}
-            onChange={(e) => setPrompt(e.target.value)}
-            className="flex-1 resize-none min-h-[150px]"
-          />
+          <div>
+            <Label htmlFor="prompt">Prompt</Label>
+            <Textarea
+              id="prompt"
+              placeholder="Describe the image you want to generate... (e.g., 'A sunset over mountains with a lake')"
+              value={prompt}
+              onChange={(e) => setPrompt(e.target.value)}
+              className="resize-none min-h-[100px]"
+            />
+          </div>
+
+          {selectedModel === "cristina" && (
+            <div>
+              <Label htmlFor="negative-prompt">Negative Prompt (Optional)</Label>
+              <Input
+                id="negative-prompt"
+                placeholder="Elements to avoid in the image (e.g., 'blurry, low quality')"
+                value={negativePrompt}
+                onChange={(e) => setNegativePrompt(e.target.value)}
+              />
+            </div>
+          )}
 
           {loading && (
             <div className="flex items-center justify-center p-8 border-2 border-dashed rounded-lg animate-pulse">
@@ -109,7 +180,7 @@ export const ImageGenerator = () => {
           {loading ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Generating...
+              Generating with {modelOptions.find(m => m.id === selectedModel)?.name}...
             </>
           ) : (
             <>
