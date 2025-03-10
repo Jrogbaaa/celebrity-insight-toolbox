@@ -11,6 +11,7 @@ import { useImageGallery } from "./ImageGallery";
 export const ImageGenerator = () => {
   const [loading, setLoading] = useState(false);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
   const { saveImageToGallery } = useImageGallery();
 
@@ -26,6 +27,7 @@ export const ImageGenerator = () => {
 
     setLoading(true);
     setImageUrl(null);
+    setError(null);
 
     try {
       console.log('Sending request with prompt:', prompt, 'model:', selectedModel);
@@ -57,10 +59,11 @@ export const ImageGenerator = () => {
       }
     } catch (error) {
       console.error('Error generating image:', error);
+      setError(error instanceof Error ? error.message : "An unknown error occurred");
       toast({
-        title: "Error",
+        title: "Image Generation Failed",
         description: error instanceof Error 
-          ? `${error.message}. Please check your Replicate API key in Supabase.` 
+          ? error.message 
           : "Failed to generate image. Please try again later.",
         variant: "destructive",
       });
@@ -79,12 +82,28 @@ export const ImageGenerator = () => {
     }
   };
 
+  const handleRetry = () => {
+    setError(null);
+  };
+
   return (
     <Card className="h-full flex flex-col p-4 shadow-md border-secondary/20 hover-scale glass-card bg-gradient-to-br from-white to-muted/30">
       <ImageGenerationForm 
         onSubmit={handleGenerateImage}
         loading={loading}
       />
+      
+      {error && (
+        <div className="mt-4 p-4 rounded-md bg-destructive/10 border border-destructive">
+          <p className="text-sm text-destructive font-medium">{error}</p>
+          <button 
+            onClick={handleRetry}
+            className="mt-2 text-xs text-primary underline hover:text-primary/80"
+          >
+            Try again
+          </button>
+        </div>
+      )}
       
       <ImagePreviewDialog 
         imageUrl={imageUrl}
