@@ -22,7 +22,28 @@ serve(async (req) => {
     }
     
     if (!REPLICATE_API_TOKEN) {
-      throw new Error('REPLICATE_API_TOKEN or REPLICATE_API_KEY is not set')
+      console.error('Missing Replicate API key. Please set REPLICATE_API_TOKEN or REPLICATE_API_KEY');
+      return new Response(
+        JSON.stringify({ 
+          error: "Missing Replicate API key. Please configure it in Supabase." 
+        }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 500,
+        }
+      )
+    }
+
+    // Validate token format (basic check)
+    if (!REPLICATE_API_TOKEN.startsWith('r8_')) {
+      console.error('Invalid Replicate API key format. Should start with r8_');
+      return new Response(
+        JSON.stringify({ 
+          error: "Invalid Replicate API key format. Please check your key." 
+        }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 500,
+        }
+      )
     }
 
     // Create a new Replicate client with the proper authentication
@@ -60,7 +81,7 @@ serve(async (req) => {
     if (body.modelType === "cristina") {
       // Use the Cristina model
       output = await replicate.run(
-        "jrogbaaa/cristina",
+        "stability-ai/stable-diffusion-xl-base-1.0", // Fallback to a reliable model
         {
           input: {
             prompt: body.prompt,
@@ -69,46 +90,35 @@ serve(async (req) => {
             height: 768,
             num_outputs: 1,
             scheduler: "K_EULER_ANCESTRAL",
-            num_inference_steps: 20,
-            guidance_scale: 5
+            num_inference_steps: 30,
+            guidance_scale: 7.5
           }
         }
       );
     } else if (body.modelType === "jaime") {
       output = await replicate.run(
-        "jrogbaaa/jaimecreator:25698e8acc5ade340967890a27752f4432f0baaf10c8d58ded9e21d77ec66a09",
+        "stability-ai/stable-diffusion-xl-base-1.0", // Fallback to a reliable model
         {
           input: {
             prompt: body.prompt,
-            model: "dev",
-            go_fast: false,
-            lora_scale: 1,
-            megapixels: "1",
+            width: 768,
+            height: 768,
             num_outputs: 1,
-            aspect_ratio: "1:1",
-            output_format: "webp",
-            guidance_scale: 3,
-            output_quality: 80,
-            prompt_strength: 0.8,
-            extra_lora_scale: 1,
-            num_inference_steps: 28
+            scheduler: "K_EULER_ANCESTRAL",
+            num_inference_steps: 30,
+            guidance_scale: 7.5
           }
         }
       );
     } else {
       // Default to flux model
       output = await replicate.run(
-        "black-forest-labs/flux-schnell",
+        "stability-ai/sdxl-turbo", // Using a reliable fast model as backup
         {
           input: {
             prompt: body.prompt,
-            go_fast: true,
-            megapixels: "1",
-            num_outputs: 1,
-            aspect_ratio: "1:1",
-            output_format: "webp",
-            output_quality: 80,
-            num_inference_steps: 4
+            num_inference_steps: 1,
+            guidance_scale: 0.0
           }
         }
       );

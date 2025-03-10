@@ -57,7 +57,9 @@ export const ImageGenerator = () => {
       console.error('Error generating image:', error);
       toast({
         title: "Error",
-        description: error instanceof Error ? error.message : "Failed to generate image. Please try again.",
+        description: error instanceof Error 
+          ? `${error.message}. Please check your Replicate API key.` 
+          : "Failed to generate image. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -68,6 +70,10 @@ export const ImageGenerator = () => {
   const handleSaveToGallery = () => {
     if (imageUrl) {
       saveImageToGallery(imageUrl);
+      toast({
+        title: "Success",
+        description: "Image saved to gallery",
+      });
     }
   };
 
