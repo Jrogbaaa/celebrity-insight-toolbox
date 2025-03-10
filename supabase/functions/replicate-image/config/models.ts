@@ -40,14 +40,13 @@ export const MODEL_CONFIGS = {
     ]
   },
   cristina: {
-    // Using the prediction approach with correct parameter naming
+    // The model definition with correct parameter naming
     models: [
       {
         id: "jrogbaaa/cristina",
-        params: {
-          // The API expects prompt_text and negative_text fields
-          // These will be filled in the runCristinaPrediction function
-        }
+        // No predefined params as they will be set in the runCristinaPrediction function
+        // The model appears to use custom input parameters different from standard SD models
+        params: {}
       }
     ]
   }

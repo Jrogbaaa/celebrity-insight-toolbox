@@ -1,4 +1,3 @@
-
 import { corsHeaders } from "../utils/cors.ts";
 import { MODEL_CONFIGS } from "../config/models.ts";
 import { isCacheValid, getCachedResult, cacheResult } from "../utils/cache.ts";
@@ -69,12 +68,23 @@ async function handleGenerationRequest(body: any) {
   // Initialize the Replicate client
   const replicate = getReplicateClient();
   
-  // Special direct handling for Cristina model
+  // Special handling for Cristina model
   if (modelType === "cristina") {
     try {
-      console.log("Using special handling for Cristina model");
+      console.log("Using special handler for Cristina model");
       const result = await runCristinaPrediction(replicate, prompt, negativePrompt);
       
+      // If it's a direct run with output already available
+      if (result.output) {
+        return new Response(JSON.stringify({ 
+          output: result.output
+        }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 200,
+        });
+      }
+      
+      // Otherwise return the prediction for polling
       return new Response(JSON.stringify({ 
         prediction: result,
         status: "processing" 

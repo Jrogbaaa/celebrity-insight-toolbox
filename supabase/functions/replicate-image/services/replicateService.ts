@@ -45,12 +45,7 @@ export async function runDeploymentPrediction(
   console.log(`Using deployment: ${owner}/${name}`);
   
   try {
-    // For the Cristina model, switch to using the proper integration method
-    if (name === "cristina-generator") {
-      return await runCristinaPrediction(replicate, prompt, negativePrompt);
-    }
-    
-    // Standard deployment prediction if not Cristina
+    // Standard deployment prediction
     const prediction = await replicate.deployments.predictions.create(
       owner,
       name,
@@ -78,32 +73,58 @@ export async function runDeploymentPrediction(
   }
 }
 
-// Special handler for Cristina model with corrected parameter structure
+// Corrected implementation for Cristina model
 export async function runCristinaPrediction(replicate: any, prompt: string, negativePrompt?: string) {
-  console.log("Using Cristina model with correct parameters");
+  console.log("Using Cristina model with correct API structure");
   
   try {
-    // Create the prediction with correct input parameter structure
-    const prediction = await replicate.predictions.create({
-      version: "jrogbaaa/cristina",
-      input: {
-        prompt_text: `A photorealistic image of a stunning woman with brown hair: ${prompt}`,
-        negative_text: negativePrompt || ""
+    // Use the run() method which handles the whole prediction lifecycle
+    const output = await replicate.run(
+      "jrogbaaa/cristina",
+      {
+        input: {
+          // Use the exact parameter names required by this model
+          text: `A photorealistic image of a stunning woman with brown hair: ${prompt}`
+        }
       }
-    });
+    );
     
-    console.log("Cristina prediction started:", prediction);
+    console.log("Cristina generation completed:", output);
     
-    // Return prediction details for polling
+    // For successful direct run, format response like other predictions for consistency
     return {
-      id: prediction.id,
-      status: prediction.status,
-      url: prediction.urls?.get,
-      created_at: prediction.created_at
+      id: "direct-run", // Not a real ID since we're using run() which is synchronous
+      status: "succeeded",
+      output: output,
+      created_at: new Date().toISOString()
     };
   } catch (error) {
-    console.error("Error with Cristina prediction:", error);
-    throw error;
+    console.error("Error with Cristina model:", error);
+    
+    // If direct run failed, try the async predictions API as fallback
+    console.log("Trying async predictions API as fallback");
+    try {
+      // Create the prediction with corrected input parameter structure
+      const prediction = await replicate.predictions.create({
+        version: "jrogbaaa/cristina", // Will resolve to latest version
+        input: {
+          text: `A photorealistic image of a stunning woman with brown hair: ${prompt}`
+        }
+      });
+      
+      console.log("Cristina prediction started:", prediction);
+      
+      // Return prediction details for polling
+      return {
+        id: prediction.id,
+        status: prediction.status,
+        url: prediction.urls?.get,
+        created_at: prediction.created_at
+      };
+    } catch (secondError) {
+      console.error("Error with fallback method:", secondError);
+      throw secondError; // Throw the latest error
+    }
   }
 }
 
