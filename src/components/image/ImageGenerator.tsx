@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
@@ -13,6 +14,7 @@ export const ImageGenerator = () => {
   const [error, setError] = useState<string | null>(null);
   const [predictionId, setPredictionId] = useState<string | null>(null);
   const [pollingInterval, setPollingInterval] = useState<number | null>(null);
+  const [bootMessage, setBootMessage] = useState<string | null>(null);
   const { toast } = useToast();
   const { saveImageToGallery } = useImageGallery();
 
@@ -38,6 +40,7 @@ export const ImageGenerator = () => {
       if (data.status === 'succeeded' && data.output) {
         cleanupPolling();
         setLoading(false);
+        setBootMessage(null);
         
         const image = Array.isArray(data.output) ? data.output[0] : data.output;
         setImageUrl(image);
@@ -50,13 +53,20 @@ export const ImageGenerator = () => {
       } else if (data.status === 'failed' || data.status === 'canceled') {
         cleanupPolling();
         setLoading(false);
+        setBootMessage(null);
         setPredictionId(null);
         throw new Error(data.error || "Generation failed");
+      } else if (data.status === 'starting') {
+        // Update booting message to inform user
+        setBootMessage("Model is still initializing. This may take a minute for high-quality results...");
+      } else if (data.status === 'processing') {
+        setBootMessage("Processing your image...");
       }
     } catch (error) {
       console.error('Error polling prediction status:', error);
       cleanupPolling();
       setLoading(false);
+      setBootMessage(null);
       setPredictionId(null);
       setError(error instanceof Error ? error.message : "Failed to check generation status");
       
@@ -82,6 +92,7 @@ export const ImageGenerator = () => {
     setImageUrl(null);
     setError(null);
     setPredictionId(null);
+    setBootMessage("Starting up the model with H100 GPU acceleration...");
     cleanupPolling();
 
     try {
@@ -106,6 +117,7 @@ export const ImageGenerator = () => {
         const image = Array.isArray(data.output) ? data.output[0] : data.output;
         setImageUrl(image);
         setLoading(false);
+        setBootMessage(null);
         
         toast({
           title: "Image Generated",
@@ -123,7 +135,7 @@ export const ImageGenerator = () => {
         
         toast({
           title: "Generation Started",
-          description: "Your image is being generated. This may take up to 30 seconds.",
+          description: "Your image is being generated with H100 GPU. This may take up to 30 seconds.",
         });
       } 
       else if (data?.error) {
@@ -135,6 +147,7 @@ export const ImageGenerator = () => {
     } catch (error) {
       console.error('Error generating image:', error);
       setLoading(false);
+      setBootMessage(null);
       setError(error instanceof Error ? error.message : "An unknown error occurred");
       
       toast({
@@ -167,6 +180,12 @@ export const ImageGenerator = () => {
         onSubmit={handleGenerateImage}
         loading={loading}
       />
+      
+      {bootMessage && loading && (
+        <div className="mt-4 p-3 rounded-md bg-secondary/10 border border-secondary/20">
+          <p className="text-sm text-secondary-foreground">{bootMessage}</p>
+        </div>
+      )}
       
       {error && (
         <div className="mt-4 p-4 rounded-md bg-destructive/10 border border-destructive">
