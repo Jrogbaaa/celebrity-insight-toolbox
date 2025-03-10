@@ -49,18 +49,16 @@ export const ImageGenerationForm = ({ onSubmit, loading }: ImageGenerationFormPr
           />
         </div>
 
-        {selectedModel === "cristina" && (
-          <div>
-            <Label htmlFor="negative-prompt" className="text-sm font-medium">Negative Prompt (Optional)</Label>
-            <Input
-              id="negative-prompt"
-              placeholder="Elements to avoid in the image (e.g., 'blurry, low quality')"
-              value={negativePrompt}
-              onChange={(e) => setNegativePrompt(e.target.value)}
-              className="mt-1 focus:ring-2 focus:ring-secondary focus:border-transparent"
-            />
-          </div>
-        )}
+        <div>
+          <Label htmlFor="negative-prompt" className="text-sm font-medium">Negative Prompt (Optional)</Label>
+          <Input
+            id="negative-prompt"
+            placeholder="Elements to avoid in the image (e.g., 'blurry, low quality')"
+            value={negativePrompt}
+            onChange={(e) => setNegativePrompt(e.target.value)}
+            className="mt-1 focus:ring-2 focus:ring-secondary focus:border-transparent"
+          />
+        </div>
 
         {loading && (
           <div className="flex items-center justify-center p-8 border-2 border-dashed rounded-lg animate-pulse bg-muted/30">

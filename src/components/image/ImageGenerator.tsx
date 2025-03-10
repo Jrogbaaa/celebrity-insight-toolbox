@@ -34,7 +34,7 @@ export const ImageGenerator = () => {
       const { data, error } = await supabase.functions.invoke('replicate-image', {
         body: { 
           prompt,
-          negativePrompt: selectedModel === "cristina" ? negativePrompt : undefined,
+          negativePrompt: negativePrompt,
           modelType: selectedModel
         }
       });
@@ -43,13 +43,15 @@ export const ImageGenerator = () => {
 
       if (error) {
         console.error('Supabase function error:', error);
-        throw error;
+        throw new Error(`Function error: ${error.message}`);
       }
 
       if (data?.output) {
         // Handle different output formats
         const image = Array.isArray(data.output) ? data.output[0] : data.output;
         setImageUrl(image);
+      } else if (data?.error) {
+        throw new Error(data.error);
       } else {
         throw new Error('No image data received from model');
       }
@@ -58,8 +60,8 @@ export const ImageGenerator = () => {
       toast({
         title: "Error",
         description: error instanceof Error 
-          ? `${error.message}. Please check your Replicate API key.` 
-          : "Failed to generate image. Please try again.",
+          ? `${error.message}. Please check your Replicate API key in Supabase.` 
+          : "Failed to generate image. Please try again later.",
         variant: "destructive",
       });
     } finally {
