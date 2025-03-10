@@ -1,16 +1,27 @@
 
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Send, Loader2 } from "lucide-react";
+import { Send, Loader2, Volume2, VolumeX } from "lucide-react";
+import { useState } from "react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface ChatInputProps {
   prompt: string;
   loading: boolean;
   onPromptChange: (value: string) => void;
   onSubmit: () => void;
+  ttsEnabled?: boolean;
+  onTtsToggle?: () => void;
 }
 
-export const ChatInput = ({ prompt, loading, onPromptChange, onSubmit }: ChatInputProps) => {
+export const ChatInput = ({ 
+  prompt, 
+  loading, 
+  onPromptChange, 
+  onSubmit,
+  ttsEnabled = false,
+  onTtsToggle 
+}: ChatInputProps) => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSubmit();
@@ -30,6 +41,30 @@ export const ChatInput = ({ prompt, loading, onPromptChange, onSubmit }: ChatInp
           }
         }}
       />
+      {onTtsToggle && (
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                onClick={onTtsToggle}
+                className="h-[35px] w-[35px]"
+              >
+                {ttsEnabled ? (
+                  <Volume2 className="h-4 w-4" />
+                ) : (
+                  <VolumeX className="h-4 w-4" />
+                )}
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              {ttsEnabled ? 'Disable text-to-speech' : 'Enable text-to-speech'}
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      )}
       <Button 
         type="submit"
         disabled={loading} 

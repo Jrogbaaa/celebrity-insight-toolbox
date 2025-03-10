@@ -6,9 +6,10 @@ import { useChat } from "@/hooks/useChat";
 import { CelebrityReport } from "@/types/reports";
 import { Button } from "@/components/ui/button";
 import { Loader2, MessageSquare, AlertCircle } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
+import { useTTS } from "@/hooks/useTTS";
 
 interface ChatContainerProps {
   selectedReport?: CelebrityReport | null;
@@ -18,6 +19,14 @@ export const ChatContainer = ({ selectedReport }: ChatContainerProps) => {
   const { messages, prompt, loading, error, setPrompt, handleSubmit } = useChat(selectedReport);
   const [showError, setShowError] = useState(false);
   const { toast } = useToast();
+  const { ttsEnabled, speakText, toggleTTS } = useTTS();
+
+  // When we receive a new message from the assistant, read it aloud
+  useEffect(() => {
+    if (messages.length > 0 && messages[messages.length - 1].role === 'assistant') {
+      speakText(messages[messages.length - 1].content);
+    }
+  }, [messages, speakText]);
 
   const suggestedPrompts = selectedReport ? [
     `What actions should ${selectedReport.celebrity_name} take to improve engagement?`,
@@ -94,6 +103,8 @@ export const ChatContainer = ({ selectedReport }: ChatContainerProps) => {
             loading={loading}
             onPromptChange={setPrompt}
             onSubmit={() => handleSubmit()}
+            ttsEnabled={ttsEnabled}
+            onTtsToggle={toggleTTS}
           />
         </div>
       </CardContent>
