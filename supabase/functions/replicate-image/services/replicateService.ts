@@ -73,24 +73,27 @@ export async function runDeploymentPrediction(
   }
 }
 
-// Updated implementation for Cristina model with correct parameter structure
+// Updated implementation for running the Cristina model
 export async function runCristinaPrediction(replicate: any, prompt: string, negativePrompt?: string) {
-  console.log("Using Cristina model with correct parameter structure");
+  console.log("Using Cristina model with formatted text input");
   
   try {
-    // Use the run() method which handles the whole prediction lifecycle
-    // with correctly structured input parameters
+    // First, attempt direct synchronous run with correct input structure
+    console.log("Attempting direct run with Cristina model");
+    const enhancedPrompt = `A photorealistic image of a stunning woman with brown hair: ${prompt}`;
+    console.log("Using enhanced prompt:", enhancedPrompt);
+    
     const output = await replicate.run(
       "jrogbaaa/cristina",
       {
         input: {
-          // The model specifically requires 'text' parameter, not 'prompt'
-          text: `A photorealistic image of a stunning woman with brown hair: ${prompt}`
+          // The model requires 'text' parameter, not 'prompt'
+          text: enhancedPrompt
         }
       }
     );
     
-    console.log("Cristina generation completed:", output);
+    console.log("Direct Cristina generation completed:", output);
     
     // For successful direct run, format response like other predictions for consistency
     return {
@@ -105,22 +108,25 @@ export async function runCristinaPrediction(replicate: any, prompt: string, nega
     // If direct run failed, try the async predictions API as fallback
     console.log("Trying async predictions API as fallback");
     try {
-      // First try to get the latest version of the model
+      // First get the latest version of the model to use its ID
       const model = await replicate.models.get("jrogbaaa/cristina");
       const latestVersion = model.latest_version;
       
-      console.log("Latest version ID:", latestVersion.id);
+      console.log("Latest Cristina version ID:", latestVersion.id);
       
-      // Create the prediction with correctly structured input
+      // Enhanced prompt with template
+      const enhancedPrompt = `A photorealistic image of a stunning woman with brown hair: ${prompt}`;
+      console.log("Using enhanced prompt:", enhancedPrompt);
+      
+      // Create the prediction using the version ID with correctly formatted input
       const prediction = await replicate.predictions.create({
-        version: latestVersion.id, // Use actual version ID instead of model name
+        version: latestVersion.id,
         input: {
-          // The model specifically requires 'text' parameter, not 'prompt'
-          text: `A photorealistic image of a stunning woman with brown hair: ${prompt}`
+          text: enhancedPrompt
         }
       });
       
-      console.log("Cristina prediction started:", prediction);
+      console.log("Async Cristina prediction started:", prediction);
       
       // Return prediction details for polling
       return {
@@ -130,7 +136,7 @@ export async function runCristinaPrediction(replicate: any, prompt: string, nega
         created_at: prediction.created_at
       };
     } catch (secondError) {
-      console.error("Error with fallback method:", secondError);
+      console.error("Error with Cristina fallback method:", secondError);
       throw secondError; // Throw the latest error
     }
   }

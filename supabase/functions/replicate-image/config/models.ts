@@ -40,12 +40,12 @@ export const MODEL_CONFIGS = {
     ]
   },
   cristina: {
-    // Updated model definition with correct parameter naming
+    // Model definition for Cristina - uses a custom API structure
     models: [
       {
         id: "jrogbaaa/cristina",
-        // Using empty params object since the parameters will be set in the runCristinaPrediction function
-        // The model requires 'text' parameter, not 'prompt' or 'negative_prompt'
+        // Empty params object since we handle parameters specially in runCristinaPrediction
+        // This model requires 'text' parameter instead of 'prompt'/'negative_prompt'
         params: {}
       }
     ]
