@@ -20,13 +20,6 @@ serve(async (req) => {
       throw new Error('No audio data provided');
     }
 
-    // Convert base64 to binary
-    const binaryString = atob(audio);
-    const bytes = new Uint8Array(binaryString.length);
-    for (let i = 0; i < binaryString.length; i++) {
-      bytes[i] = binaryString.charCodeAt(i);
-    }
-
     // Configure request to Google Cloud Speech-to-Text API
     const apiKey = Deno.env.get('GEMINI_API_KEY');
     
@@ -37,10 +30,10 @@ serve(async (req) => {
       },
       body: JSON.stringify({
         config: {
-          encoding: 'LINEAR16',
+          encoding: 'WEBM_OPUS',
           sampleRateHertz: 48000,
           languageCode: 'en-US',
-          model: 'default',
+          model: 'latest_long',
           enableAutomaticPunctuation: true,
         },
         audio: {

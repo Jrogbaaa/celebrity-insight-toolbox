@@ -15,7 +15,7 @@ export const useSpeechToText = () => {
   const initRecorder = useCallback(async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const recorder = new MediaRecorder(stream);
+      const recorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
       
       recorder.ondataavailable = (e) => {
         if (e.data.size > 0) {
