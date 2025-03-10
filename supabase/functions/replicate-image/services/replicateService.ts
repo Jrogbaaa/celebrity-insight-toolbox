@@ -92,22 +92,20 @@ export async function runModelPrediction(replicate: any, modelId: string, params
   console.log(`Trying model: ${modelId} with params:`, params);
   
   try {
-    // Create a prediction without waiting, specifying H100 hardware
+    // Create a prediction without waiting - removed hardware parameter as it's not supported
     const prediction = await replicate.predictions.create({
       version: modelId,
-      input: params,
-      hardware: "gpu-h100" // Always use H100 GPU for model predictions
+      input: params
     });
     
-    console.log("Model prediction started with hardware:", prediction.hardware || "default");
+    console.log("Model prediction started");
     
     // Return the prediction details for polling
     return {
       id: prediction.id,
       status: prediction.status,
       url: prediction.urls?.get,
-      created_at: prediction.created_at,
-      hardware: prediction.hardware || "default"
+      created_at: prediction.created_at
     };
   } catch (error) {
     console.error(`Error with model ${modelId}:`, error);
