@@ -78,13 +78,12 @@ export async function runDeploymentPrediction(
   }
 }
 
-// Special handler for Cristina model
+// Special handler for Cristina model with corrected parameter structure
 export async function runCristinaPrediction(replicate: any, prompt: string, negativePrompt?: string) {
-  console.log("Using Cristina model integration");
+  console.log("Using Cristina model with correct parameters");
   
   try {
-    // Correctly structure the input for the Cristina model
-    // The model requires an input object with all parameters nested inside
+    // Create the prediction with correct input parameter structure
     const prediction = await replicate.predictions.create({
       version: "jrogbaaa/cristina",
       input: {

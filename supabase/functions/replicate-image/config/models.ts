@@ -40,13 +40,13 @@ export const MODEL_CONFIGS = {
     ]
   },
   cristina: {
-    // Using the prediction approach instead of deployment for Cristina
+    // Using the prediction approach with correct parameter naming
     models: [
       {
         id: "jrogbaaa/cristina",
         params: {
-          // Parameters will be set in the runCristinaPrediction function
           // The API expects prompt_text and negative_text fields
+          // These will be filled in the runCristinaPrediction function
         }
       }
     ]

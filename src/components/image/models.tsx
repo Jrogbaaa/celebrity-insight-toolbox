@@ -26,7 +26,7 @@ export const modelOptions: ModelOption[] = [
   {
     id: "cristina", 
     name: "Cristina",
-    description: "Generate photorealistic images of Cristina with optimized settings",
+    description: "Generate photorealistic images of Cristina",
     icon: <ImageIcon className="h-4 w-4 text-violet-500" />
   }
 ];

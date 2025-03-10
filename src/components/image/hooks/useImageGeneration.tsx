@@ -54,9 +54,9 @@ export const useImageGeneration = () => {
         setPredictionId(null);
         throw new Error(data.error || "Generation failed");
       } else if (data.status === 'starting') {
-        setBootMessage("Initializing the Cristina model. This may take a moment for optimal results...");
+        setBootMessage("Initializing the model. This may take a moment...");
       } else if (data.status === 'processing') {
-        setBootMessage("Processing your image with optimized settings...");
+        setBootMessage("Processing your image...");
       }
     } catch (error) {
       console.error('Error polling prediction status:', error);
@@ -88,7 +88,7 @@ export const useImageGeneration = () => {
     setImageUrl(null);
     setError(null);
     setPredictionId(null);
-    setBootMessage("Starting image generation with optimized settings...");
+    setBootMessage("Starting image generation...");
     cleanupPolling();
 
     try {
