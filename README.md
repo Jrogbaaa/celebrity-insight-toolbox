@@ -18,9 +18,10 @@ Look After You is a comprehensive social media management platform that helps co
 ### Creative Studio
 - AI-powered content generation using:
   - Text generation via Gemini AI models
-  - Image generation via Replicate API:
+  - Image generation via Replicate API with H100 GPU acceleration:
     - Flux model for fast, high-quality image generation
     - JaimeCreator model for creative, artistic outputs
+    - Cristina model for photorealistic images of Cristina
 - Content analysis for optimal engagement
 - Post recommendations based on analysis
 - Hashtag and caption suggestions
@@ -46,6 +47,7 @@ This project is built with:
 
 - **Chat Functionality**: Uses gemini-chat edge function with Gemini 1.5 Pro model
 - **Image Generation**: Requires Replicate API key properly configured in Supabase
+  - All models use Nvidia H100 GPU acceleration for faster performance
 - **Content Analysis**: Uses analyze-content edge function
 - **Instagram Scraping**: Uses instagram-scrape edge function
 
@@ -67,12 +69,18 @@ If you encounter issues with the application:
    - Check that CORS is properly configured in the Supabase functions
    - Verify the Gemini API key is valid and has sufficient quota
 
-3. **Styling issues**:
+3. **Image generation taking too long**:
+   - The model initialization ("booting") can take up to 60 seconds for high-quality models
+   - The app provides real-time status updates during this process
+   - Cristina model uses Nvidia H100 GPU acceleration but still requires initialization time
+   - If images fail to generate after 2+ minutes, try refreshing and using a simpler prompt
+
+4. **Styling issues**:
    - The application is fully responsive and should work on all device sizes
    - If text appears too large or small, try adjusting browser zoom settings
    - Ensure you're using a modern browser that supports all CSS features
 
-4. **General errors**:
+5. **General errors**:
    - Check browser console for specific error messages
    - Verify that all dependencies are properly installed
    - Try clearing browser cache and reloading the application
@@ -104,7 +112,13 @@ npm run dev
 
 ## Changelog
 
-### v2.3.0 (Current)
+### v2.3.1 (Current)
+- Enhanced image generation with Nvidia H100 GPU acceleration
+- Added real-time status updates during model initialization
+- Improved error handling and user feedback for image generation
+- Updated documentation for all image generation models
+
+### v2.3.0
 - Added flowing particle background animation to homepage
 - Improved animation performance with delta-time calculation
 - Enhanced mobile responsiveness with adaptive particle count
