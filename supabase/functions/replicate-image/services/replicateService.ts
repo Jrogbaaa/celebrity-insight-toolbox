@@ -46,7 +46,7 @@ export async function runDeploymentPrediction(
   
   try {
     // Create the prediction without waiting for completion
-    // Add hardware options to use H100 GPU
+    // Removed hardware parameter for deployment predictions as it's not supported
     const prediction = await replicate.deployments.predictions.create(
       owner,
       name,
@@ -54,12 +54,11 @@ export async function runDeploymentPrediction(
         input: {
           prompt: prompt,
           negative_prompt: negativePrompt || undefined
-        },
-        hardware: "gpu-h100" // Specify Nvidia H100 GPU
+        }
       }
     );
     
-    console.log("Prediction started with hardware:", prediction.hardware || "default");
+    console.log("Deployment prediction started");
     
     // Just return the prediction ID and status immediately
     // The frontend will poll for updates
@@ -67,8 +66,7 @@ export async function runDeploymentPrediction(
       id: prediction.id,
       status: prediction.status,
       url: prediction.urls?.get,
-      created_at: prediction.created_at,
-      hardware: prediction.hardware || "default"
+      created_at: prediction.created_at
     };
   } catch (error) {
     console.error("Error starting deployment prediction:", error);
@@ -85,7 +83,7 @@ export async function runModelPrediction(replicate: any, modelId: string, params
     const prediction = await replicate.predictions.create({
       version: modelId,
       input: params,
-      hardware: "gpu-h100" // Specify Nvidia H100 GPU
+      hardware: "gpu-h100" // Keep H100 GPU for model predictions
     });
     
     console.log("Model prediction started with hardware:", prediction.hardware || "default");
