@@ -1,15 +1,20 @@
 
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { Download, X } from "lucide-react";
+import { Download, X, Save } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface ImagePreviewDialogProps {
   imageUrl: string | null;
   onClose: () => void;
+  onSaveToGallery?: () => void;
 }
 
-export const ImagePreviewDialog = ({ imageUrl, onClose }: ImagePreviewDialogProps) => {
+export const ImagePreviewDialog = ({ 
+  imageUrl, 
+  onClose, 
+  onSaveToGallery 
+}: ImagePreviewDialogProps) => {
   const { toast } = useToast();
 
   const handleDownload = async () => {
@@ -37,6 +42,16 @@ export const ImagePreviewDialog = ({ imageUrl, onClose }: ImagePreviewDialogProp
     }
   };
 
+  const handleSaveToGallery = () => {
+    if (onSaveToGallery) {
+      onSaveToGallery();
+      toast({
+        title: "Success",
+        description: "Image saved to gallery",
+      });
+    }
+  };
+
   return (
     <Dialog open={!!imageUrl} onOpenChange={() => onClose()}>
       <DialogContent className="max-w-[90vw] w-auto h-auto max-h-[90vh] p-1 overflow-hidden bg-transparent border-0">
@@ -50,14 +65,22 @@ export const ImagePreviewDialog = ({ imageUrl, onClose }: ImagePreviewDialogProp
             >
               <X className="h-4 w-4" />
             </Button>
-            <Button
-              onClick={handleDownload}
-              className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity"
-              variant="secondary"
-            >
-              <Download className="mr-2 h-4 w-4" />
-              Download
-            </Button>
+            <div className="absolute bottom-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+              <Button
+                onClick={handleSaveToGallery}
+                variant="secondary"
+              >
+                <Save className="mr-2 h-4 w-4" />
+                Save to Gallery
+              </Button>
+              <Button
+                onClick={handleDownload}
+                variant="secondary"
+              >
+                <Download className="mr-2 h-4 w-4" />
+                Download
+              </Button>
+            </div>
             <img 
               src={imageUrl} 
               alt="Generated content"

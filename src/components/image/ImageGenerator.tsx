@@ -6,11 +6,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { ImageGenerationForm } from "./ImageGenerationForm";
 import { ImagePreviewDialog } from "./ImagePreviewDialog";
 import { ModelType } from "./models";
+import { useImageGallery } from "./ImageGallery";
 
 export const ImageGenerator = () => {
   const [loading, setLoading] = useState(false);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const { toast } = useToast();
+  const { saveImageToGallery } = useImageGallery();
 
   const handleGenerateImage = async (prompt: string, negativePrompt: string, selectedModel: ModelType) => {
     if (!prompt.trim()) {
@@ -63,6 +65,12 @@ export const ImageGenerator = () => {
     }
   };
 
+  const handleSaveToGallery = () => {
+    if (imageUrl) {
+      saveImageToGallery(imageUrl);
+    }
+  };
+
   return (
     <Card className="h-full flex flex-col p-4 shadow-md border-secondary/20 hover-scale glass-card bg-gradient-to-br from-white to-muted/30">
       <ImageGenerationForm 
@@ -73,6 +81,7 @@ export const ImageGenerator = () => {
       <ImagePreviewDialog 
         imageUrl={imageUrl}
         onClose={() => setImageUrl(null)}
+        onSaveToGallery={handleSaveToGallery}
       />
     </Card>
   );

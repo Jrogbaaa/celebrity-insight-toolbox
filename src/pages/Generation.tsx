@@ -1,6 +1,7 @@
 
 import { ChatContainer } from "@/components/chat/ChatContainer";
 import { ImageGenerator } from "@/components/image/ImageGenerator";
+import { ImageGallery } from "@/components/image/ImageGallery";
 import { PostAnalyzer } from "@/components/analytics/PostAnalyzer";
 import { PostingInsights } from "@/components/analytics/PostingInsights";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -28,7 +29,10 @@ const Generation = () => {
             <ChatContainer />
           </div>
           <div className="h-[calc(100vh-2.5rem)] overflow-y-auto flex flex-col gap-4">
-            <ImageGenerator />
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              <ImageGenerator />
+              <ImageGallery />
+            </div>
             {analyticsData && (
               <PostingInsights 
                 insights={{
