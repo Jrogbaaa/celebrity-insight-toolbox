@@ -48,7 +48,7 @@ export const MODEL_CONFIGS = {
     // Model definition as fallback with correct version ID
     models: [
       {
-        id: "jrogbaaa/cristina:132c98d2db4b553d35fb39c3ee526f9753a57b040ccc4ea1dcee9305fb8fa66f",
+        id: "jrogbaaa/cristina:132c98d22d2171c64e55fe7eb539fbeef0085cb0bd5cac3e8d005234b53ef1cb",
         // The model requires 'text' parameter instead of 'prompt'
         params: {
           // These are empty as they'll be populated in the service

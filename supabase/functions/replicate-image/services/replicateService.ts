@@ -90,42 +90,47 @@ export async function runDeploymentPrediction(
 
 // Dedicated function for Cristina model
 export async function runCristinaPrediction(replicate: any, prompt: string, negativePrompt?: string) {
-  // First try using deployment (preferred method)
+  console.log("Using Cristina model integration");
+  
   try {
-    console.log("Attempting to use Cristina deployment");
-    return await runDeploymentPrediction(
-      replicate, 
-      "jrogbaaa", 
-      "cristina-generator", 
-      prompt, 
-      negativePrompt
-    );
-  } catch (deploymentError) {
-    console.error("Deployment attempt failed, trying direct model:", deploymentError);
+    // First try using direct run method with specific version ID
+    console.log("Attempting direct model run with specific Cristina version ID");
+    const cristinaVersionId = "132c98d22d2171c64e55fe7eb539fbeef0085cb0bd5cac3e8d005234b53ef1cb";
+    const enhancedPrompt = `A photorealistic image of a stunning woman with brown hair: ${prompt}`;
+    console.log("Using enhanced prompt:", enhancedPrompt);
     
-    // If deployment fails, try the direct model approach with proper input structure
     try {
-      console.log("Attempting direct model run with Cristina");
-      const enhancedPrompt = `A photorealistic image of a stunning woman with brown hair: ${prompt}`;
-      console.log("Using enhanced prompt:", enhancedPrompt);
+      // Use direct run method with specific version ID and correct input structure
+      console.log("Running with correct input structure");
+      const output = await replicate.run(
+        `jrogbaaa/cristina:${cristinaVersionId}`,
+        {
+          input: {
+            text: enhancedPrompt
+          }
+        }
+      );
       
-      // Try to get model info first to ensure latest version
-      console.log("Fetching latest model version");
-      const model = await replicate.models.get("jrogbaaa/cristina");
-      const latestVersionId = model.latest_version.id;
-      console.log("Latest Cristina version ID:", latestVersionId);
+      console.log("Cristina direct run completed successfully:", output);
       
-      // CRITICAL FIX: Create prediction with correct input structure
-      // The 'text' parameter MUST be nested under 'input'
-      console.log("Creating prediction with proper input structure");
+      return {
+        id: "direct-run", // Direct runs don't have prediction IDs
+        status: "succeeded",
+        output: output,
+        created_at: new Date().toISOString()
+      };
+    } catch (directRunError) {
+      console.error("Direct run failed, trying predictions API:", directRunError);
+      
+      // If direct run fails, try the predictions API approach with correct structure
       const prediction = await replicate.predictions.create({
-        version: latestVersionId,
+        version: `jrogbaaa/cristina@${cristinaVersionId}`,
         input: {
           text: enhancedPrompt
         }
       });
       
-      console.log("Cristina prediction started:", prediction.id);
+      console.log("Cristina prediction started via predictions API:", prediction.id);
       
       return {
         id: prediction.id,
@@ -133,17 +138,17 @@ export async function runCristinaPrediction(replicate: any, prompt: string, nega
         url: prediction.urls?.get,
         created_at: prediction.created_at
       };
-    } catch (error) {
-      console.error("All Cristina model approaches failed:", error);
-      // Provide more context in the error for debugging
-      if (error.response) {
-        console.error("Response error details:", {
-          status: error.response.status,
-          data: await error.response.text().catch(() => "Could not read response body")
-        });
-      }
-      throw error;
     }
+  } catch (error) {
+    console.error("All Cristina model approaches failed:", error);
+    // Provide more context in the error for debugging
+    if (error.response) {
+      console.error("Response error details:", {
+        status: error.response.status,
+        data: await error.response.text().catch(() => "Could not read response body")
+      });
+    }
+    throw error;
   }
 }
 
