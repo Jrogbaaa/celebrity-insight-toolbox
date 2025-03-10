@@ -1,4 +1,3 @@
-
 // Model configurations with fallbacks
 export const MODEL_CONFIGS = {
   flux: {
@@ -40,18 +39,11 @@ export const MODEL_CONFIGS = {
     ]
   },
   cristina: {
-    // Using both a deployment for reliability and model fallback
-    deployment: {
-      owner: "jrogbaaa", 
-      name: "cristina-generator"
-    },
-    // Model definition as fallback with correct version ID
     models: [
       {
         id: "jrogbaaa/cristina:132c98d22d2171c64e55fe7eb539fbeef0085cb0bd5cac3e8d005234b53ef1cb",
-        // The model requires 'text' parameter instead of 'prompt'
         params: {
-          // These are empty as they'll be populated in the service
+          text: "" // Will be filled with template
         }
       }
     ]

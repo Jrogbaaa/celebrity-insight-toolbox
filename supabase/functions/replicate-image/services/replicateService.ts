@@ -1,4 +1,3 @@
-
 import Replicate from "https://esm.sh/replicate@0.25.2"
 import { corsHeaders } from "../utils/cors.ts"
 
@@ -93,55 +92,28 @@ export async function runCristinaPrediction(replicate: any, prompt: string, nega
   console.log("Using Cristina model integration");
   
   try {
-    // First try using direct run method with specific version ID
-    console.log("Attempting direct model run with specific Cristina version ID");
-    const cristinaVersionId = "132c98d22d2171c64e55fe7eb539fbeef0085cb0bd5cac3e8d005234b53ef1cb";
+    console.log("Running Cristina model with prompt:", prompt);
     const enhancedPrompt = `A photorealistic image of a stunning woman with brown hair: ${prompt}`;
-    console.log("Using enhanced prompt:", enhancedPrompt);
     
-    try {
-      // Use direct run method with specific version ID and correct input structure
-      console.log("Running with correct input structure");
-      const output = await replicate.run(
-        `jrogbaaa/cristina:${cristinaVersionId}`,
-        {
-          input: {
-            text: enhancedPrompt
-          }
-        }
-      );
-      
-      console.log("Cristina direct run completed successfully:", output);
-      
-      return {
-        id: "direct-run", // Direct runs don't have prediction IDs
-        status: "succeeded",
-        output: output,
-        created_at: new Date().toISOString()
-      };
-    } catch (directRunError) {
-      console.error("Direct run failed, trying predictions API:", directRunError);
-      
-      // If direct run fails, try the predictions API approach with correct structure
-      const prediction = await replicate.predictions.create({
-        version: `jrogbaaa/cristina@${cristinaVersionId}`,
+    const output = await replicate.run(
+      "jrogbaaa/cristina:132c98d22d2171c64e55fe7eb539fbeef0085cb0bd5cac3e8d005234b53ef1cb",
+      {
         input: {
           text: enhancedPrompt
         }
-      });
-      
-      console.log("Cristina prediction started via predictions API:", prediction.id);
-      
-      return {
-        id: prediction.id,
-        status: prediction.status,
-        url: prediction.urls?.get,
-        created_at: prediction.created_at
-      };
-    }
+      }
+    );
+    
+    console.log("Cristina prediction completed:", output);
+    
+    return {
+      id: "direct-run",
+      status: "succeeded",
+      output: output,
+      created_at: new Date().toISOString()
+    };
   } catch (error) {
-    console.error("All Cristina model approaches failed:", error);
-    // Provide more context in the error for debugging
+    console.error("Error with Cristina integration:", error);
     if (error.response) {
       console.error("Response error details:", {
         status: error.response.status,
