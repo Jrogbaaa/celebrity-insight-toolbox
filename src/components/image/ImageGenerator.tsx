@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2, Image as ImageIcon, Download, X } from "lucide-react";
+import { Loader2, Image as ImageIcon, Download, X, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
@@ -17,23 +17,27 @@ interface ModelOption {
   id: ModelType;
   name: string;
   description: string;
+  icon: JSX.Element;
 }
 
 const modelOptions: ModelOption[] = [
   {
     id: "flux",
     name: "Flux",
-    description: "Fast, high-quality image generation"
+    description: "Fast image generation with Flux model",
+    icon: <Sparkles className="h-4 w-4 text-amber-500" />
   },
   {
     id: "jaime",
-    name: "JaimeCreator",
-    description: "Creative, artistic outputs"
+    name: "Jaime",
+    description: "Generate images of Jaime",
+    icon: <ImageIcon className="h-4 w-4 text-pink-500" />
   },
   {
     id: "cristina", 
     name: "Cristina",
-    description: "Advanced creative model with high detail"
+    description: "Generate images of Cristina",
+    icon: <ImageIcon className="h-4 w-4 text-violet-500" />
   }
 ];
 
@@ -123,51 +127,63 @@ export const ImageGenerator = () => {
   };
 
   return (
-    <Card className="h-full flex flex-col p-4">
+    <Card className="h-full flex flex-col p-4 shadow-md border-secondary/20 hover-scale glass-card bg-gradient-to-br from-white to-muted/30">
       <form onSubmit={handleSubmit} className="flex flex-col h-full">
-        <Tabs defaultValue="flux" onValueChange={(value) => setSelectedModel(value as ModelType)} className="mb-4">
-          <TabsList className="w-full grid grid-cols-3">
-            {modelOptions.map((option) => (
-              <TabsTrigger key={option.id} value={option.id} className="text-xs md:text-sm">
-                {option.name}
-              </TabsTrigger>
-            ))}
-          </TabsList>
+        <div className="mb-4">
+          <h2 className="text-lg font-semibold text-primary flex items-center gap-2 mb-2">
+            <ImageIcon className="h-5 w-5 text-secondary" />
+            Image Generator
+          </h2>
           
-          {modelOptions.map((option) => (
-            <TabsContent key={option.id} value={option.id} className="mt-2">
-              <p className="text-sm text-muted-foreground mb-4">{option.description}</p>
-            </TabsContent>
-          ))}
-        </Tabs>
+          <Tabs defaultValue="flux" onValueChange={(value) => setSelectedModel(value as ModelType)} className="w-full">
+            <TabsList className="w-full grid grid-cols-3 mb-1">
+              {modelOptions.map((option) => (
+                <TabsTrigger key={option.id} value={option.id} className="flex items-center gap-1.5 text-xs md:text-sm">
+                  {option.icon}
+                  {option.name}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+            
+            {modelOptions.map((option) => (
+              <TabsContent key={option.id} value={option.id} className="mt-2">
+                <p className="text-sm text-muted-foreground mb-4">{option.description}</p>
+              </TabsContent>
+            ))}
+          </Tabs>
+        </div>
 
         <div className="flex-1 space-y-4 overflow-y-auto">
           <div>
-            <Label htmlFor="prompt">Prompt</Label>
+            <Label htmlFor="prompt" className="text-sm font-medium">Prompt</Label>
             <Textarea
               id="prompt"
               placeholder="Describe the image you want to generate... (e.g., 'A sunset over mountains with a lake')"
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
-              className="resize-none min-h-[100px]"
+              className="resize-none min-h-[100px] mt-1 focus:ring-2 focus:ring-secondary focus:border-transparent"
             />
           </div>
 
           {selectedModel === "cristina" && (
             <div>
-              <Label htmlFor="negative-prompt">Negative Prompt (Optional)</Label>
+              <Label htmlFor="negative-prompt" className="text-sm font-medium">Negative Prompt (Optional)</Label>
               <Input
                 id="negative-prompt"
                 placeholder="Elements to avoid in the image (e.g., 'blurry, low quality')"
                 value={negativePrompt}
                 onChange={(e) => setNegativePrompt(e.target.value)}
+                className="mt-1 focus:ring-2 focus:ring-secondary focus:border-transparent"
               />
             </div>
           )}
 
           {loading && (
-            <div className="flex items-center justify-center p-8 border-2 border-dashed rounded-lg animate-pulse">
-              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <div className="flex items-center justify-center p-8 border-2 border-dashed rounded-lg animate-pulse bg-muted/30">
+              <div className="flex flex-col items-center gap-2">
+                <Loader2 className="h-8 w-8 animate-spin text-secondary" />
+                <p className="text-sm text-muted-foreground">Generating your image...</p>
+              </div>
             </div>
           )}
         </div>
@@ -175,7 +191,7 @@ export const ImageGenerator = () => {
         <Button 
           type="submit" 
           disabled={loading}
-          className="w-full mt-4"
+          className="w-full mt-4 bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 transition-all duration-300"
         >
           {loading ? (
             <>
@@ -192,7 +208,7 @@ export const ImageGenerator = () => {
       </form>
 
       <Dialog open={!!imageUrl} onOpenChange={() => setImageUrl(null)}>
-        <DialogContent className="max-w-[90vw] w-auto h-auto max-h-[90vh] p-0 overflow-hidden bg-transparent border-0">
+        <DialogContent className="max-w-[90vw] w-auto h-auto max-h-[90vh] p-1 overflow-hidden bg-transparent border-0">
           {imageUrl && (
             <div className="relative group animate-fade-in">
               <Button

@@ -1,38 +1,39 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
  
 @layer base {
   :root {
-    --background: 260 50% 98%;
-    --foreground: 260 10% 10%;
+    --background: 240 30% 99%;
+    --foreground: 240 10% 10%;
  
-    --card: 260 50% 100%;
-    --card-foreground: 260 10% 10%;
+    --card: 240 30% 100%;
+    --card-foreground: 240 10% 10%;
  
-    --popover: 260 50% 100%;
-    --popover-foreground: 260 10% 10%;
+    --popover: 240 30% 100%;
+    --popover-foreground: 240 10% 10%;
  
     --primary: 260 60% 26%;
-    --primary-foreground: 260 10% 98%;
+    --primary-foreground: 240 30% 99%;
  
-    --secondary: 262 83% 66%;
-    --secondary-foreground: 260 10% 98%;
+    --secondary: 262 83% 76%;
+    --secondary-foreground: 240 30% 99%;
  
-    --muted: 260 10% 96%;
-    --muted-foreground: 260 10% 54%;
+    --muted: 240 10% 96%;
+    --muted-foreground: 240 10% 50%;
  
-    --accent: 262 83% 66%;
-    --accent-foreground: 260 10% 98%;
+    --accent: 262 83% 76%;
+    --accent-foreground: 240 30% 99%;
  
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 260 10% 98%;
+    --destructive-foreground: 240 30% 99%;
 
-    --success: 142 70% 40%;
-    --success-foreground: 260 10% 98%;
+    --success: 142 76% 40%;
+    --success-foreground: 240 30% 99%;
  
-    --border: 260 10% 90%;
-    --input: 260 10% 90%;
+    --border: 240 10% 90%;
+    --input: 240 10% 90%;
     --ring: 262 83% 66%;
  
     --radius: 0.5rem;
@@ -45,5 +46,15 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+@layer utilities {
+  .glass-card {
+    @apply bg-white/90 backdrop-blur-sm border border-white/20 shadow-md;
+  }
+  
+  .hover-scale {
+    @apply transition-all duration-200 hover:scale-[1.01];
   }
 }
