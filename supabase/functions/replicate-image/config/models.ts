@@ -40,12 +40,12 @@ export const MODEL_CONFIGS = {
     ]
   },
   cristina: {
-    // The model definition with correct parameter naming
+    // Updated model definition with correct parameter naming
     models: [
       {
         id: "jrogbaaa/cristina",
-        // No predefined params as they will be set in the runCristinaPrediction function
-        // The model appears to use custom input parameters different from standard SD models
+        // Using empty params object since the parameters will be set in the runCristinaPrediction function
+        // The model requires 'text' parameter, not 'prompt' or 'negative_prompt'
         params: {}
       }
     ]

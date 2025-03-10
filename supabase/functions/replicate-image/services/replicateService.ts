@@ -73,17 +73,18 @@ export async function runDeploymentPrediction(
   }
 }
 
-// Corrected implementation for Cristina model
+// Updated implementation for Cristina model with correct parameter structure
 export async function runCristinaPrediction(replicate: any, prompt: string, negativePrompt?: string) {
-  console.log("Using Cristina model with correct API structure");
+  console.log("Using Cristina model with correct parameter structure");
   
   try {
     // Use the run() method which handles the whole prediction lifecycle
+    // with correctly structured input parameters
     const output = await replicate.run(
       "jrogbaaa/cristina",
       {
         input: {
-          // Use the exact parameter names required by this model
+          // The model specifically requires 'text' parameter, not 'prompt'
           text: `A photorealistic image of a stunning woman with brown hair: ${prompt}`
         }
       }
@@ -99,15 +100,22 @@ export async function runCristinaPrediction(replicate: any, prompt: string, nega
       created_at: new Date().toISOString()
     };
   } catch (error) {
-    console.error("Error with Cristina model:", error);
+    console.error("Error with Cristina direct run:", error);
     
     // If direct run failed, try the async predictions API as fallback
     console.log("Trying async predictions API as fallback");
     try {
-      // Create the prediction with corrected input parameter structure
+      // First try to get the latest version of the model
+      const model = await replicate.models.get("jrogbaaa/cristina");
+      const latestVersion = model.latest_version;
+      
+      console.log("Latest version ID:", latestVersion.id);
+      
+      // Create the prediction with correctly structured input
       const prediction = await replicate.predictions.create({
-        version: "jrogbaaa/cristina", // Will resolve to latest version
+        version: latestVersion.id, // Use actual version ID instead of model name
         input: {
+          // The model specifically requires 'text' parameter, not 'prompt'
           text: `A photorealistic image of a stunning woman with brown hair: ${prompt}`
         }
       });
