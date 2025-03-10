@@ -21,8 +21,14 @@ serve(async (req) => {
     }
 
     // Configure request to Google Cloud Speech-to-Text API
-    const apiKey = Deno.env.get('GEMINI_API_KEY');
+    const apiKey = Deno.env.get('GCP_API_KEY');
     
+    if (!apiKey) {
+      throw new Error('GCP API key not configured');
+    }
+
+    console.log('Sending request to Google Speech-to-Text API...');
+
     const response = await fetch(`https://speech.googleapis.com/v1/speech:recognize?key=${apiKey}`, {
       method: 'POST',
       headers: {
