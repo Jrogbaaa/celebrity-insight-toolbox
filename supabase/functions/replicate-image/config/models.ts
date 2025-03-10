@@ -40,12 +40,16 @@ export const MODEL_CONFIGS = {
     ]
   },
   cristina: {
-    // Model definition for Cristina - uses a custom API structure
+    // Using both a deployment for reliability and model fallback
+    deployment: {
+      owner: "jrogbaaa", 
+      name: "cristina-generator"
+    },
+    // Model definition as fallback
     models: [
       {
         id: "jrogbaaa/cristina",
-        // Empty params object since we handle parameters specially in runCristinaPrediction
-        // This model requires 'text' parameter instead of 'prompt'/'negative_prompt'
+        // The model requires 'text' parameter instead of 'prompt'
         params: {}
       }
     ]
