@@ -55,3 +55,6 @@ verify_jwt = false
 
 [functions.celebrity-aware-chat]
 verify_jwt = false
+
+[functions.speech-to-text]
+verify_jwt = false
