@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Send, Loader2, Mic, MicOff } from "lucide-react";
 import { useSpeechToText } from "@/hooks/useSpeechToText";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 interface ChatInputProps {
   prompt: string;
@@ -20,6 +20,8 @@ export const ChatInput = ({ prompt, loading, onPromptChange, onSubmit }: ChatInp
     startRecording, 
     stopRecording 
   } = useSpeechToText();
+  
+  const [isListening, setIsListening] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,8 +31,10 @@ export const ChatInput = ({ prompt, loading, onPromptChange, onSubmit }: ChatInp
   const toggleRecording = async () => {
     if (isRecording) {
       stopRecording();
+      setIsListening(false);
     } else {
       await startRecording();
+      setIsListening(true);
     }
   };
 

@@ -23,57 +23,6 @@ export const useSpeechToText = () => {
         }
       };
 
-      recorder.onstop = async () => {
-        setProcessingAudio(true);
-        
-        try {
-          const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
-          const reader = new FileReader();
-          
-          reader.onloadend = async () => {
-            const base64Audio = (reader.result as string).split(',')[1];
-            
-            const { data, error } = await supabase.functions.invoke('speech-to-text', {
-              body: { audio: base64Audio },
-            });
-            
-            if (error) {
-              console.error('Error transcribing audio:', error);
-              toast({
-                title: 'Transcription Failed',
-                description: 'Could not transcribe audio. Please try again.',
-                variant: 'destructive',
-              });
-              setProcessingAudio(false);
-              return;
-            }
-            
-            if (data && data.text) {
-              setTranscript(data.text);
-            } else {
-              setTranscript('');
-              toast({
-                title: 'No Speech Detected',
-                description: 'We couldn\'t detect any speech. Please try again.',
-                variant: 'default',
-              });
-            }
-            
-            setProcessingAudio(false);
-          };
-          
-          reader.readAsDataURL(audioBlob);
-        } catch (err) {
-          console.error('Error processing audio:', err);
-          toast({
-            title: 'Processing Error',
-            description: 'There was an error processing your audio.',
-            variant: 'destructive',
-          });
-          setProcessingAudio(false);
-        }
-      };
-      
       setMediaRecorder(recorder);
       return recorder;
     } catch (err) {
@@ -85,7 +34,7 @@ export const useSpeechToText = () => {
       });
       return null;
     }
-  }, [audioChunks, toast]);
+  }, [toast]);
 
   // Start recording
   const startRecording = useCallback(async () => {
@@ -106,9 +55,66 @@ export const useSpeechToText = () => {
   const stopRecording = useCallback(() => {
     if (mediaRecorder && mediaRecorder.state !== 'inactive') {
       mediaRecorder.stop();
+      
+      // Process the audio when recording stops
+      processRecording();
       setIsRecording(false);
     }
   }, [mediaRecorder]);
+
+  // Process the recorded audio
+  const processRecording = useCallback(async () => {
+    if (audioChunks.length === 0) return;
+    
+    setProcessingAudio(true);
+    
+    try {
+      const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+      const reader = new FileReader();
+      
+      reader.onloadend = async () => {
+        const base64Audio = (reader.result as string).split(',')[1];
+        
+        const { data, error } = await supabase.functions.invoke('speech-to-text', {
+          body: { audio: base64Audio },
+        });
+        
+        if (error) {
+          console.error('Error transcribing audio:', error);
+          toast({
+            title: 'Transcription Failed',
+            description: 'Could not transcribe audio. Please try again.',
+            variant: 'destructive',
+          });
+          setProcessingAudio(false);
+          return;
+        }
+        
+        if (data && data.text) {
+          setTranscript(data.text);
+        } else {
+          setTranscript('');
+          toast({
+            title: 'No Speech Detected',
+            description: 'We couldn\'t detect any speech. Please try again.',
+            variant: 'default',
+          });
+        }
+        
+        setProcessingAudio(false);
+      };
+      
+      reader.readAsDataURL(audioBlob);
+    } catch (err) {
+      console.error('Error processing audio:', err);
+      toast({
+        title: 'Processing Error',
+        description: 'There was an error processing your audio.',
+        variant: 'destructive',
+      });
+      setProcessingAudio(false);
+    }
+  }, [audioChunks, toast]);
 
   // Clean up on unmount
   useEffect(() => {

@@ -39,7 +39,6 @@ serve(async (req) => {
           encoding: 'WEBM_OPUS',
           sampleRateHertz: 48000,
           languageCode: 'en-US',
-          model: 'latest_long',
           enableAutomaticPunctuation: true,
         },
         audio: {
