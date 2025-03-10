@@ -45,8 +45,21 @@ export async function runDeploymentPrediction(
   console.log(`Using deployment: ${owner}/${name}`);
   
   try {
-    // Create the prediction without waiting for completion
-    // Removed hardware parameter for deployment predictions as it's not supported
+    // For the Cristina model, switch to using a direct model prediction
+    // instead of deployment to force hardware selection
+    if (name === "cristina-generator") {
+      // Hardcoded model ID for the Cristina model
+      const modelId = "jrogbaaa/cristina:132c98d2db4b553d35fb39c3ee526f9753a57b040ccc4ea1dcee9305fb8fa66f";
+      
+      console.log(`Using direct model for Cristina: ${modelId}`);
+      
+      return await runModelPrediction(replicate, modelId, {
+        prompt: prompt,
+        negative_prompt: negativePrompt || undefined
+      });
+    }
+    
+    // Standard deployment prediction if not Cristina
     const prediction = await replicate.deployments.predictions.create(
       owner,
       name,
@@ -83,7 +96,7 @@ export async function runModelPrediction(replicate: any, modelId: string, params
     const prediction = await replicate.predictions.create({
       version: modelId,
       input: params,
-      hardware: "gpu-h100" // Keep H100 GPU for model predictions
+      hardware: "gpu-h100" // Always use H100 GPU for model predictions
     });
     
     console.log("Model prediction started with hardware:", prediction.hardware || "default");

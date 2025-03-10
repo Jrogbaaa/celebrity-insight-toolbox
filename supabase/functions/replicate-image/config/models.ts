@@ -1,4 +1,3 @@
-
 // Model configurations with fallbacks
 export const MODEL_CONFIGS = {
   flux: {
@@ -40,7 +39,17 @@ export const MODEL_CONFIGS = {
     ]
   },
   cristina: {
-    // Using deployment instead of direct model
+    // Using direct model instead of deployment to ensure H100 GPU usage
+    models: [
+      {
+        id: "jrogbaaa/cristina:132c98d2db4b553d35fb39c3ee526f9753a57b040ccc4ea1dcee9305fb8fa66f",
+        params: {
+          prompt: "", // Will be filled with template
+          negative_prompt: "" // Will be filled from request if provided
+        }
+      }
+    ],
+    // Keep deployment info for reference but we'll bypass it in the code
     deployment: {
       owner: "jrogbaaa",
       name: "cristina-generator",

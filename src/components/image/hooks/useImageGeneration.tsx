@@ -54,9 +54,9 @@ export const useImageGeneration = () => {
         setPredictionId(null);
         throw new Error(data.error || "Generation failed");
       } else if (data.status === 'starting') {
-        setBootMessage("Model is initializing. This may take a moment for high-quality results...");
+        setBootMessage("Model is initializing on Nvidia H100 GPU. This may take a moment for high-quality results...");
       } else if (data.status === 'processing') {
-        setBootMessage("Processing your image...");
+        setBootMessage("Processing your image on high-performance GPU...");
       }
     } catch (error) {
       console.error('Error polling prediction status:', error);
@@ -88,7 +88,7 @@ export const useImageGeneration = () => {
     setImageUrl(null);
     setError(null);
     setPredictionId(null);
-    setBootMessage("Starting up the model...");
+    setBootMessage("Starting up the model with Nvidia H100 GPU acceleration...");
     cleanupPolling();
 
     try {
@@ -131,7 +131,7 @@ export const useImageGeneration = () => {
         
         toast({
           title: "Generation Started",
-          description: "Your image is being generated. This may take up to 30 seconds.",
+          description: "Your image is being generated with H100 GPU. This may take up to 30 seconds.",
         });
       } 
       else if (data?.error) {
