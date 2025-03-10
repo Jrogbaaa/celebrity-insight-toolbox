@@ -48,23 +48,11 @@ const MODEL_CONFIGS = {
     ]
   },
   cristina: {
-    models: [
-      {
-        id: "stability-ai/sdxl:c221b2b8ef527988fb59bf24a8b97c4561f1c671f73bd389f866bfb27c061316",
-        params: {
-          prompt: "", // Will be filled with template
-          negative_prompt: "", // Will be filled from request
-          width: 768,
-          height: 768,
-          num_outputs: 1,
-          scheduler: "K_EULER",
-          num_inference_steps: 30,
-          guidance_scale: 7.5,
-          refine: "expert_ensemble_refiner",
-          high_noise_frac: 0.8,
-        }
-      }
-    ]
+    // Using deployment instead of direct model
+    deployment: {
+      owner: "jrogbaaa",
+      name: "cristina-generator",
+    }
   }
 };
 
@@ -176,40 +164,82 @@ serve(async (req) => {
     let output = null;
     let lastError = null;
 
-    // Try each model in order until one succeeds
-    for (const model of modelConfig.models) {
+    // Special handling for Cristina deployment
+    if (modelType === "cristina" && modelConfig.deployment) {
       try {
-        const params = { ...model.params };
+        console.log(`Using deployment: ${modelConfig.deployment.owner}/${modelConfig.deployment.name}`);
         
-        // Apply prompt templates based on model type
-        if (modelType === "jaime") {
-          params.prompt = `A photorealistic image of a handsome man with dark hair: ${prompt}`;
-        } else if (modelType === "cristina") {
-          params.prompt = `A photorealistic image of a stunning woman with brown hair: ${prompt}`;
-          if (negativePrompt) {
-            params.negative_prompt = negativePrompt;
+        // Create a prediction with the deployment
+        let prediction = await replicate.deployments.predictions.create(
+          modelConfig.deployment.owner,
+          modelConfig.deployment.name,
+          {
+            input: {
+              prompt: `A photorealistic image of a stunning woman with brown hair: ${prompt}`,
+              negative_prompt: negativePrompt || undefined
+            }
           }
-        } else {
-          params.prompt = prompt;
-        }
-
-        console.log(`Trying model: ${model.id} with params:`, params);
+        );
         
-        output = await replicate.run(model.id, { input: params });
+        // Wait for the prediction to complete
+        console.log("Waiting for deployment prediction to complete...");
+        prediction = await replicate.wait(prediction);
+        console.log("Deployment prediction completed:", prediction);
         
-        if (output) {
-          console.log(`Success with model: ${model.id}`);
+        if (prediction.output) {
+          output = prediction.output;
           // Store in cache
           resultCache.set(cacheKey, {
             output,
             timestamp: Date.now()
           });
-          break;
+        } else if (prediction.error) {
+          throw new Error(prediction.error);
         }
       } catch (error) {
-        console.error(`Error with model ${model.id}:`, error);
+        console.error(`Error with deployment ${modelConfig.deployment.owner}/${modelConfig.deployment.name}:`, error);
         lastError = error;
-        // Continue to next model
+        // Fall back to regular models if available
+      }
+    }
+
+    // If deployment didn't work or isn't used, try regular models
+    if (!output && modelConfig.models) {
+      // Try each model in order until one succeeds
+      for (const model of modelConfig.models) {
+        try {
+          const params = { ...model.params };
+          
+          // Apply prompt templates based on model type
+          if (modelType === "jaime") {
+            params.prompt = `A photorealistic image of a handsome man with dark hair: ${prompt}`;
+          } else if (modelType === "cristina") {
+            params.prompt = `A photorealistic image of a stunning woman with brown hair: ${prompt}`;
+            if (negativePrompt) {
+              params.negative_prompt = negativePrompt;
+            }
+          } else {
+            params.prompt = prompt;
+          }
+
+          console.log(`Trying model: ${model.id} with params:`, params);
+          
+          output = await replicate.run(model.id, { input: params });
+          
+          if (output) {
+            console.log(`Success with model: ${model.id}`);
+            // Store in cache
+            resultCache.set(cacheKey, {
+              output,
+              timestamp: Date.now()
+            });
+            break;
+          }
+        } catch (error) {
+          console.error(`Error with model ${model.id}:`, error);
+          lastError = error;
+          // Continue to next model
+        }
       }
     }
 

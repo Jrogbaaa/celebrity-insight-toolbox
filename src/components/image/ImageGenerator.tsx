@@ -52,6 +52,12 @@ export const ImageGenerator = () => {
         // Handle different output formats
         const image = Array.isArray(data.output) ? data.output[0] : data.output;
         setImageUrl(image);
+        
+        // Show success toast
+        toast({
+          title: "Image Generated",
+          description: `Successfully generated image with ${selectedModel} model`,
+        });
       } else if (data?.error) {
         throw new Error(data.error);
       } else {
