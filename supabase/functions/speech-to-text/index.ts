@@ -40,6 +40,7 @@ serve(async (req) => {
           sampleRateHertz: 48000,
           languageCode: 'en-US',
           enableAutomaticPunctuation: true,
+          model: 'default',
         },
         audio: {
           content: audio,
@@ -50,7 +51,7 @@ serve(async (req) => {
     if (!response.ok) {
       const errorData = await response.text();
       console.error('Speech API error:', errorData);
-      throw new Error(`Google Speech API error: ${response.status}`);
+      throw new Error(`Google Speech API error: ${response.status}: ${errorData}`);
     }
 
     const result = await response.json();
