@@ -6,7 +6,8 @@ import {
   getReplicateClient, 
   checkPredictionStatus, 
   runDeploymentPrediction, 
-  runModelPrediction 
+  runModelPrediction,
+  runCristinaPrediction
 } from "../services/replicateService.ts";
 
 // Process image generation request
@@ -68,18 +69,37 @@ async function handleGenerationRequest(body: any) {
   // Initialize the Replicate client
   const replicate = getReplicateClient();
   
+  // Direct handling for Cristina model with the new integration
+  if (modelType === "cristina") {
+    try {
+      console.log("Using direct Cristina integration");
+      const result = await runCristinaPrediction(replicate, prompt, negativePrompt);
+      
+      // Cache the result
+      cacheResult(cacheKey, result);
+      
+      return new Response(JSON.stringify({ output: result.output }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 200,
+      });
+    } catch (error) {
+      console.error("Error with Cristina integration:", error);
+      throw error;
+    }
+  }
+  
   let prediction = null;
   let lastError = null;
 
-  // Try deployment if configured (Cristina model)
+  // Try deployment if configured
   if (modelConfig.deployment) {
     try {
       const deploymentConfig = modelConfig.deployment;
       let deploymentPrompt = prompt;
       
       // Apply prompt templates based on model type
-      if (modelType === "cristina") {
-        deploymentPrompt = `A photorealistic image of a stunning woman with brown hair: ${prompt}`;
+      if (modelType === "jaime") {
+        deploymentPrompt = `A photorealistic image of a handsome man with dark hair: ${prompt}`;
       }
       
       prediction = await runDeploymentPrediction(
@@ -106,13 +126,12 @@ async function handleGenerationRequest(body: any) {
         // Apply prompt templates based on model type
         if (modelType === "jaime") {
           params.prompt = `A photorealistic image of a handsome man with dark hair: ${prompt}`;
-        } else if (modelType === "cristina") {
-          params.prompt = `A photorealistic image of a stunning woman with brown hair: ${prompt}`;
-          if (negativePrompt) {
-            params.negative_prompt = negativePrompt;
-          }
         } else {
           params.prompt = prompt;
+        }
+        
+        if (negativePrompt) {
+          params.negative_prompt = negativePrompt;
         }
         
         prediction = await runModelPrediction(replicate, model.id, params);

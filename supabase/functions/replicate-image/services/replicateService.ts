@@ -45,18 +45,9 @@ export async function runDeploymentPrediction(
   console.log(`Using deployment: ${owner}/${name}`);
   
   try {
-    // For the Cristina model, switch to using a direct model prediction
-    // instead of deployment to force hardware selection
+    // For the Cristina model, switch to using the proper integration method
     if (name === "cristina-generator") {
-      // Hardcoded model ID for the Cristina model
-      const modelId = "jrogbaaa/cristina:132c98d2db4b553d35fb39c3ee526f9753a57b040ccc4ea1dcee9305fb8fa66f";
-      
-      console.log(`Using direct model for Cristina: ${modelId}`);
-      
-      return await runModelPrediction(replicate, modelId, {
-        prompt: prompt,
-        negative_prompt: negativePrompt || undefined
-      });
+      return await runCristinaPrediction(replicate, prompt, negativePrompt);
     }
     
     // Standard deployment prediction if not Cristina
@@ -83,6 +74,30 @@ export async function runDeploymentPrediction(
     };
   } catch (error) {
     console.error("Error starting deployment prediction:", error);
+    throw error;
+  }
+}
+
+// Special handler for Cristina model
+export async function runCristinaPrediction(replicate: any, prompt: string, negativePrompt?: string) {
+  console.log("Using Cristina model integration");
+  
+  try {
+    const input = {
+      prompt: `A photorealistic image of a stunning woman with brown hair: ${prompt}`,
+      negative_prompt: negativePrompt || ""
+    };
+    
+    const prediction = await replicate.run("jrogbaaa/cristina", input);
+    
+    console.log("Cristina model prediction direct run completed:", prediction);
+    
+    // Since this is a direct run, we already have the output
+    return {
+      output: prediction
+    };
+  } catch (error) {
+    console.error("Error with Cristina direct run:", error);
     throw error;
   }
 }
