@@ -40,10 +40,15 @@ export const MODEL_CONFIGS = {
     ]
   },
   cristina: {
-    // Using the direct integration for Cristina model
-    deployment: {
-      owner: "jrogbaaa",
-      name: "cristina-generator",
-    }
+    // Using the prediction approach instead of deployment for Cristina
+    models: [
+      {
+        id: "jrogbaaa/cristina",
+        params: {
+          // Parameters will be set in the runCristinaPrediction function
+          // The API expects prompt_text and negative_text fields
+        }
+      }
+    ]
   }
 };

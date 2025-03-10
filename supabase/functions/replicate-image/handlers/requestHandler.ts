@@ -69,16 +69,17 @@ async function handleGenerationRequest(body: any) {
   // Initialize the Replicate client
   const replicate = getReplicateClient();
   
-  // Direct handling for Cristina model with the new integration
+  // Direct handling for Cristina model
   if (modelType === "cristina") {
     try {
-      console.log("Using direct Cristina integration");
+      console.log("Using Cristina model integration");
       const result = await runCristinaPrediction(replicate, prompt, negativePrompt);
       
-      // Cache the result
-      cacheResult(cacheKey, result);
-      
-      return new Response(JSON.stringify({ output: result.output }), {
+      // Since we're now using the predictions approach, we just return the prediction ID for polling
+      return new Response(JSON.stringify({ 
+        prediction: result,
+        status: "processing" 
+      }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 200,
       });

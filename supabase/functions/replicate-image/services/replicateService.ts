@@ -83,21 +83,27 @@ export async function runCristinaPrediction(replicate: any, prompt: string, nega
   console.log("Using Cristina model integration");
   
   try {
-    const input = {
-      prompt: `A photorealistic image of a stunning woman with brown hair: ${prompt}`,
-      negative_prompt: negativePrompt || ""
-    };
+    // Correctly structure the input for the Cristina model
+    // The model requires an input object with all parameters nested inside
+    const prediction = await replicate.predictions.create({
+      version: "jrogbaaa/cristina",
+      input: {
+        prompt_text: `A photorealistic image of a stunning woman with brown hair: ${prompt}`,
+        negative_text: negativePrompt || ""
+      }
+    });
     
-    const prediction = await replicate.run("jrogbaaa/cristina", input);
+    console.log("Cristina prediction started:", prediction);
     
-    console.log("Cristina model prediction direct run completed:", prediction);
-    
-    // Since this is a direct run, we already have the output
+    // Return prediction details for polling
     return {
-      output: prediction
+      id: prediction.id,
+      status: prediction.status,
+      url: prediction.urls?.get,
+      created_at: prediction.created_at
     };
   } catch (error) {
-    console.error("Error with Cristina direct run:", error);
+    console.error("Error with Cristina prediction:", error);
     throw error;
   }
 }
@@ -107,7 +113,7 @@ export async function runModelPrediction(replicate: any, modelId: string, params
   console.log(`Trying model: ${modelId} with params:`, params);
   
   try {
-    // Create a prediction without waiting - removed hardware parameter as it's not supported
+    // Create a prediction without waiting
     const prediction = await replicate.predictions.create({
       version: modelId,
       input: params
