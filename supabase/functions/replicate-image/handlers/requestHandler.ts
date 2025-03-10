@@ -1,3 +1,4 @@
+
 import { corsHeaders } from "../utils/cors.ts";
 import { MODEL_CONFIGS } from "../config/models.ts";
 import { isCacheValid, getCachedResult, cacheResult } from "../utils/cache.ts";
@@ -76,6 +77,9 @@ async function handleGenerationRequest(body: any) {
       
       // If it's a direct run with output already available
       if (result.output) {
+        // Cache the result
+        cacheResult(cacheKey, result.output);
+        
         return new Response(JSON.stringify({ 
           output: result.output
         }), {

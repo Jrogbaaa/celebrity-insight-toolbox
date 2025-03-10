@@ -47,20 +47,32 @@ export async function runDeploymentPrediction(
   try {
     // For Cristina model, we need to use text parameter instead of prompt
     const isCristina = owner === "jrogbaaa" && name === "cristina-generator";
-    const input = isCristina 
-      ? { text: `A photorealistic image of a stunning woman with brown hair: ${prompt}` }
-      : { prompt: prompt, negative_prompt: negativePrompt || undefined };
     
-    console.log("Using input structure:", input);
+    // Build proper input structure based on model requirements
+    let input;
+    if (isCristina) {
+      console.log("Using Cristina-specific input structure with 'text' parameter");
+      input = { 
+        text: `A photorealistic image of a stunning woman with brown hair: ${prompt}` 
+      };
+    } else {
+      console.log("Using standard input structure with 'prompt' parameter");
+      input = { 
+        prompt: prompt,
+        negative_prompt: negativePrompt || undefined 
+      };
+    }
     
-    // Standard deployment prediction
+    console.log("Using deployment input structure:", input);
+    
+    // Standard deployment prediction - IMPORTANT: input must be nested under 'input' property
     const prediction = await replicate.deployments.predictions.create(
       owner,
       name,
       { input }
     );
     
-    console.log("Deployment prediction started");
+    console.log("Deployment prediction started:", prediction.id);
     
     // Just return the prediction ID and status immediately
     // The frontend will poll for updates
@@ -91,18 +103,21 @@ export async function runCristinaPrediction(replicate: any, prompt: string, nega
   } catch (deploymentError) {
     console.error("Deployment attempt failed, trying direct model:", deploymentError);
     
-    // If deployment fails, try the direct model approach
+    // If deployment fails, try the direct model approach with proper input structure
     try {
       console.log("Attempting direct model run with Cristina");
       const enhancedPrompt = `A photorealistic image of a stunning woman with brown hair: ${prompt}`;
       console.log("Using enhanced prompt:", enhancedPrompt);
       
       // Try to get model info first to ensure latest version
+      console.log("Fetching latest model version");
       const model = await replicate.models.get("jrogbaaa/cristina");
       const latestVersionId = model.latest_version.id;
       console.log("Latest Cristina version ID:", latestVersionId);
       
-      // Create prediction with correct version and input format
+      // CRITICAL FIX: Create prediction with correct input structure
+      // The 'text' parameter MUST be nested under 'input'
+      console.log("Creating prediction with proper input structure");
       const prediction = await replicate.predictions.create({
         version: latestVersionId,
         input: {
@@ -110,7 +125,7 @@ export async function runCristinaPrediction(replicate: any, prompt: string, nega
         }
       });
       
-      console.log("Cristina prediction started:", prediction);
+      console.log("Cristina prediction started:", prediction.id);
       
       return {
         id: prediction.id,
@@ -120,6 +135,13 @@ export async function runCristinaPrediction(replicate: any, prompt: string, nega
       };
     } catch (error) {
       console.error("All Cristina model approaches failed:", error);
+      // Provide more context in the error for debugging
+      if (error.response) {
+        console.error("Response error details:", {
+          status: error.response.status,
+          data: await error.response.text().catch(() => "Could not read response body")
+        });
+      }
       throw error;
     }
   }
@@ -130,23 +152,54 @@ export async function runModelPrediction(replicate: any, modelId: string, params
   console.log(`Trying model: ${modelId} with params:`, params);
   
   try {
-    // Create a prediction without waiting
-    const prediction = await replicate.predictions.create({
-      version: modelId,
-      input: params
-    });
+    // IMPORTANT: For the Cristina model, we need special handling
+    const isCristinaModel = modelId.includes("jrogbaaa/cristina");
     
-    console.log("Model prediction started");
-    
-    // Return the prediction details for polling
-    return {
-      id: prediction.id,
-      status: prediction.status,
-      url: prediction.urls?.get,
-      created_at: prediction.created_at
-    };
+    if (isCristinaModel) {
+      console.log("Using direct model for Cristina:", modelId);
+      // For Cristina model, convert prompt to text parameter
+      const textPrompt = `A photorealistic image of a stunning woman with brown hair: ${params.prompt}`;
+      
+      // Create prediction with correct structure - nest under input
+      const prediction = await replicate.predictions.create({
+        version: modelId,
+        input: {
+          text: textPrompt
+        }
+      });
+      
+      console.log("Cristina model prediction started:", prediction.id);
+      return {
+        id: prediction.id,
+        status: prediction.status,
+        url: prediction.urls?.get,
+        created_at: prediction.created_at
+      };
+    } else {
+      // For standard models, use the regular approach
+      console.log("Using standard model prediction approach");
+      const prediction = await replicate.predictions.create({
+        version: modelId,
+        input: params
+      });
+      
+      console.log("Model prediction started:", prediction.id);
+      return {
+        id: prediction.id,
+        status: prediction.status,
+        url: prediction.urls?.get,
+        created_at: prediction.created_at
+      };
+    }
   } catch (error) {
     console.error(`Error with model ${modelId}:`, error);
+    // Enhanced error logging
+    if (error.response) {
+      console.error("Response error details:", {
+        status: error.response.status,
+        data: await error.response.text().catch(() => "Could not read response body")
+      });
+    }
     throw error;
   }
 }

@@ -38,6 +38,10 @@ serve(async (req) => {
       userMessage = "The selected model is currently unavailable. Please try another model."
     } else if (error.message?.includes("rate limit")) {
       userMessage = "Rate limit exceeded. Please try again later."
+    } else if (error.message?.includes("422") || error.message?.includes("Unprocessable Entity")) {
+      userMessage = "The model received invalid parameters. This is likely an issue with the API integration."
+    } else if (error.message?.includes("input")) {
+      userMessage = "There was an issue with the input format for this model. Please try a different prompt or model."
     }
     
     return new Response(JSON.stringify({ 

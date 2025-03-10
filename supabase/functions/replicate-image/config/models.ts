@@ -45,12 +45,14 @@ export const MODEL_CONFIGS = {
       owner: "jrogbaaa", 
       name: "cristina-generator"
     },
-    // Model definition as fallback
+    // Model definition as fallback with correct version ID
     models: [
       {
-        id: "jrogbaaa/cristina",
+        id: "jrogbaaa/cristina:132c98d2db4b553d35fb39c3ee526f9753a57b040ccc4ea1dcee9305fb8fa66f",
         // The model requires 'text' parameter instead of 'prompt'
-        params: {}
+        params: {
+          // These are empty as they'll be populated in the service
+        }
       }
     ]
   }
