@@ -68,7 +68,7 @@ async function handleGenerationRequest(body: any) {
   // Initialize the Replicate client
   const replicate = getReplicateClient();
   
-  let output = null;
+  let prediction = null;
   let lastError = null;
 
   // Try deployment if configured (Cristina model)
@@ -82,7 +82,7 @@ async function handleGenerationRequest(body: any) {
         deploymentPrompt = `A photorealistic image of a stunning woman with brown hair: ${prompt}`;
       }
       
-      output = await runDeploymentPrediction(
+      prediction = await runDeploymentPrediction(
         replicate, 
         deploymentConfig.owner, 
         deploymentConfig.name, 
@@ -90,10 +90,6 @@ async function handleGenerationRequest(body: any) {
         negativePrompt
       );
       
-      if (output) {
-        // Store in cache
-        cacheResult(cacheKey, output);
-      }
     } catch (error) {
       console.error(`Error with deployment ${modelConfig.deployment.owner}/${modelConfig.deployment.name}:`, error);
       lastError = error;
@@ -101,7 +97,7 @@ async function handleGenerationRequest(body: any) {
   }
 
   // If deployment didn't work or isn't used, try regular models
-  if (!output && modelConfig.models) {
+  if (!prediction && modelConfig.models) {
     // Try each model in order until one succeeds
     for (const model of modelConfig.models) {
       try {
@@ -119,13 +115,8 @@ async function handleGenerationRequest(body: any) {
           params.prompt = prompt;
         }
         
-        output = await runModelPrediction(replicate, model.id, params);
-        
-        if (output) {
-          // Store in cache
-          cacheResult(cacheKey, output);
-          break;
-        }
+        prediction = await runModelPrediction(replicate, model.id, params);
+        if (prediction) break;
       } catch (error) {
         console.error(`Error with model ${model.id}:`, error);
         lastError = error;
@@ -134,16 +125,19 @@ async function handleGenerationRequest(body: any) {
     }
   }
 
-  if (!output && lastError) {
+  if (!prediction && lastError) {
     throw lastError;
   }
 
-  if (!output) {
+  if (!prediction) {
     throw new Error("All models failed to generate an image");
   }
 
-  console.log("Generation response:", output);
-  return new Response(JSON.stringify({ output }), {
+  console.log("Generation initiated:", prediction);
+  return new Response(JSON.stringify({ 
+    prediction: prediction,
+    status: "processing" 
+  }), {
     headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     status: 200,
   });

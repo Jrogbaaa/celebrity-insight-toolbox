@@ -44,42 +44,57 @@ export async function runDeploymentPrediction(
 ) {
   console.log(`Using deployment: ${owner}/${name}`);
   
-  // Create a prediction with the deployment
-  let prediction = await replicate.deployments.predictions.create(
-    owner,
-    name,
-    {
-      input: {
-        prompt: prompt,
-        negative_prompt: negativePrompt || undefined
+  try {
+    // Create the prediction without waiting for completion
+    const prediction = await replicate.deployments.predictions.create(
+      owner,
+      name,
+      {
+        input: {
+          prompt: prompt,
+          negative_prompt: negativePrompt || undefined
+        }
       }
-    }
-  );
-  
-  // Wait for the prediction to complete
-  console.log("Waiting for deployment prediction to complete...");
-  prediction = await replicate.wait(prediction);
-  console.log("Deployment prediction completed:", prediction);
-  
-  if (prediction.output) {
-    return prediction.output;
-  } else if (prediction.error) {
-    throw new Error(prediction.error);
+    );
+    
+    console.log("Prediction started:", prediction.id);
+    
+    // Just return the prediction ID and status immediately
+    // The frontend will poll for updates
+    return {
+      id: prediction.id,
+      status: prediction.status,
+      url: prediction.urls?.get,
+      created_at: prediction.created_at
+    };
+  } catch (error) {
+    console.error("Error starting deployment prediction:", error);
+    throw error;
   }
-  
-  return null;
 }
 
 // Run model-based prediction
 export async function runModelPrediction(replicate: any, modelId: string, params: any) {
   console.log(`Trying model: ${modelId} with params:`, params);
   
-  const output = await replicate.run(modelId, { input: params });
-  
-  if (output) {
-    console.log(`Success with model: ${modelId}`);
-    return output;
+  try {
+    // Create a prediction without waiting
+    const prediction = await replicate.predictions.create({
+      version: modelId,
+      input: params
+    });
+    
+    console.log("Model prediction started:", prediction.id);
+    
+    // Return the prediction details for polling
+    return {
+      id: prediction.id,
+      status: prediction.status,
+      url: prediction.urls?.get,
+      created_at: prediction.created_at
+    };
+  } catch (error) {
+    console.error(`Error with model ${modelId}:`, error);
+    throw error;
   }
-  
-  return null;
 }
