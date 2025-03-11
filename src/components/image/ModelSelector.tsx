@@ -13,10 +13,11 @@ export const ModelSelector = ({ selectedModel, onModelChange }: ModelSelectorPro
       defaultValue={selectedModel} 
       onValueChange={(value) => onModelChange(value as ModelType)} 
       className="w-full"
+      disabled={true}
     >
-      <TabsList className="w-full grid grid-cols-1 mb-1">
+      <TabsList className="w-full grid grid-cols-3 mb-1 opacity-50 pointer-events-none">
         {modelOptions.map((option) => (
-          <TabsTrigger key={option.id} value={option.id} className="flex items-center gap-1.5 text-xs md:text-sm">
+          <TabsTrigger key={option.id} value={option.id} className="flex items-center gap-1.5 text-xs md:text-sm text-gray-500">
             {option.icon}
             {option.name}
           </TabsTrigger>
