@@ -13,7 +13,6 @@ export const ModelSelector = ({ selectedModel, onModelChange }: ModelSelectorPro
       defaultValue={selectedModel} 
       onValueChange={(value) => onModelChange(value as ModelType)} 
       className="w-full"
-      disabled={true}
     >
       <TabsList className="w-full grid grid-cols-3 mb-1 opacity-50 pointer-events-none">
         {modelOptions.map((option) => (
