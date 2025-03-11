@@ -8,16 +8,15 @@ export const useImageGeneration = () => {
   const [loading, setLoading] = useState(false);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [predictionId, setPredictionId] = useState<string | null>(null);
-  const [pollingInterval, setPollingInterval] = useState<number | null>(null);
   const [bootMessage, setBootMessage] = useState<string | null>(null);
   const { toast } = useToast();
   const { saveImageToGallery } = useImageGallery();
 
   const handleGenerateImage = async (prompt: string, negativePrompt: string, selectedModel: ModelType) => {
+    setError("Image generation has been completely disabled to prevent costs.");
     toast({
-      title: "All Image Generation Disabled",
-      description: "All image generation features have been completely disabled to prevent costs.",
+      title: "Image Generation Disabled",
+      description: "All image generation functionality has been permanently disabled to prevent any costs.",
       variant: "destructive",
     });
     return;
@@ -35,8 +34,8 @@ export const useImageGeneration = () => {
 
   const handleRetry = () => {
     toast({
-      title: "Feature Disabled",
-      description: "All image generation features have been completely disabled.",
+      title: "Feature Permanently Disabled",
+      description: "All image generation features have been completely disabled to prevent any costs.",
       variant: "destructive",
     });
   };
