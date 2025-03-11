@@ -14,7 +14,7 @@ export const ModelSelector = ({ selectedModel, onModelChange }: ModelSelectorPro
       onValueChange={(value) => onModelChange(value as ModelType)} 
       className="w-full"
     >
-      <TabsList className="w-full grid grid-cols-3 mb-1">
+      <TabsList className="w-full grid grid-cols-1 mb-1">
         {modelOptions.map((option) => (
           <TabsTrigger key={option.id} value={option.id} className="flex items-center gap-1.5 text-xs md:text-sm">
             {option.icon}

@@ -1,7 +1,7 @@
 
-import { Sparkles, Image as ImageIcon } from "lucide-react";
+import { Sparkles } from "lucide-react";
 
-export type ModelType = "flux" | "jaime" | "cristina";
+export type ModelType = "flux";
 
 export interface ModelOption {
   id: ModelType;
@@ -14,19 +14,7 @@ export const modelOptions: ModelOption[] = [
   {
     id: "flux",
     name: "Flux",
-    description: "Fast image generation with Flux model",
+    description: "Disabled - Image generation temporarily unavailable",
     icon: <Sparkles className="h-4 w-4 text-amber-500" />
-  },
-  {
-    id: "jaime",
-    name: "Jaime",
-    description: "Generate images of Jaime",
-    icon: <ImageIcon className="h-4 w-4 text-pink-500" />
-  },
-  {
-    id: "cristina", 
-    name: "Cristina",
-    description: "AI model specialized in generating photorealistic women portraits",
-    icon: <ImageIcon className="h-4 w-4 text-violet-500" />
   }
 ];

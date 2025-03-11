@@ -1,7 +1,6 @@
 
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
 import { ModelType } from "../models";
 import { useImageGallery } from "../ImageGallery";
 
@@ -22,59 +21,15 @@ export const useImageGeneration = () => {
     }
   };
 
-  const pollPredictionStatus = async (id: string) => {
-    try {
-      const { data, error } = await supabase.functions.invoke('replicate-image', {
-        body: { predictionId: id }
-      });
-
-      if (error) {
-        throw new Error(`Error checking status: ${error.message}`);
-      }
-
-      console.log('Prediction status:', data);
-
-      if (data.status === 'succeeded' && data.output) {
-        cleanupPolling();
-        setLoading(false);
-        setBootMessage(null);
-        
-        const image = Array.isArray(data.output) ? data.output[0] : data.output;
-        setImageUrl(image);
-        setPredictionId(null);
-        
-        toast({
-          title: "Image Generated",
-          description: "Your image has been successfully generated",
-        });
-      } else if (data.status === 'failed' || data.status === 'canceled') {
-        cleanupPolling();
-        setLoading(false);
-        setBootMessage(null);
-        setPredictionId(null);
-        throw new Error(data.error || "Generation failed");
-      } else if (data.status === 'starting') {
-        setBootMessage("Initializing the model. This may take a moment...");
-      } else if (data.status === 'processing') {
-        setBootMessage("Processing your image...");
-      }
-    } catch (error) {
-      console.error('Error polling prediction status:', error);
-      cleanupPolling();
-      setLoading(false);
-      setBootMessage(null);
-      setPredictionId(null);
-      setError(error instanceof Error ? error.message : "Failed to check generation status");
-      
-      toast({
-        title: "Generation Failed",
-        description: error instanceof Error ? error.message : "Failed to generate image",
-        variant: "destructive",
-      });
-    }
-  };
-
   const handleGenerateImage = async (prompt: string, negativePrompt: string, selectedModel: ModelType) => {
+    toast({
+      title: "Service Temporarily Disabled",
+      description: "Image generation has been temporarily disabled to prevent additional costs.",
+      variant: "destructive",
+    });
+    
+    // Uncomment this code when you want to re-enable the functionality
+    /*
     if (!prompt.trim()) {
       toast({
         title: "Error",
@@ -154,6 +109,7 @@ export const useImageGeneration = () => {
         variant: "destructive",
       });
     }
+    */
   };
 
   const handleSaveToGallery = () => {
