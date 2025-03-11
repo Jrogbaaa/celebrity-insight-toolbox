@@ -12,13 +12,15 @@ export const useImageGeneration = () => {
   const { toast } = useToast();
   const { saveImageToGallery } = useImageGallery();
 
+  // Completely disabled function that never makes API calls
   const handleGenerateImage = async (_prompt: string, _negativePrompt: string, _selectedModel: ModelType) => {
+    console.log("Image generation function called but will never execute API requests");
     toast({
       title: "Image Generation Disabled",
       description: "All image generation functionality has been permanently disabled to prevent any costs.",
       variant: "destructive",
     });
-    return;
+    return null;
   };
 
   const handleSaveToGallery = () => {
@@ -32,6 +34,7 @@ export const useImageGeneration = () => {
   };
 
   const handleRetry = () => {
+    console.log("Retry attempted but blocked");
     toast({
       title: "Feature Permanently Disabled",
       description: "All image generation features have been completely disabled to prevent any costs.",
