@@ -20,7 +20,7 @@ export const ImageGenerationForm = ({ onSubmit, loading }: ImageGenerationFormPr
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Disabled - no submission allowed
+    // Completely disabled - no submission will occur
   };
 
   return (

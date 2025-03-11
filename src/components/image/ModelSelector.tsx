@@ -17,7 +17,7 @@ export const ModelSelector = ({ selectedModel, onModelChange }: ModelSelectorPro
           <p className="text-sm font-medium text-red-700">Image generation disabled</p>
         </div>
         <p className="text-xs text-red-600 mt-1">
-          All image generation functionality has been disabled to prevent costs.
+          All image generation functionality has been completely disabled to prevent costs.
         </p>
       </div>
       

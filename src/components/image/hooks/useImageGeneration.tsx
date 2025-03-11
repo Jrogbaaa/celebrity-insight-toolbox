@@ -7,13 +7,12 @@ import { useImageGallery } from "../ImageGallery";
 export const useImageGeneration = () => {
   const [loading, setLoading] = useState(false);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>("Image generation has been completely disabled to prevent costs.");
   const [bootMessage, setBootMessage] = useState<string | null>(null);
   const { toast } = useToast();
   const { saveImageToGallery } = useImageGallery();
 
-  const handleGenerateImage = async (prompt: string, negativePrompt: string, selectedModel: ModelType) => {
-    setError("Image generation has been completely disabled to prevent costs.");
+  const handleGenerateImage = async (_prompt: string, _negativePrompt: string, _selectedModel: ModelType) => {
     toast({
       title: "Image Generation Disabled",
       description: "All image generation functionality has been permanently disabled to prevent any costs.",
